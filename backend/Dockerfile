@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Install deps
 COPY package.json package-lock.json* ./
-RUN npm ci --only=production=false || npm install
+RUN npm ci --include=dev || npm install
 
 # Copy sources
 COPY tsconfig.json nest-cli.json ./
