@@ -3,14 +3,24 @@ name: Deploy
 on:
   push:
     branches: [ "main" ]
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to deploy'
+        default: 'main'
+        required: true
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      BRANCH: ${{ inputs.branch || github.ref_name }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BRANCH }}
 
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.9.0
@@ -25,18 +35,26 @@ jobs:
 
       - name: Copy repo to server (optional pull)
         run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.SSH_PROJECT_PATH }} && git fetch origin main && git checkout main && git pull"
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "\
+            cd ${{ secrets.SSH_PROJECT_PATH }} && \
+            git fetch origin $BRANCH && \
+            (git rev-parse --verify $BRANCH && git checkout $BRANCH || git checkout -b $BRANCH) && \
+            git pull origin $BRANCH \
+          "
 
       - name: Build and restart containers
         run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
-            cd ${{ secrets.SSH_PROJECT_PATH }} && 
-            echo 'NODE_ENV=production' > .env &&
-            echo 'OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}' >> .env &&
-            echo 'TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}' >> .env &&
-            echo 'CORS_ORIGIN=https://24ablyakimov.ru' >> .env &&
-            echo 'VITE_API_BASE_URL=/api' >> .env &&
-            docker compose pull || true && 
-            docker compose up -d --build &&
-            docker compose --profile production up nginx -d
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "\
+            cd ${{ secrets.SSH_PROJECT_PATH }} && \
+            git fetch origin $BRANCH && \
+            (git rev-parse --verify $BRANCH && git checkout $BRANCH || git checkout -b $BRANCH) && \
+            git pull origin $BRANCH && \
+            echo 'NODE_ENV=production' > .env && \
+            echo 'OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}' >> .env && \
+            echo 'TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}' >> .env && \
+            echo 'CORS_ORIGIN=https://24ablyakimov.ru' >> .env && \
+            echo 'VITE_API_BASE_URL=/api' >> .env && \
+            docker compose pull || true && \
+            docker compose up -d --build && \
+            docker compose --profile production up nginx -d \
           "
