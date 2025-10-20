@@ -69,8 +69,8 @@ services:
       - "--certificatesresolvers.letsencrypt.acme.email=admin@24ablyakimov.ru"
       - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
     ports:
-      - "8080:80"
-      - "8443:443"
+      - "8081:80"
+      - "8444:443"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - letsencrypt:/letsencrypt
