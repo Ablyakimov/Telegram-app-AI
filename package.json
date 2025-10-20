@@ -23,7 +23,16 @@
     "docker:build": "docker compose build",
     "docker:down": "docker compose down",
     "docker:logs": "docker compose logs -f",
-    "docker:nginx": "docker compose --profile production up nginx -d"
+    "docker:nginx": "docker compose --profile production up nginx -d",
+    "test": "npm run test:backend && npm run test:frontend",
+    "test:backend": "cd backend && npm run test:ci",
+    "test:frontend": "cd frontend && npm run test:run",
+    "test:watch": "concurrently \"npm run backend:test:watch\" \"npm run frontend:test:watch\"",
+    "backend:test:watch": "cd backend && npm run test:watch",
+    "frontend:test:watch": "cd frontend && npm run test",
+    "test:coverage": "npm run test:backend:coverage && npm run test:frontend:coverage",
+    "test:backend:coverage": "cd backend && npm run test:cov",
+    "test:frontend:coverage": "cd frontend && npm run test:coverage"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
