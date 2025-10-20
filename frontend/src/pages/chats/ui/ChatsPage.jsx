@@ -7,7 +7,6 @@ import { useChatsStore } from '@entities/chat/model/chatsStore'
 
 function ChatsPage() {
   const [tg] = useState(() => window.Telegram?.WebApp)
-  const [user, setUser] = useState(null)
   const { user: storeUser, setUser } = useUserStore()
   const { chats, fetchByUser, createChat } = useChatsStore()
   const [selectedChat, setSelectedChat] = useState(null)
@@ -50,7 +49,7 @@ function ChatsPage() {
         firstName: 'Test User',
       })
     }
-  }, [tg])
+  }, [tg, setUser])
 
   useEffect(() => {
     if (storeUser) {
