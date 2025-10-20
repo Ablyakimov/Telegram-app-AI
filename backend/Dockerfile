@@ -13,7 +13,7 @@ COPY tsconfig.json nest-cli.json ./
 COPY src ./src
 
 # Build the application
-RUN npx nest build
+RUN ls -la && echo "Building..." && npx nest build && echo "Build completed" && ls -la dist/
 
 # ---- Development stage ----
 FROM node:20-alpine AS development
@@ -51,6 +51,9 @@ COPY --from=builder /app/dist ./dist
 
 # Copy package.json for runtime (needed for some modules)
 COPY --from=builder /app/package.json ./
+
+# Debug: check what was copied
+RUN echo "Checking copied files:" && ls -la && echo "Checking dist folder:" && ls -la dist/ && echo "Checking main.js:" && ls -la dist/main.js
 
 # SQLite file will be created at runtime in /app
 EXPOSE 3001
