@@ -1,9 +1,23 @@
 # ---- Build stage ----
 FROM node:20-alpine AS build
 WORKDIR /app
+
+# Copy package files
 COPY package.json package-lock.json* ./
+
+# Install dependencies
 RUN npm ci --only=production=false || npm install
-COPY . .
+
+# Copy source code and config files
+COPY src ./src
+COPY index.html ./
+COPY vite.config.js ./
+COPY tailwind.config.js ./
+COPY postcss.config.js ./
+COPY tsconfig.json ./
+COPY tsconfig.node.json ./
+
+# Build the application
 RUN npm run build
 
 # ---- Nginx stage ----
