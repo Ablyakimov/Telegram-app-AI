@@ -14,8 +14,6 @@ COPY index.html ./
 COPY vite.config.js ./
 COPY tailwind.config.js ./
 COPY postcss.config.js ./
-COPY tsconfig.json ./
-COPY tsconfig.node.json ./
 
 # Build the application
 RUN npm run build
