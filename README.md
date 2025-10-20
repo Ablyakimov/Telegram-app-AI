@@ -121,3 +121,4 @@ curl -X POST http://localhost:3001/api/chats/messages \
   -d '{"chatId":1,"message":"Hello"}'
 ```
 
+Test deploy
