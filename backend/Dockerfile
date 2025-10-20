@@ -5,8 +5,8 @@ WORKDIR /app
 # Copy package files
 COPY package.json package-lock.json* ./
 
-# Install ALL dependencies (including dev) for building
-RUN npm ci --include=dev || npm install
+
+RUN npm ci || npm install
 
 # Copy source code
 COPY tsconfig.json nest-cli.json ./
