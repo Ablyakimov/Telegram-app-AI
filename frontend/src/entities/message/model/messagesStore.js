@@ -69,6 +69,38 @@ export const useMessagesStore = create((set, get) => ({
       throw e
     }
   },
+
+  uploadFile: async (chatId, file) => {
+    const optimistic = {
+      role: 'user',
+      content: `[Uploading file: ${file.name}]`,
+      timestamp: new Date().toISOString(),
+      __optimistic: true,
+    }
+    set((state) => ({
+      messagesByChatId: {
+        ...state.messagesByChatId,
+        [chatId]: [...(state.messagesByChatId[chatId] || []), optimistic],
+      },
+    }))
+    try {
+      await ChatsApi.uploadFile(chatId, file)
+      // Refresh from server to avoid duplication and get extracted content + AI reply
+      const messages = await ChatsApi.getMessages(chatId)
+      set((state) => ({
+        messagesByChatId: { ...state.messagesByChatId, [chatId]: messages },
+      }))
+    } catch (e) {
+      set((state) => ({
+        messagesByChatId: {
+          ...state.messagesByChatId,
+          [chatId]: (state.messagesByChatId[chatId] || []).filter((m) => !m.__optimistic),
+        },
+        errorByChatId: { ...state.errorByChatId, [chatId]: e },
+      }))
+      throw e
+    }
+  },
 }))
 
 

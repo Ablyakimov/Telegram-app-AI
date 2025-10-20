@@ -1,14 +1,15 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import MessageInput from '@features/send-message/ui/MessageInput'
 import { useMessagesStore } from '@entities/message/model/messagesStore'
 
 function ChatWindow({ chat, user, onBack }) {
-  const { messagesByChatId, loadMessages, sendMessage, loadingByChatId } = useMessagesStore()
+  const { messagesByChatId, loadMessages, sendMessage, uploadFile, loadingByChatId } = useMessagesStore()
   const messagesEndRef = useRef(null)
+  const messages = useMemo(() => messagesByChatId[chat.id] || [], [messagesByChatId, chat.id])
 
   useEffect(() => {
     loadMessages(chat.id)
-  }, [chat.id])
+  }, [chat.id, loadMessages])
 
   useEffect(() => {
     scrollToBottom()
@@ -21,6 +22,10 @@ function ChatWindow({ chat, user, onBack }) {
   const handleSendMessage = async (message) => {
     if (!message.trim()) return
     await sendMessage(chat.id, message)
+  }
+
+  const handleUploadFile = async (file) => {
+    await uploadFile(chat.id, file)
   }
 
   return (
@@ -36,7 +41,7 @@ function ChatWindow({ chat, user, onBack }) {
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
-        {(messagesByChatId[chat.id] || []).map((message, index) => (
+        {messages.map((message, index) => (
           <div
             key={index}
             className={`max-w-[80%] flex flex-col gap-1 ${
@@ -53,7 +58,7 @@ function ChatWindow({ chat, user, onBack }) {
               {message.content}
             </div>
             <div className="text-[11px] text-tg-hint px-2 self-end">
-              {new Date(message.timestamp).toLocaleTimeString([], {
+              {new Date(message.timestamp || Date.now()).toLocaleTimeString([], {
                 hour: '2-digit',
                 minute: '2-digit',
               })}
@@ -72,7 +77,7 @@ function ChatWindow({ chat, user, onBack }) {
         <div ref={messagesEndRef} />
       </div>
 
-      <MessageInput onSend={handleSendMessage} disabled={false} />
+      <MessageInput onSend={handleSendMessage} onUpload={handleUploadFile} disabled={false} />
     </div>
   )
 }

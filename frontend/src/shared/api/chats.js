@@ -14,6 +14,13 @@ export const ChatsApi = {
     // Backend expects POST /api/chats/messages
     return post('/chats/messages', { chatId, message })
   },
+  uploadFile(chatId, file) {
+    const form = new FormData()
+    form.append('file', file)
+    return post(`/chats/${chatId}/upload`, form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+  },
 }
 
 
