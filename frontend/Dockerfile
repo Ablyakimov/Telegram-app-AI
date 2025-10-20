@@ -6,7 +6,7 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 
 # Install dependencies
-RUN npm ci --only=production=false || npm install
+RUN npm ci --include=dev || npm install
 
 # Copy source code and config files
 COPY src ./src
@@ -16,7 +16,7 @@ COPY tailwind.config.js ./
 COPY postcss.config.js ./
 
 # Build the application
-RUN npm run build
+RUN npm run build --verbose
 
 # ---- Nginx stage ----
 FROM nginx:1.27-alpine AS runtime
