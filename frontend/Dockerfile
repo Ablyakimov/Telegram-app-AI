@@ -2,11 +2,11 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Copy package files
-COPY package.json package-lock.json* ./
+# Copy package files (lockfile optional)
+COPY package*.json ./
 
 # Install dependencies
-RUN npm ci || npm install
+RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
 # Copy source code and config files
 COPY src ./src
@@ -22,11 +22,11 @@ RUN npm run build
 FROM node:20-alpine AS development
 WORKDIR /app
 
-# Copy package files
-COPY package.json package-lock.json* ./
+# Copy package files (lockfile optional)
+COPY package*.json ./
 
 # Install dependencies
-RUN npm ci || npm install
+RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
 # Copy source code and config files
 COPY src ./src

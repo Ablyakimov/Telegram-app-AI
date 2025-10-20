@@ -2,11 +2,11 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Copy package files
-COPY package.json package-lock.json* ./
+# Copy package files (lockfile optional)
+COPY package*.json ./
 
 # Install dependencies (including dev for building)
-RUN npm ci || npm install
+RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
 # Copy source code
 COPY tsconfig.json nest-cli.json ./
@@ -19,11 +19,11 @@ RUN npx nest build
 FROM node:20-alpine AS development
 WORKDIR /app
 
-# Copy package files
-COPY package.json package-lock.json* ./
+# Copy package files (lockfile optional)
+COPY package*.json ./
 
 # Install ALL dependencies for development
-RUN npm ci || npm install
+RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
 # Copy source code
 COPY tsconfig.json nest-cli.json ./
@@ -40,11 +40,11 @@ FROM node:20-alpine AS production
 WORKDIR /app
 ENV NODE_ENV=production
 
-# Copy package files for production dependencies
-COPY package.json package-lock.json* ./
+# Copy package files for production dependencies (lockfile optional)
+COPY package*.json ./
 
 # Install ONLY production dependencies
-RUN npm install --omit=dev && npm cache clean --force
+RUN if [ -f package-lock.json ]; then npm ci --omit=dev; else npm install --omit=dev; fi && npm cache clean --force
 
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
