@@ -1,0 +1,21 @@
+# Этот файл автоматически применяется при NODE_ENV=development
+version: '3.8'
+
+services:
+  backend:
+    volumes:
+      # Монтируем исходный код для hot reload
+      - ./backend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - TELEGRAM_DEV_BYPASS=true
+      - CORS_ORIGIN=http://localhost:5173
+
+  frontend:
+    volumes:
+      # Монтируем исходный код для hot reload
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_BASE_URL=http://localhost:3001/api

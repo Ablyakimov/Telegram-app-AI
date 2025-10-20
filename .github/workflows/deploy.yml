@@ -29,4 +29,14 @@ jobs:
 
       - name: Build and restart containers
         run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.SSH_PROJECT_PATH }} && docker compose pull || true && docker compose up -d --build"
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
+            cd ${{ secrets.SSH_PROJECT_PATH }} && 
+            echo 'NODE_ENV=production' > .env &&
+            echo 'OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}' >> .env &&
+            echo 'TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}' >> .env &&
+            echo 'CORS_ORIGIN=https://24ablyakimov.ru' >> .env &&
+            echo 'VITE_API_BASE_URL=/api' >> .env &&
+            docker compose pull || true && 
+            docker compose up -d --build &&
+            docker compose --profile production up nginx -d
+          "

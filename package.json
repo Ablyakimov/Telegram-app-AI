@@ -17,7 +17,13 @@
     "frontend:start": "cd frontend && npm run preview",
     "start": "concurrently \"npm:backend:start\" \"npm:frontend:start\"",
     "tunnel:backend": "ngrok http 3001",
-    "tunnel:frontend": "ngrok http 5173"
+    "tunnel:frontend": "ngrok http 5173",
+    "docker:dev": "NODE_ENV=development docker compose up -d",
+    "docker:prod": "NODE_ENV=production docker compose up -d",
+    "docker:build": "docker compose build",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f",
+    "docker:nginx": "docker compose --profile production up nginx -d"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",

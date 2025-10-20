@@ -1,33 +1,43 @@
+version: '3.8'
+
 services:
   backend:
     build:
       context: ./backend
-    image: tg-ai-backend:latest
+      target: ${NODE_ENV:-development}
+    image: tg-ai-backend:${NODE_ENV:-development}
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=${NODE_ENV:-development}
       - PORT=3001
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-sk-test-your_openai_api_key_here}
       - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4}
       - OPENAI_TEMPERATURE=${OPENAI_TEMPERATURE:-0.7}
       - OPENAI_MAX_TOKENS=${OPENAI_MAX_TOKENS:-1000}
-      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
-      - CORS_ORIGIN=https://24ablyakimov.ru
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-123456:TEST_TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_DEV_BYPASS=${TELEGRAM_DEV_BYPASS:-true}
+      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:5173}
     networks:
       - app-network
     volumes:
       - backend_data:/app
+    ports:
+      - "3001:3001"
 
   frontend:
     build:
       context: ./frontend
-    image: tg-ai-frontend:latest
+      target: ${NODE_ENV:-development}
+    image: tg-ai-frontend:${NODE_ENV:-development}
     environment:
-      - VITE_API_BASE_URL=/api
+      - VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:3001/api}
     networks:
       - app-network
     depends_on:
       - backend
+    ports:
+      - "5173:5173"
 
+  # Nginx proxy (только для production)
   nginx:
     image: nginx:alpine
     ports:
@@ -40,7 +50,8 @@ services:
       - backend
     networks:
       - app-network
-
+    profiles:
+      - production
 
 volumes:
   backend_data:

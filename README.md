@@ -121,4 +121,47 @@ curl -X POST http://localhost:3001/api/chats/messages \
   -d '{"chatId":1,"message":"Hello"}'
 ```
 
-Test deploy
+## 🚀 CI/CD и Деплой
+
+### Автоматический деплой через GitHub Actions
+
+1. **Настрой GitHub Secrets** (Settings → Secrets and variables → Actions):
+   - `SSH_PRIVATE_KEY` - приватный SSH ключ
+   - `SSH_HOST` - IP/домен сервера
+   - `SSH_USER` - пользователь SSH (например, `gitdeploy`)
+   - `SSH_PROJECT_PATH` - путь к проекту на сервере
+   - `OPENAI_API_KEY` - твой OpenAI API ключ
+   - `TELEGRAM_BOT_TOKEN` - токен Telegram бота
+
+2. **Push в main** → автоматический деплой
+
+### Ручной деплой
+
+```bash
+# На сервере
+cd /path/to/project
+echo 'NODE_ENV=production' > .env
+echo 'OPENAI_API_KEY=your_key' >> .env
+echo 'TELEGRAM_BOT_TOKEN=your_token' >> .env
+echo 'CORS_ORIGIN=https://24ablyakimov.ru' >> .env
+echo 'VITE_API_BASE_URL=/api' >> .env
+docker compose up -d --build
+docker compose --profile production up nginx -d
+```
+
+### Docker команды
+
+```bash
+# Разработка
+npm run docker:dev
+
+# Продакшен
+npm run docker:prod
+
+# Управление
+npm run docker:logs    # логи
+npm run docker:down    # остановка
+npm run docker:build   # пересборка
+```
+
+Подробная инструкция в [DEPLOYMENT.md](DEPLOYMENT.md)
