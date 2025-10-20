@@ -16,14 +16,6 @@ services:
       - app-network
     volumes:
       - backend_data:/app
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`24ablyakimov.ru`) && PathPrefix(`/api`)"
-      - "traefik.http.routers.backend.entrypoints=web"
-      - "traefik.http.routers.backend-secure.rule=Host(`24ablyakimov.ru`) && PathPrefix(`/api`)"
-      - "traefik.http.routers.backend-secure.entrypoints=websecure"
-      - "traefik.http.routers.backend-secure.tls.certresolver=letsencrypt"
-      - "traefik.http.services.backend.loadbalancer.server.port=3001"
 
   frontend:
     build:
@@ -35,14 +27,6 @@ services:
       - app-network
     depends_on:
       - backend
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`24ablyakimov.ru`)"
-      - "traefik.http.routers.frontend.entrypoints=web"
-      - "traefik.http.routers.frontend-secure.rule=Host(`24ablyakimov.ru`)"
-      - "traefik.http.routers.frontend-secure.entrypoints=websecure"
-      - "traefik.http.routers.frontend-secure.tls.certresolver=letsencrypt"
-      - "traefik.http.services.frontend.loadbalancer.server.port=80"
 
   nginx:
     image: nginx:alpine
@@ -57,29 +41,9 @@ services:
     networks:
       - app-network
 
-  traefik:
-    image: traefik:v2.10
-    command:
-      - "--api.insecure=true"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
-      - "--certificatesresolvers.letsencrypt.acme.email=admin@24ablyakimov.ru"
-      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
-    ports:
-      - "8081:80"
-      - "8444:443"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - letsencrypt:/letsencrypt
-    networks:
-      - app-network
 
 volumes:
   backend_data:
-  letsencrypt:
 
 networks:
   app-network:
