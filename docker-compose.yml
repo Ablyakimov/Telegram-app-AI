@@ -22,7 +22,7 @@ services:
       context: ./frontend
     image: tg-ai-frontend:latest
     environment:
-      - VITE_API_BASE_URL=/api
+      - VITE_API_BASE_URL=https://24ablyakimov.ru/api
     networks:
       - app-network
     depends_on:
