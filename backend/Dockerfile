@@ -20,8 +20,8 @@ FROM node:20-alpine AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 
-# Copy package.json for production dependencies
-COPY package.json ./
+# Copy package files for production dependencies
+COPY package.json package-lock.json* ./
 
 # Install ONLY production dependencies
 RUN npm ci --omit=dev && npm cache clean --force
