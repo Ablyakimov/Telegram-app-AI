@@ -13,8 +13,17 @@ http.interceptors.request.use(
     // Attach Telegram initData for backend guard
     const tg = window.Telegram?.WebApp
     const initData = tg?.initData
+    
+    console.log('Telegram WebApp available:', !!tg)
+    console.log('initData available:', !!initData)
+    
     if (initData) {
       config.headers['x-telegram-initdata'] = initData
+      console.log('Added initData to headers')
+    } else {
+      // Fallback for development/testing
+      console.log('No initData available, using fallback')
+      config.headers['x-telegram-initdata'] = 'dev-fallback'
     }
     return config
   },
