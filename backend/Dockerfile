@@ -1,26 +1,33 @@
-# ---- Base build image ----
-FROM node:20-alpine AS base
+# ---- Build stage ----
+FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Install deps
+# Copy package files
 COPY package.json package-lock.json* ./
+
+# Install ALL dependencies (including dev) for building
 RUN npm ci --include=dev || npm install
 
-# Copy sources
+# Copy source code
 COPY tsconfig.json nest-cli.json ./
 COPY src ./src
 
-# Build
+# Build the application
 RUN npx nest build
 
-# ---- Production runtime ----
+# ---- Production stage ----
 FROM node:20-alpine AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 
-COPY --from=base /app/package.json ./
-COPY --from=base /app/node_modules ./node_modules
-COPY --from=base /app/dist ./dist
+# Copy package.json for production dependencies
+COPY package.json ./
+
+# Install ONLY production dependencies
+RUN npm ci --omit=dev && npm cache clean --force
+
+# Copy built application from builder stage
+COPY --from=builder /app/dist ./dist
 
 # SQLite file will be created at runtime in /app
 EXPOSE 3001
