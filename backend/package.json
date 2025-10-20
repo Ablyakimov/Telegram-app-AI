@@ -1,6 +1,6 @@
 {
   "name": "tg-ai-backend",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "NestJS Backend for Telegram AI Assistant",
   "author": "",
   "private": true,
