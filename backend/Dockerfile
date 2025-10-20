@@ -49,9 +49,8 @@ RUN if [ -f package-lock.json ]; then npm ci --omit=dev; else npm install --omit
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
 
-# Copy necessary config files
-COPY --from=builder /app/tsconfig.json ./
-COPY --from=builder /app/nest-cli.json ./
+# Copy package.json for runtime (needed for some modules)
+COPY --from=builder /app/package.json ./
 
 # SQLite file will be created at runtime in /app
 EXPOSE 3001
