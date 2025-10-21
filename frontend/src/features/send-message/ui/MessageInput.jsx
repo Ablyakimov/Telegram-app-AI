@@ -8,13 +8,27 @@ function MessageInput({ onSend, onUpload, disabled }) {
   const recognitionRef = useRef(null)
 
   useEffect(() => {
-    // Detect if mobile device - more strict check
+    // Detect if mobile device - strict desktop exclusion
     const checkMobile = () => {
       // First check Telegram platform
       const telegramPlatform = window.Telegram?.WebApp?.platform
+      console.log('🔍 Detected Telegram platform:', telegramPlatform)
+      
       if (telegramPlatform) {
-        const isTelegramMobile = ['android', 'ios', 'android_x', 'ios'].includes(telegramPlatform)
-        console.log('Telegram platform:', telegramPlatform, 'isMobile:', isTelegramMobile)
+        // Desktop platforms to exclude
+        const desktopPlatforms = ['macos', 'tdesktop', 'unigram', 'web', 'weba', 'webk', 'unknown']
+        const isDesktop = desktopPlatforms.includes(telegramPlatform)
+        
+        if (isDesktop) {
+          console.log('🖥️ Desktop platform detected, hiding voice button')
+          setIsMobile(false)
+          return
+        }
+        
+        // Mobile platforms
+        const mobilePlatforms = ['android', 'ios', 'android_x']
+        const isTelegramMobile = mobilePlatforms.includes(telegramPlatform)
+        console.log('📱 Mobile platform:', isTelegramMobile)
         setIsMobile(isTelegramMobile)
         return
       }
@@ -22,7 +36,7 @@ function MessageInput({ onSend, onUpload, disabled }) {
       // Fallback to user agent check
       const ua = (navigator.userAgent || navigator.vendor || window.opera || '').toLowerCase()
       const isMobileUA = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(ua)
-      console.log('User agent check, isMobile:', isMobileUA)
+      console.log('📱 User agent check, isMobile:', isMobileUA)
       setIsMobile(isMobileUA)
     }
     checkMobile()
@@ -62,45 +76,78 @@ function MessageInput({ onSend, onUpload, disabled }) {
   const startRecognition = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
     if (!SpeechRecognition) {
-      alert('Speech recognition not supported on this device')
+      alert('Распознавание речи не поддерживается на этом устройстве')
       return
     }
     const recognition = new SpeechRecognition()
     recognition.lang = 'ru-RU'
-    recognition.interimResults = false // Changed to false for cleaner final result
-    recognition.continuous = false
+    recognition.interimResults = true // Show interim results while speaking
+    recognition.continuous = true // Keep listening until manually stopped
+    recognition.maxAlternatives = 1
     
     let finalTranscript = ''
+    let interimTranscript = ''
     
     recognition.onresult = (event) => {
+      interimTranscript = ''
+      
       for (let i = event.resultIndex; i < event.results.length; ++i) {
+        const transcript = event.results[i][0].transcript
         if (event.results[i].isFinal) {
-          finalTranscript += event.results[i][0].transcript
+          finalTranscript += transcript + ' '
+        } else {
+          interimTranscript += transcript
         }
       }
+      
+      // Show current transcript (for debugging, optional)
+      console.log('🎤 Recording:', finalTranscript + interimTranscript)
     }
     
     recognition.onend = () => {
+      // This should only fire when we manually stop
+      const fullTranscript = (finalTranscript + interimTranscript).trim()
+      console.log('✅ Final transcript:', fullTranscript)
+      
       setRecording(false)
+      
       // Auto-send the transcribed message
-      if (finalTranscript.trim()) {
-        onSend(finalTranscript.trim())
+      if (fullTranscript) {
+        onSend(fullTranscript)
       }
+      
+      // Reset
+      finalTranscript = ''
+      interimTranscript = ''
     }
     
     recognition.onerror = (event) => {
-      console.error('Speech recognition error:', event.error)
+      console.error('❌ Speech recognition error:', event.error)
+      
+      // Don't stop on "no-speech" error, only on actual errors
+      if (event.error === 'no-speech') {
+        console.log('⏸️ No speech detected, still listening...')
+        return
+      }
+      
       setRecording(false)
+      
+      if (event.error === 'not-allowed') {
+        alert('Доступ к микрофону запрещен. Разрешите доступ в настройках.')
+      }
     }
     
     recognitionRef.current = recognition
     setRecording(true)
     recognition.start()
+    console.log('🎙️ Voice recording started')
   }
 
   const stopRecognition = () => {
-    recognitionRef.current?.stop()
-    // Recording will stop and onend will be called
+    console.log('🛑 Stopping voice recording...')
+    if (recognitionRef.current) {
+      recognitionRef.current.stop()
+    }
   }
 
   return (
