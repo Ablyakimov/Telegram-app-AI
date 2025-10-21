@@ -16,6 +16,7 @@ export class ChatsService {
       name: createChatDto.name,
       userId: createChatDto.userId,
       messages: [],
+      aiModel: createChatDto.aiModel || 'gpt-3.5-turbo',
     });
     return this.chatsRepository.save(chat);
   }
@@ -49,6 +50,29 @@ export class ChatsService {
   async getMessages(chatId: number) {
     const chat = await this.findOne(chatId);
     return chat.messages;
+  }
+
+  async updateName(chatId: number, newName: string, userId: number): Promise<Chat> {
+    const chat = await this.findOne(chatId);
+    
+    // Verify ownership
+    if (chat.userId !== userId) {
+      throw new NotFoundException('Chat not found or access denied');
+    }
+    
+    chat.name = newName;
+    return this.chatsRepository.save(chat);
+  }
+
+  async remove(chatId: number, userId: number): Promise<void> {
+    const chat = await this.findOne(chatId);
+    
+    // Verify ownership
+    if (chat.userId !== userId) {
+      throw new NotFoundException('Chat not found or access denied');
+    }
+    
+    await this.chatsRepository.remove(chat);
   }
 }
 

@@ -6,6 +6,8 @@ services:
       context: ./backend
       target: ${NODE_ENV:-development}
     image: tg-ai-backend:${NODE_ENV:-development}
+    env_file:
+      - .env
     environment:
       - NODE_ENV=${NODE_ENV:-development}
       - PORT=3001
@@ -15,11 +17,11 @@ services:
       - OPENAI_MAX_TOKENS=${OPENAI_MAX_TOKENS:-1000}
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-123456:TEST_TELEGRAM_BOT_TOKEN}
       - TELEGRAM_DEV_BYPASS=${TELEGRAM_DEV_BYPASS:-true}
-      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:5173}
+      - CORS_ORIGIN=${CORS_ORIGIN:-https://24ablyakimov.ru}
     networks:
       - app-network
     volumes:
-      - backend_data:/app
+      - backend_data:/app/data
     ports:
       - "3001:3001"
 
@@ -28,8 +30,10 @@ services:
       context: ./frontend
       target: ${NODE_ENV:-development}
     image: tg-ai-frontend:${NODE_ENV:-development}
+    env_file:
+      - .env
     environment:
-      - VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:3001/api}
+      - VITE_API_BASE_URL=${VITE_API_BASE_URL:-/api}
     networks:
       - app-network
     depends_on:
