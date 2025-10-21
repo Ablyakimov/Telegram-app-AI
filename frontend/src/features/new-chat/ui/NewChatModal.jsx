@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useModelsStore } from '@entities/model/modelsStore'
 
-function NewChatModal({ onClose, onCreate }) {
-  const [chatName, setChatName] = useState('')
+function NewChatModal({ onClose, onCreate, defaultName }) {
+  const [chatName, setChatName] = useState(defaultName || '')
   const { models, fetch } = useModelsStore()
   const [selectedModel, setSelectedModel] = useState('gpt-3.5-turbo')
   const [prompt, setPrompt] = useState('')
+  const [advancedOpen, setAdvancedOpen] = useState(false)
   const presets = useMemo(() => ([
     { id: 'universal', name: 'Универсальный ассистент', text: 'Ты - полезный и дружелюбный AI-ассистент. Твоя задача - помогать пользователю отвечать на вопросы, давать советы, составлять тексты и решать различные задачи. Всегда будь точным, ясным и стремись понять глубинные потребности пользователя. Если что-то не знаешь, не выдумывай, а честно говори об этом. Поддержи разговорный, но грамотный стиль общения.' },
     { id: 'copywriter', name: 'Креативный копирайтер', text: 'Ты - профессиональный копирайтер и креативный писатель с опытом в маркетинге и брендинге. Твоя задача - создавать убедительные, интересные и цепляющие тексты. Это могут быть: посты для соцсетей, рекламные объявления, email-рассылки, слоганы и сценарии видео. Ты умеешь адаптировать тон голоса под бренд (от формального до юмористического). Всегда предлагай несколько вариантов и вариаций.' },
@@ -58,51 +59,67 @@ function NewChatModal({ onClose, onCreate }) {
             autoFocus
             className="w-full p-3 px-4 border border-tg-hint rounded-lg bg-tg-secondary-bg text-tg-text text-base outline-none placeholder:text-tg-hint focus:border-tg-button"
           />
-          <div>
-            <label className="block mb-2 text-sm text-tg-hint">AI Model</label>
-            <select
-              value={selectedModel}
-              onChange={(e) => setSelectedModel(e.target.value)}
-              className="w-full p-3 px-4 border border-tg-hint rounded-lg bg-tg-secondary-bg text-tg-text text-base outline-none"
-            >
-              {(models.length ? models : [
-                { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo' },
-                { id: 'gpt-4o', name: 'GPT-4o' },
-                { id: 'gpt-4o-mini', name: 'GPT-4o mini' },
-                { id: 'gpt-4-turbo', name: 'GPT-4 Turbo' },
-              ]).filter(m => m.enabled !== false).map((m) => (
-                <option key={m.id} value={m.id}>{m.name}</option>
-              ))}
-            </select>
-          </div>
+          <button
+            type="button"
+            className="flex items-center justify-between px-2 py-2 text-sm text-tg-link"
+            onClick={() => setAdvancedOpen(v => !v)}
+            aria-expanded={advancedOpen}
+          >
+            <span>Продвинутая настройка</span>
+            <span className={`transition-transform ${advancedOpen ? 'rotate-90' : ''}`}>›</span>
+          </button>
 
-          <div>
-            <label className="block mb-2 text-sm text-tg-hint">Пресет (необязательно)</label>
-            <select
-              defaultValue=""
-              onChange={(e) => {
-                const p = presets.find(pr => pr.id === e.target.value)
-                if (p) setPrompt(p.text)
-              }}
-              className="w-full p-3 px-4 border border-tg-hint rounded-lg bg-tg-secondary-bg text-tg-text text-base outline-none"
-            >
-              <option value="">— Не использовать пресет —</option>
-              {presets.map(p => (
-                <option key={p.id} value={p.id}>{p.name}</option>
-              ))}
-            </select>
-          </div>
+          {advancedOpen && (
+            <div className="flex flex-col gap-4">
+              <div>
+                <label className="block mb-2 text-sm text-tg-hint">AI Model</label>
+                <select
+                  value={selectedModel}
+                  onChange={(e) => setSelectedModel(e.target.value)}
+                  className="w-full p-3 px-4 border border-tg-hint rounded-lg bg-tg-secondary-bg text-tg-text text-base outline-none"
+                >
+                  {(models.length ? models : [
+                    { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo' },
+                    { id: 'gpt-4o', name: 'GPT-4o' },
+                    { id: 'gpt-4o-mini', name: 'GPT-4o mini' },
+                    { id: 'gpt-4-turbo', name: 'GPT-4 Turbo' },
+                  ]).filter(m => m.enabled !== false).map((m) => (
+                    <option key={m.id} value={m.id}>{m.name}</option>
+                  ))}
+                </select>
+              </div>
 
-          <div>
-            <label className="block mb-2 text-sm text-tg-hint">Промпт (необязательно)</label>
-            <textarea
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              rows={5}
-              placeholder="Введите свой промпт или выберите пресет выше"
-              className="w-full p-3 px-4 border border-tg-hint rounded-lg bg-tg-secondary-bg text-tg-text text-base outline-none resize-y"
-            />
-          </div>
+              <div>
+                <label className="block mb-2 text-sm text-tg-hint">Пресет (необязательно)</label>
+                <select
+                  value={''}
+                  onChange={(e) => {
+                    const val = e.target.value
+                    if (!val) { setPrompt(''); return }
+                    const p = presets.find(pr => pr.id === val)
+                    if (p) setPrompt(p.text)
+                  }}
+                  className="w-full p-3 px-4 border border-tg-hint rounded-lg bg-tg-secondary-bg text-tg-text text-base outline-none"
+                >
+                  <option value="">— Не использовать пресет —</option>
+                  {presets.map(p => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block mb-2 text-sm text-tg-hint">Промпт (необязательно)</label>
+                <textarea
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  rows={5}
+                  placeholder="Введите свой промпт или выберите пресет выше"
+                  className="w-full p-3 px-4 border border-tg-hint rounded-lg bg-tg-secondary-bg text-tg-text text-base outline-none resize-y"
+                />
+              </div>
+            </div>
+          )}
           <div className="flex gap-3 mt-2">
             <button 
               type="button" 

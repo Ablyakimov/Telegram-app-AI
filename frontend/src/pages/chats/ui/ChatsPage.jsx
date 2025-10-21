@@ -119,6 +119,7 @@ function ChatsPage() {
         <NewChatModal
           onClose={() => setShowNewChatModal(false)}
           onCreate={handleCreateChat}
+          defaultName={`Чат №${(chats?.length || 0) + 1}`}
         />
       )}
     </div>
