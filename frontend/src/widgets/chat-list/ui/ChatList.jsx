@@ -35,7 +35,7 @@ function ChatList({ chats, onSelectChat, onNewChat, onRenameChat, onDeleteChat }
 
   return (
     <div className="flex flex-col h-screen bg-tg-bg">
-      <div className="px-4 pt-4">
+      <div className="px-4 pt-4 anim-fade-up">
         <div className="flex items-center justify-between bg-tg-secondary-bg/60 backdrop-blur rounded-2xl px-4 py-3 border border-black/5 dark:border-white/5 shadow-sm">
           <h1 className="text-lg font-semibold tracking-tight">Telegram Mini App</h1>
           <button 
@@ -62,10 +62,11 @@ function ChatList({ chats, onSelectChat, onNewChat, onRenameChat, onDeleteChat }
             </button>
           </div>
         ) : (
-          chats.map((chat) => (
+          chats.map((chat, i) => (
             <div
               key={chat.id}
-              className="relative flex items-center p-3 px-4 bg-tg-secondary-bg rounded-2xl border border-black/5 dark:border-white/5 shadow-sm active:opacity-90 transition mb-3"
+              className="relative flex items-center p-3 px-4 bg-tg-secondary-bg rounded-2xl border border-black/5 dark:border-white/5 shadow-sm active:opacity-90 transition mb-3 anim-fade-up"
+              style={{ animationDelay: `${Math.min(i*40,200)}ms` }}
             >
               <div
                 className="flex items-center flex-1 min-w-0 cursor-pointer"
@@ -106,7 +107,7 @@ function ChatList({ chats, onSelectChat, onNewChat, onRenameChat, onDeleteChat }
                   />
                   
                   {/* Menu popup */}
-                  <div className="absolute right-4 top-12 z-20 bg-tg-bg border border-black/5 dark:border-white/5 rounded-xl shadow-lg overflow-hidden min-w-[180px]">
+                  <div className="absolute right-4 top-12 z-20 bg-tg-bg border border-black/5 dark:border-white/5 rounded-xl shadow-lg overflow-hidden min-w-[180px] anim-dropdown">
                     <button
                       className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-tg-secondary-bg active:bg-tg-secondary-bg transition"
                       onClick={(e) => {

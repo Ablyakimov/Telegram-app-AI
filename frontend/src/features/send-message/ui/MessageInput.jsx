@@ -201,8 +201,8 @@ function MessageInput({ onSend, onUpload, disabled }) {
   }
 
   return (
-    <form className="p-3 px-4 bg-tg-bg" onSubmit={handleSubmit}>
-      <div className="flex items-center gap-2 bg-tg-secondary-bg rounded-full px-3 py-2 border border-black/5 dark:border-white/5 shadow-sm">
+    <form className="p-3 px-4 bg-tg-bg anim-fade-in" onSubmit={handleSubmit}>
+      <div className="flex items-center gap-2 bg-tg-secondary-bg rounded-full px-3 py-2 border border-black/5 dark:border-white/5 shadow-sm anim-scale-in">
       <input
         ref={fileInputRef}
         type="file"

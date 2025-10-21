@@ -37,7 +37,7 @@ function ChatWindow({ chat, user, onBack }) {
 
   return (
     <div className="flex flex-col h-screen bg-tg-bg">
-      <div className="flex items-center gap-3 p-3 px-4 bg-tg-bg sticky top-0 z-10">
+      <div className="flex items-center gap-3 p-3 px-4 bg-tg-bg sticky top-0 z-10 anim-fade-in">
         <button 
           className="w-10 h-10 border-none bg-transparent text-tg-link text-[32px] flex items-center justify-center mr-2"
           onClick={onBack}
@@ -59,7 +59,7 @@ function ChatWindow({ chat, user, onBack }) {
         {messages.map((message, index) => (
           <div
             key={index}
-            className={`max-w-[80%] flex flex-col gap-1 ${
+            className={`max-w-[80%] flex flex-col gap-1 anim-msg ${
               message.role === 'user' ? 'self-end' : 'self-start'
             }`}
           >
