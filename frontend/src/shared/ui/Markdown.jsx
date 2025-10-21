@@ -62,15 +62,13 @@ function markdownToHtml(md) {
         if (ol) {
           if (listType && listType !== 'ol') flushList()
           listType = 'ol'
-          buf.push(`<li>${inlineFormat(escapeHtml(ol[2]))}</li>')
-          `.trim())
+          buf.push(`<li>${inlineFormat(escapeHtml(ol[2]))}</li>`)
           continue
         }
         if (ul) {
           if (listType && listType !== 'ul') flushList()
           listType = 'ul'
-          buf.push(`<li>${inlineFormat(escapeHtml(ul[1]))}</li>')
-          `.trim())
+          buf.push(`<li>${inlineFormat(escapeHtml(ul[1]))}</li>`)
           continue
         }
         // plain line
