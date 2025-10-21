@@ -5,6 +5,7 @@ export const useMessagesStore = create((set, get) => ({
   messagesByChatId: {},
   loadingByChatId: {},
   errorByChatId: {},
+  replyingByChatId: {},
 
   loadMessages: async (chatId) => {
     set((state) => ({
@@ -28,9 +29,9 @@ export const useMessagesStore = create((set, get) => ({
   },
 
   sendMessage: async (chatId, message) => {
-    // lock input while AI is responding
+    // lock input while AI is responding (separate flag from history loading)
     set((state) => ({
-      loadingByChatId: { ...state.loadingByChatId, [chatId]: true },
+      replyingByChatId: { ...state.replyingByChatId, [chatId]: true },
       errorByChatId: { ...state.errorByChatId, [chatId]: null },
     }))
     const optimistic = {
@@ -74,7 +75,7 @@ export const useMessagesStore = create((set, get) => ({
       throw e
     } finally {
       set((state) => ({
-        loadingByChatId: { ...state.loadingByChatId, [chatId]: false },
+        replyingByChatId: { ...state.replyingByChatId, [chatId]: false },
       }))
     }
   },
@@ -83,7 +84,7 @@ export const useMessagesStore = create((set, get) => ({
     console.log('📤 messagesStore: uploadFile called', { chatId, fileName: file.name, fileType: file.type })
     // lock input while file is processed and AI responds
     set((state) => ({
-      loadingByChatId: { ...state.loadingByChatId, [chatId]: true },
+      replyingByChatId: { ...state.replyingByChatId, [chatId]: true },
       errorByChatId: { ...state.errorByChatId, [chatId]: null },
     }))
     
@@ -147,7 +148,7 @@ export const useMessagesStore = create((set, get) => ({
       throw e
     } finally {
       set((state) => ({
-        loadingByChatId: { ...state.loadingByChatId, [chatId]: false },
+        replyingByChatId: { ...state.replyingByChatId, [chatId]: false },
       }))
     }
   },

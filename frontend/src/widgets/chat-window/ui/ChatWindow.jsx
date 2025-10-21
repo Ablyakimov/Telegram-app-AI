@@ -4,7 +4,7 @@ import { useMessagesStore } from '@entities/message/model/messagesStore'
 import Markdown from '@shared/ui/Markdown'
 
 function ChatWindow({ chat, user, onBack }) {
-  const { messagesByChatId, loadMessages, sendMessage, uploadFile, loadingByChatId } = useMessagesStore()
+  const { messagesByChatId, loadMessages, sendMessage, uploadFile, loadingByChatId, replyingByChatId } = useMessagesStore()
   const messagesEndRef = useRef(null)
   const messages = useMemo(() => messagesByChatId[chat.id] || [], [messagesByChatId, chat.id])
 
@@ -80,7 +80,7 @@ function ChatWindow({ chat, user, onBack }) {
             </div>
           </div>
         ))}
-        {loadingByChatId[chat.id] && (
+        {replyingByChatId[chat.id] && (
           <div className="max-w-[80%] flex flex-col gap-1 self-start">
             <div className="bg-tg-secondary-bg text-tg-text rounded-2xl rounded-bl-sm p-3 px-4 flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-tg-hint animate-bounce [animation-delay:0ms]"></span>
@@ -93,7 +93,7 @@ function ChatWindow({ chat, user, onBack }) {
         <div ref={messagesEndRef} />
       </div>
 
-      <MessageInput onSend={handleSendMessage} onUpload={handleUploadFile} disabled={!!loadingByChatId[chat.id]} />
+      <MessageInput onSend={handleSendMessage} onUpload={handleUploadFile} disabled={!!replyingByChatId[chat.id]} />
     </div>
   )
 }
