@@ -117,6 +117,11 @@ export const useMessagesStore = create((set, get) => ({
     } catch (e) {
       console.error('❌ Upload error:', e)
       console.error('Error details:', e.response?.data || e.message)
+      console.error('Error status:', e.status)
+      
+      // Show error to user
+      const errorMsg = e.response?.data?.message || e.message || 'Неизвестная ошибка при загрузке файла'
+      alert(`Ошибка загрузки: ${errorMsg}`)
       
       set((state) => ({
         messagesByChatId: {

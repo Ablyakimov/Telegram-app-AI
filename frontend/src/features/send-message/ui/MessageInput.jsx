@@ -80,14 +80,33 @@ function MessageInput({ onSend, onUpload, disabled }) {
   }
 
   const handleFileChange = async (e) => {
+    console.log('📎 MessageInput: file input changed', e.target.files)
     const file = e.target.files?.[0]
-    if (!file) return
+    if (!file) {
+      console.log('❌ MessageInput: no file selected')
+      return
+    }
+    
+    console.log('📎 MessageInput: file selected', { 
+      name: file.name, 
+      type: file.type, 
+      size: file.size 
+    })
+    
     try {
       if (onUpload) {
+        console.log('📤 MessageInput: calling onUpload...')
         await onUpload(file)
+        console.log('✅ MessageInput: onUpload completed')
+      } else {
+        console.log('❌ MessageInput: onUpload is not defined!')
       }
+    } catch (error) {
+      console.error('❌ MessageInput: error in handleFileChange', error)
+      alert('Ошибка при загрузке файла: ' + (error.message || 'Unknown error'))
     } finally {
       e.target.value = ''
+      console.log('🧹 MessageInput: cleared file input')
     }
   }
 
