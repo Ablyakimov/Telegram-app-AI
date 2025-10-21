@@ -8,13 +8,22 @@ function MessageInput({ onSend, onUpload, disabled }) {
   const recognitionRef = useRef(null)
 
   useEffect(() => {
-    // Detect if mobile device
+    // Detect if mobile device - more strict check
     const checkMobile = () => {
-      const ua = navigator.userAgent || navigator.vendor || window.opera
-      const isMobileDevice = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(ua.toLowerCase())
-      const isTelegramMobile = window.Telegram?.WebApp?.platform && 
-        ['android', 'ios'].includes(window.Telegram.WebApp.platform)
-      setIsMobile(isMobileDevice || isTelegramMobile)
+      // First check Telegram platform
+      const telegramPlatform = window.Telegram?.WebApp?.platform
+      if (telegramPlatform) {
+        const isTelegramMobile = ['android', 'ios', 'android_x', 'ios'].includes(telegramPlatform)
+        console.log('Telegram platform:', telegramPlatform, 'isMobile:', isTelegramMobile)
+        setIsMobile(isTelegramMobile)
+        return
+      }
+      
+      // Fallback to user agent check
+      const ua = (navigator.userAgent || navigator.vendor || window.opera || '').toLowerCase()
+      const isMobileUA = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(ua)
+      console.log('User agent check, isMobile:', isMobileUA)
+      setIsMobile(isMobileUA)
     }
     checkMobile()
   }, [])
@@ -58,17 +67,32 @@ function MessageInput({ onSend, onUpload, disabled }) {
     }
     const recognition = new SpeechRecognition()
     recognition.lang = 'ru-RU'
-    recognition.interimResults = true
+    recognition.interimResults = false // Changed to false for cleaner final result
     recognition.continuous = false
+    
+    let finalTranscript = ''
+    
     recognition.onresult = (event) => {
-      let transcript = ''
       for (let i = event.resultIndex; i < event.results.length; ++i) {
-        transcript += event.results[i][0].transcript
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript
+        }
       }
-      setMessage((prev) => (prev ? prev + ' ' : '') + transcript.trim())
     }
-    recognition.onend = () => setRecording(false)
-    recognition.onerror = () => setRecording(false)
+    
+    recognition.onend = () => {
+      setRecording(false)
+      // Auto-send the transcribed message
+      if (finalTranscript.trim()) {
+        onSend(finalTranscript.trim())
+      }
+    }
+    
+    recognition.onerror = (event) => {
+      console.error('Speech recognition error:', event.error)
+      setRecording(false)
+    }
+    
     recognitionRef.current = recognition
     setRecording(true)
     recognition.start()
@@ -76,7 +100,7 @@ function MessageInput({ onSend, onUpload, disabled }) {
 
   const stopRecognition = () => {
     recognitionRef.current?.stop()
-    setRecording(false)
+    // Recording will stop and onend will be called
   }
 
   return (
