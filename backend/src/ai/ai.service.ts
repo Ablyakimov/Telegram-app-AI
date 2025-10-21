@@ -20,16 +20,16 @@ export class AiService {
   }
 
   private sanitizeTemperature(temperature?: number): number {
-    const fallback = this.configService.get<number>('OPENAI_TEMPERATURE') ?? 0.7;
-    if (typeof temperature !== 'number') return fallback;
+    const fallback = parseFloat(this.configService.get<string>('OPENAI_TEMPERATURE') || '0.7');
+    if (typeof temperature !== 'number' || isNaN(temperature)) return fallback;
     if (temperature < 0) return 0;
     if (temperature > 2) return 2;
     return temperature;
   }
 
   private sanitizeMaxTokens(maxTokens?: number): number {
-    const fallback = this.configService.get<number>('OPENAI_MAX_TOKENS') ?? 1000;
-    if (typeof maxTokens !== 'number') return fallback;
+    const fallback = parseInt(this.configService.get<string>('OPENAI_MAX_TOKENS') || '1000', 10);
+    if (typeof maxTokens !== 'number' || isNaN(maxTokens)) return fallback;
     if (maxTokens < 1) return 1;
     if (maxTokens > 4000) return 4000; // guardrail
     return maxTokens;
