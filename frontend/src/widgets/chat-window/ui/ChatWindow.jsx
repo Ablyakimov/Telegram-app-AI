@@ -43,7 +43,15 @@ function ChatWindow({ chat, user, onBack }) {
         >
           ‹
         </button>
-        <h2 className="text-lg font-semibold">{chat.name}</h2>
+        <div className="flex flex-col">
+          <h2 className="text-lg font-semibold leading-tight">{chat.name}</h2>
+          <div className="text-[12px] text-tg-hint leading-none mt-0.5">
+            {(function map(id){
+              const m = { 'gpt-3.5-turbo':'GPT-3.5 Turbo','gpt-3.5-turbo-16k':'GPT-3.5 Turbo 16K','gpt-4o':'GPT-4o','gpt-4o-mini':'GPT-4o mini','gpt-4-turbo':'GPT-4 Turbo','gpt-4.1':'GPT-4.1' };
+              return m[id] || id;
+            })(chat.aiModel)}
+          </div>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">

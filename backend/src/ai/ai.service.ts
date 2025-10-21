@@ -71,7 +71,7 @@ export class AiService {
     }
 
     try {
-      const defaultModel = this.configService.get<string>('OPENAI_MODEL') || 'gpt-4o';
+      const defaultModel = this.configService.get<string>('OPENAI_MODEL') || 'gpt-3.5-turbo';
       const model = options?.model || defaultModel;
       const temperature = this.sanitizeTemperature(options?.temperature);
       const max_tokens = this.sanitizeMaxTokens(options?.maxTokens);

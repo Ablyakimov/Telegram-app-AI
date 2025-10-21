@@ -7,6 +7,26 @@ export class ModelsController {
     // Available models configuration (OpenAI for now). Others are placeholders.
     return [
       {
+        id: 'gpt-3.5-turbo',
+        name: 'GPT-3.5 Turbo',
+        provider: 'openai',
+        icon: '🚀',
+        supportsVision: false,
+        supportsAudio: false,
+        enabled: true,
+        recommended: true,
+        note: 'Быстрый и дешевый по умолчанию',
+      },
+      {
+        id: 'gpt-3.5-turbo-16k',
+        name: 'GPT-3.5 Turbo 16K',
+        provider: 'openai',
+        icon: '🚀',
+        supportsVision: false,
+        supportsAudio: false,
+        enabled: true,
+      },
+      {
         id: 'gpt-4o',
         name: 'GPT-4o',
         provider: 'openai',
@@ -25,8 +45,8 @@ export class ModelsController {
         enabled: true,
       },
       {
-        id: 'gpt-4-turbo',
-        name: 'GPT-4 Turbo',
+        id: 'gpt-4.1',
+        name: 'GPT-4.1',
         provider: 'openai',
         icon: '🧠',
         supportsVision: false,
@@ -34,10 +54,10 @@ export class ModelsController {
         enabled: true,
       },
       {
-        id: 'gpt-3.5-turbo',
-        name: 'GPT-3.5 Turbo',
+        id: 'gpt-4-turbo',
+        name: 'GPT-4 Turbo',
         provider: 'openai',
-        icon: '🚀',
+        icon: '🧠',
         supportsVision: false,
         supportsAudio: false,
         enabled: true,
