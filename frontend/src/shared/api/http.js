@@ -52,11 +52,21 @@ export function get(url, config) {
 }
 
 export function post(url, data, config) {
+  // If data is FormData, ensure axios handles Content-Type automatically
+  if (data instanceof FormData) {
+    console.log('📤 Sending FormData with', data.get('file')?.name || 'unknown file')
+    // Don't merge headers if uploading file - let axios set Content-Type
+    return http.post(url, data, config).then((r) => r.data)
+  }
   return http.post(url, data, config).then((r) => r.data)
 }
 
 export function put(url, data, config) {
   return http.put(url, data, config).then((r) => r.data)
+}
+
+export function patch(url, data, config) {
+  return http.patch(url, data, config).then((r) => r.data)
 }
 
 export function del(url, config) {

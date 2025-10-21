@@ -18,17 +18,18 @@ export const useChatsStore = create((set, get) => ({
     }
   },
 
-  createChat: async ({ name, userId }) => {
+  createChat: async ({ name, userId, aiModel = 'gpt-3.5-turbo', systemPrompt }) => {
     const optimisticChat = {
       id: Date.now(),
       name,
       userId,
+      aiModel,
       messages: [],
       __optimistic: true,
     }
     set({ chats: [optimisticChat, ...get().chats] })
     try {
-      const created = await ChatsApi.create({ name, userId })
+      const created = await ChatsApi.create({ name, userId, aiModel, systemPrompt })
       set({
         chats: get().chats.map((c) => (c.__optimistic ? created : c)),
       })
@@ -38,6 +39,34 @@ export const useChatsStore = create((set, get) => ({
       throw e
     }
   },
+
+  updateChatName: async (chatId, newName) => {
+    const originalChats = get().chats
+    // Optimistic update
+    set({
+      chats: get().chats.map((c) => (c.id === chatId ? { ...c, name: newName } : c)),
+    })
+    try {
+      await ChatsApi.updateName(chatId, newName)
+    } catch (e) {
+      // Rollback on error
+      set({ chats: originalChats })
+      throw e
+    }
+  },
+
+  deleteChat: async (chatId) => {
+    const originalChats = get().chats
+    // Optimistic delete
+    set({
+      chats: get().chats.filter((c) => c.id !== chatId),
+    })
+    try {
+      await ChatsApi.deleteChat(chatId)
+    } catch (e) {
+      // Rollback on error
+      set({ chats: originalChats })
+      throw e
+    }
+  },
 }))
-
-
