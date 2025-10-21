@@ -35,24 +35,27 @@ function ChatList({ chats, onSelectChat, onNewChat, onRenameChat, onDeleteChat }
 
   return (
     <div className="flex flex-col h-screen bg-tg-bg">
-      <div className="flex justify-between items-center p-4 border-b border-tg-hint">
-        <h1 className="text-2xl font-semibold">AI Assistant</h1>
-        <button 
-          className="w-10 h-10 rounded-full bg-tg-button text-tg-button-text flex items-center justify-center active:opacity-70 transition-opacity"
-          onClick={onNewChat}
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-          </svg>
-        </button>
+      <div className="px-4 pt-4">
+        <div className="flex items-center justify-between bg-tg-secondary-bg/60 backdrop-blur rounded-2xl px-4 py-3 border border-black/5 dark:border-white/5 shadow-sm">
+          <h1 className="text-lg font-semibold tracking-tight">Telegram Mini App</h1>
+          <button 
+            className="w-9 h-9 rounded-full bg-tg-button text-tg-button-text flex items-center justify-center active:opacity-80 transition"
+            onClick={onNewChat}
+            aria-label="Create chat"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+          </button>
+        </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto px-4 pb-4 mt-3">
         {chats.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full px-5 text-center text-tg-hint">
             <p className="mb-4 text-base">No chats yet</p>
             <button 
-              className="px-6 py-3 rounded-lg bg-tg-button text-tg-button-text text-base active:opacity-70 transition-opacity"
+              className="px-6 py-3 rounded-xl bg-tg-button text-tg-button-text text-base active:opacity-80 transition"
               onClick={onNewChat}
             >
               Create your first chat
@@ -62,20 +65,20 @@ function ChatList({ chats, onSelectChat, onNewChat, onRenameChat, onDeleteChat }
           chats.map((chat) => (
             <div
               key={chat.id}
-              className="relative flex items-center p-3 px-4 border-b border-black/5 dark:border-white/5 active:bg-tg-secondary-bg transition-colors"
+              className="relative flex items-center p-3 px-4 bg-tg-secondary-bg rounded-2xl border border-black/5 dark:border-white/5 shadow-sm active:opacity-90 transition mb-3"
             >
               <div
                 className="flex items-center flex-1 min-w-0 cursor-pointer"
                 onClick={() => onSelectChat(chat)}
               >
-                <div className="w-12 h-12 rounded-full bg-tg-button text-tg-button-text flex items-center justify-center mr-3 flex-shrink-0">
+                <div className="w-10 h-10 rounded-full bg-tg-bg text-tg-text/70 flex items-center justify-center mr-3 flex-shrink-0 border border-black/5 dark:border-white/5">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                     <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-base font-medium mb-1">{chat.name}</div>
-                  <div className="text-sm text-tg-hint overflow-hidden text-ellipsis whitespace-nowrap">
+                  <div className="text-[15px] font-medium leading-tight">{chat.name}</div>
+                  <div className="text-xs text-tg-hint overflow-hidden text-ellipsis whitespace-nowrap mt-0.5">
                     {modelName(chat.aiModel)}
                   </div>
                 </div>
@@ -103,9 +106,9 @@ function ChatList({ chats, onSelectChat, onNewChat, onRenameChat, onDeleteChat }
                   />
                   
                   {/* Menu popup */}
-                  <div className="absolute right-4 top-12 z-20 bg-tg-bg border border-tg-hint rounded-lg shadow-lg overflow-hidden min-w-[180px]">
+                  <div className="absolute right-4 top-12 z-20 bg-tg-bg border border-black/5 dark:border-white/5 rounded-xl shadow-lg overflow-hidden min-w-[180px]">
                     <button
-                      className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-tg-secondary-bg active:bg-tg-secondary-bg transition-colors"
+                      className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-tg-secondary-bg active:bg-tg-secondary-bg transition"
                       onClick={(e) => {
                         e.stopPropagation()
                         handleRename(chat)
@@ -118,7 +121,7 @@ function ChatList({ chats, onSelectChat, onNewChat, onRenameChat, onDeleteChat }
                       <span>Переименовать</span>
                     </button>
                     <button
-                      className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-tg-secondary-bg active:bg-tg-secondary-bg transition-colors text-red-500"
+                      className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-tg-secondary-bg active:bg-tg-secondary-bg transition text-red-500"
                       onClick={(e) => {
                         e.stopPropagation()
                         handleDelete(chat)

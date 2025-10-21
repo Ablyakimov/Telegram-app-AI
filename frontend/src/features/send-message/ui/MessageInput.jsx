@@ -201,7 +201,8 @@ function MessageInput({ onSend, onUpload, disabled }) {
   }
 
   return (
-    <form className="flex items-end gap-2 p-3 px-4 border-t border-tg-hint bg-tg-bg" onSubmit={handleSubmit}>
+    <form className="p-3 px-4 bg-tg-bg" onSubmit={handleSubmit}>
+      <div className="flex items-center gap-2 bg-tg-secondary-bg rounded-full px-3 py-2 border border-black/5 dark:border-white/5 shadow-sm">
       <input
         ref={fileInputRef}
         type="file"
@@ -211,7 +212,7 @@ function MessageInput({ onSend, onUpload, disabled }) {
       <button
         type="button"
         onClick={handleAttachClick}
-        className="w-10 h-10 border-none rounded-full bg-tg-secondary-bg text-tg-text flex items-center justify-center flex-shrink-0 active:opacity-70 transition-opacity"
+        className="w-8 h-8 border-none rounded-full text-tg-text flex items-center justify-center flex-shrink-0 active:opacity-70 transition"
         disabled={disabled}
         aria-label="Attach file"
       >
@@ -248,17 +249,18 @@ function MessageInput({ onSend, onUpload, disabled }) {
         placeholder="Type a message..."
         disabled={disabled}
         rows="1"
-        className="flex-1 min-h-[40px] max-h-[120px] p-2.5 px-3 border border-tg-hint rounded-[20px] bg-tg-secondary-bg text-tg-text text-[15px] resize-none outline-none placeholder:text-tg-hint"
+        className="flex-1 min-h-[36px] max-h-[120px] bg-transparent text-tg-text text-[15px] resize-none outline-none placeholder:text-tg-hint px-2"
       />
       <button 
         type="submit" 
         disabled={disabled || !message.trim()}
-        className="w-10 h-10 border-none rounded-full bg-tg-button text-tg-button-text flex items-center justify-center flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed active:opacity-70 transition-opacity"
+        className="w-9 h-9 border-none rounded-full bg-tg-button text-tg-button-text flex items-center justify-center flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed active:opacity-80 transition"
       >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
           <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </button>
+      </div>
     </form>
   )
 }
