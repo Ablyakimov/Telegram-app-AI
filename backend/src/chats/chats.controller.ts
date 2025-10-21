@@ -147,6 +147,26 @@ export class ChatsController {
         } catch (e) {
           extractedText = '[Audio uploaded but transcription failed]';
         }
+      } else if (mime.startsWith('image/')) {
+        // For images, we'll use vision API
+        // Convert image to base64
+        const imageBuffer = fs.readFileSync(file.path);
+        const base64Image = imageBuffer.toString('base64');
+        const imageUrl = `data:${mime};base64,${base64Image}`;
+        
+        // Save message with image reference
+        const userMessage = `[Image: ${file.originalname}]`;
+        await this.chatsService.addMessage(chatId, 'user', userMessage);
+        
+        // Get chat history
+        const chat = await this.chatsService.findOne(chatId);
+        
+        // Ask AI about the image using vision
+        const aiResponse = await this.aiService.chatWithImage(chat.messages, imageUrl, `What do you see in this image?`);
+        
+        await this.chatsService.addMessage(chatId, 'assistant', aiResponse);
+        
+        return { message: aiResponse };
       } else {
         extractedText = `[File uploaded: ${file.originalname}, type: ${mime}, size: ${file.size} bytes]`;
       }

@@ -91,5 +91,46 @@ export class AiService {
       throw new Error(`AI chat error: ${message}`);
     }
   }
+
+  async chatWithImage(
+    messages: Array<{ role: string; content: string }>,
+    imageUrl: string,
+    prompt: string,
+  ): Promise<string> {
+    if (!this.openai) {
+      throw new Error('OpenAI is not configured. Please set OPENAI_API_KEY in environment variables.');
+    }
+
+    try {
+      // Use vision-capable model (gpt-4o or gpt-4-vision-preview)
+      const model = 'gpt-4o';
+      const temperature = this.sanitizeTemperature(0.7);
+      const max_tokens = this.sanitizeMaxTokens(1000);
+
+      // Build messages with image
+      const visionMessages = [
+        {
+          role: 'user',
+          content: [
+            { type: 'text', text: prompt },
+            { type: 'image_url', image_url: { url: imageUrl } },
+          ],
+        },
+      ];
+
+      const completion = await this.openai.chat.completions.create({
+        model,
+        messages: visionMessages as any,
+        temperature,
+        max_tokens,
+      });
+
+      return completion.choices[0].message.content;
+    } catch (error) {
+      const message = (error as any)?.message || 'Unknown OpenAI error';
+      this.logger.error(`Error in AI vision: ${message}`);
+      throw new Error(`AI vision error: ${message}`);
+    }
+  }
 }
 
