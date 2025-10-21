@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { useModelsStore } from '@entities/model/modelsStore'
 
 function NewChatModal({ onClose, onCreate, defaultName }) {
-  const [chatName, setChatName] = useState(defaultName || '')
+  const normalize = (s) => (s || '').replace(/№{2,}/g, '№').replace(/\s+/g, ' ').trim()
+  const [chatName, setChatName] = useState(normalize(defaultName))
   const { models, fetch } = useModelsStore()
   const [selectedModel, setSelectedModel] = useState('gpt-3.5-turbo')
   const [prompt, setPrompt] = useState('')
@@ -23,6 +24,10 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
   useEffect(() => {
     fetch()
   }, [fetch])
+
+  useEffect(() => {
+    setChatName(normalize(defaultName))
+  }, [defaultName])
 
   const handleSubmit = (e) => {
     e.preventDefault()
