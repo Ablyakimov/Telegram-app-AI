@@ -28,6 +28,11 @@ export const useMessagesStore = create((set, get) => ({
   },
 
   sendMessage: async (chatId, message) => {
+    // lock input while AI is responding
+    set((state) => ({
+      loadingByChatId: { ...state.loadingByChatId, [chatId]: true },
+      errorByChatId: { ...state.errorByChatId, [chatId]: null },
+    }))
     const optimistic = {
       role: 'user',
       content: message,
@@ -67,11 +72,20 @@ export const useMessagesStore = create((set, get) => ({
         errorByChatId: { ...state.errorByChatId, [chatId]: e },
       }))
       throw e
+    } finally {
+      set((state) => ({
+        loadingByChatId: { ...state.loadingByChatId, [chatId]: false },
+      }))
     }
   },
 
   uploadFile: async (chatId, file) => {
     console.log('📤 messagesStore: uploadFile called', { chatId, fileName: file.name, fileType: file.type })
+    // lock input while file is processed and AI responds
+    set((state) => ({
+      loadingByChatId: { ...state.loadingByChatId, [chatId]: true },
+      errorByChatId: { ...state.errorByChatId, [chatId]: null },
+    }))
     
     // Determine file type for better user message
     const isAudio = file.type.startsWith('audio/')
@@ -131,6 +145,10 @@ export const useMessagesStore = create((set, get) => ({
         errorByChatId: { ...state.errorByChatId, [chatId]: e },
       }))
       throw e
+    } finally {
+      set((state) => ({
+        loadingByChatId: { ...state.loadingByChatId, [chatId]: false },
+      }))
     }
   },
 }))
