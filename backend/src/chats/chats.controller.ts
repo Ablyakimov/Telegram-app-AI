@@ -107,10 +107,45 @@ export class ChatsController {
 
     try {
       if (mime.startsWith('text/') || ['.txt', '.md', '.csv', '.log'].includes(ext)) {
-        extractedText = fs.readFileSync(file.path, 'utf-8');
+        const fileContent = fs.readFileSync(file.path, 'utf-8');
+        // Save user message with just file name
+        const userMessage = `📄 Файл: ${file.originalname}`;
+        await this.chatsService.addMessage(chatId, 'user', userMessage);
+        
+        // Get chat history
+        const chat = await this.chatsService.findOne(chatId);
+        
+        // Ask AI with file content in context
+        const contextMessage = `Пользователь отправил файл "${file.originalname}" с содержимым:\n\n${fileContent.slice(0, 15000)}`;
+        const aiResponse = await this.aiService.chat([
+          ...chat.messages,
+          { role: 'user', content: contextMessage }
+        ]);
+        
+        await this.chatsService.addMessage(chatId, 'assistant', aiResponse);
+        
+        return { message: aiResponse };
       } else if (mime === 'application/json' || ext === '.json') {
         const json = JSON.parse(fs.readFileSync(file.path, 'utf-8'));
-        extractedText = JSON.stringify(json, null, 2).slice(0, 15000);
+        const fileContent = JSON.stringify(json, null, 2).slice(0, 15000);
+        
+        // Save user message with just file name
+        const userMessage = `📄 Файл: ${file.originalname}`;
+        await this.chatsService.addMessage(chatId, 'user', userMessage);
+        
+        // Get chat history
+        const chat = await this.chatsService.findOne(chatId);
+        
+        // Ask AI with file content in context
+        const contextMessage = `Пользователь отправил JSON файл "${file.originalname}" с содержимым:\n\n${fileContent}`;
+        const aiResponse = await this.aiService.chat([
+          ...chat.messages,
+          { role: 'user', content: contextMessage }
+        ]);
+        
+        await this.chatsService.addMessage(chatId, 'assistant', aiResponse);
+        
+        return { message: aiResponse };
       } else if (mime === 'application/pdf' || ext === '.pdf') {
         if (!pdfParse) {
           try {
@@ -121,13 +156,33 @@ export class ChatsController {
             pdfParse = null;
           }
         }
+        
+        let pdfContent = '';
         if (pdfParse) {
           const dataBuffer = fs.readFileSync(file.path);
           const result = await pdfParse(dataBuffer);
-          extractedText = (result.text || '').slice(0, 15000);
+          pdfContent = (result.text || '').slice(0, 15000);
         } else {
-          extractedText = `[PDF uploaded: ${file.originalname}, unable to parse on server]`;
+          pdfContent = '[PDF uploaded but unable to parse]';
         }
+        
+        // Save user message with just file name
+        const userMessage = `📄 PDF: ${file.originalname}`;
+        await this.chatsService.addMessage(chatId, 'user', userMessage);
+        
+        // Get chat history
+        const chat = await this.chatsService.findOne(chatId);
+        
+        // Ask AI with file content in context
+        const contextMessage = `Пользователь отправил PDF файл "${file.originalname}" с содержимым:\n\n${pdfContent}`;
+        const aiResponse = await this.aiService.chat([
+          ...chat.messages,
+          { role: 'user', content: contextMessage }
+        ]);
+        
+        await this.chatsService.addMessage(chatId, 'assistant', aiResponse);
+        
+        return { message: aiResponse };
       } else if (mime.startsWith('audio/')) {
         // Transcribe via OpenAI Whisper if available
         try {
@@ -163,25 +218,46 @@ export class ChatsController {
           extractedText = `[Audio uploaded but transcription failed: ${e.message}]`;
         }
       } else if (mime.startsWith('image/')) {
-        // For images, we'll use vision API
-        // Convert image to base64
-        const imageBuffer = fs.readFileSync(file.path);
-        const base64Image = imageBuffer.toString('base64');
-        const imageUrl = `data:${mime};base64,${base64Image}`;
-        
-        // Save message with image reference
-        const userMessage = `[Image: ${file.originalname}]`;
-        await this.chatsService.addMessage(chatId, 'user', userMessage);
-        
-        // Get chat history
-        const chat = await this.chatsService.findOne(chatId);
-        
-        // Ask AI about the image using vision
-        const aiResponse = await this.aiService.chatWithImage(chat.messages, imageUrl, `What do you see in this image?`);
-        
-        await this.chatsService.addMessage(chatId, 'assistant', aiResponse);
-        
-        return { message: aiResponse };
+        try {
+          console.log('Processing image:', file.originalname, 'mime:', mime, 'size:', file.size);
+          
+          // Convert image to base64
+          const imageBuffer = fs.readFileSync(file.path);
+          const base64Image = imageBuffer.toString('base64');
+          const imageUrl = `data:${mime};base64,${base64Image}`;
+          
+          console.log('Image converted to base64, length:', base64Image.length);
+          
+          // Save message with image reference
+          const userMessage = `🖼️ Изображение: ${file.originalname}`;
+          await this.chatsService.addMessage(chatId, 'user', userMessage);
+          
+          console.log('User message saved');
+          
+          // Get chat history
+          const chat = await this.chatsService.findOne(chatId);
+          
+          console.log('Chat history loaded, message count:', chat.messages.length);
+          
+          // Ask AI about the image using vision with context
+          const aiResponse = await this.aiService.chatWithImage(
+            chat.messages, 
+            imageUrl, 
+            'Опиши что ты видишь на этом изображении'
+          );
+          
+          console.log('AI response received:', aiResponse?.substring(0, 100));
+          
+          await this.chatsService.addMessage(chatId, 'assistant', aiResponse);
+          
+          console.log('AI message saved');
+          
+          return { message: aiResponse };
+        } catch (error) {
+          console.error('Image processing error:', error);
+          const errorMessage = error?.message || 'Unknown error';
+          throw new Error(`Failed to process image: ${errorMessage}`);
+        }
       } else {
         extractedText = `[File uploaded: ${file.originalname}, type: ${mime}, size: ${file.size} bytes]`;
       }
