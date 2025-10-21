@@ -52,6 +52,12 @@ export function get(url, config) {
 }
 
 export function post(url, data, config) {
+  // If data is FormData, ensure axios handles Content-Type automatically
+  if (data instanceof FormData) {
+    console.log('📤 Sending FormData with', data.get('file')?.name || 'unknown file')
+    // Don't merge headers if uploading file - let axios set Content-Type
+    return http.post(url, data, config).then((r) => r.data)
+  }
   return http.post(url, data, config).then((r) => r.data)
 }
 

@@ -15,11 +15,10 @@ export const ChatsApi = {
     return post('/chats/messages', { chatId, message })
   },
   uploadFile(chatId, file) {
-    const form = new FormData()
-    form.append('file', file)
-    return post(`/chats/${chatId}/upload`, form, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    })
+    const formData = new FormData()
+    formData.append('file', file)
+    // Don't set Content-Type header - axios will set it automatically with boundary
+    return post(`/chats/${chatId}/upload`, formData)
   },
 }
 
