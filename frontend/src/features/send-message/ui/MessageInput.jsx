@@ -41,10 +41,18 @@ function MessageInput({ onSend, onUpload, disabled }) {
 
   const startRecording = async () => {
     try {
+      // Check if mediaDevices is available
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert('Voice recording is not supported in this browser/environment.')
+        return
+      }
+
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
       audioChunksRef.current = []
       
-      const mediaRecorder = new MediaRecorder(stream)
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4'
+      })
       mediaRecorderRef.current = mediaRecorder
       
       mediaRecorder.ondataavailable = (event) => {
@@ -54,29 +62,54 @@ function MessageInput({ onSend, onUpload, disabled }) {
       }
       
       mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' })
-        const audioFile = new File([audioBlob], 'voice.webm', { type: 'audio/webm' })
+        const mimeType = mediaRecorder.mimeType || 'audio/webm'
+        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType })
+        const audioFile = new File([audioBlob], 'voice.webm', { type: mimeType })
         
         // Stop all tracks
         stream.getTracks().forEach(track => track.stop())
         
         // Upload audio file for transcription
-        if (onUpload) {
-          await onUpload(audioFile)
+        if (onUpload && audioBlob.size > 0) {
+          try {
+            await onUpload(audioFile)
+          } catch (uploadErr) {
+            console.error('Error uploading audio:', uploadErr)
+            alert('Failed to send voice message. Please try again.')
+          }
         }
+      }
+      
+      mediaRecorder.onerror = (event) => {
+        console.error('MediaRecorder error:', event)
+        alert('Recording error occurred. Please try again.')
+        setRecording(false)
+        stream.getTracks().forEach(track => track.stop())
       }
       
       mediaRecorder.start()
       setRecording(true)
     } catch (err) {
       console.error('Error accessing microphone:', err)
-      alert('Could not access microphone. Please check permissions.')
+      const errorMsg = err.name === 'NotAllowedError' 
+        ? 'Microphone access denied. Please allow microphone access and try again.'
+        : err.name === 'NotFoundError'
+        ? 'No microphone found. Please connect a microphone and try again.'
+        : 'Could not access microphone. Please check permissions and try again.'
+      alert(errorMsg)
+      setRecording(false)
     }
   }
 
   const stopRecording = () => {
     if (mediaRecorderRef.current && recording) {
-      mediaRecorderRef.current.stop()
+      try {
+        if (mediaRecorderRef.current.state === 'recording') {
+          mediaRecorderRef.current.stop()
+        }
+      } catch (err) {
+        console.error('Error stopping recording:', err)
+      }
       setRecording(false)
     }
   }
