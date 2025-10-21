@@ -7,6 +7,7 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
   const { models, fetch } = useModelsStore()
   const [selectedModel, setSelectedModel] = useState('gpt-3.5-turbo')
   const [prompt, setPrompt] = useState('')
+  const [presetId, setPresetId] = useState('')
   const [advancedOpen, setAdvancedOpen] = useState(false)
   const presets = useMemo(() => ([
     { id: 'universal', name: 'Универсальный ассистент', text: 'Ты - полезный и дружелюбный AI-ассистент. Твоя задача - помогать пользователю отвечать на вопросы, давать советы, составлять тексты и решать различные задачи. Всегда будь точным, ясным и стремись понять глубинные потребности пользователя. Если что-то не знаешь, не выдумывай, а честно говори об этом. Поддержи разговорный, но грамотный стиль общения.' },
@@ -97,9 +98,10 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
               <div>
                 <label className="block mb-2 text-sm text-tg-hint">Пресет (необязательно)</label>
                 <select
-                  value={''}
+                  value={presetId}
                   onChange={(e) => {
                     const val = e.target.value
+                    setPresetId(val)
                     if (!val) { setPrompt(''); return }
                     const p = presets.find(pr => pr.id === val)
                     if (p) setPrompt(p.text)
