@@ -38,6 +38,34 @@ export const useChatsStore = create((set, get) => ({
       throw e
     }
   },
+
+  updateChatName: async (chatId, newName) => {
+    const originalChats = get().chats
+    // Optimistic update
+    set({
+      chats: get().chats.map((c) => (c.id === chatId ? { ...c, name: newName } : c)),
+    })
+    try {
+      await ChatsApi.updateName(chatId, newName)
+    } catch (e) {
+      // Rollback on error
+      set({ chats: originalChats })
+      throw e
+    }
+  },
+
+  deleteChat: async (chatId) => {
+    const originalChats = get().chats
+    // Optimistic delete
+    set({
+      chats: get().chats.filter((c) => c.id !== chatId),
+    })
+    try {
+      await ChatsApi.deleteChat(chatId)
+    } catch (e) {
+      // Rollback on error
+      set({ chats: originalChats })
+      throw e
+    }
+  },
 }))
-
-

@@ -8,7 +8,7 @@ import { useChatsStore } from '@entities/chat/model/chatsStore'
 function ChatsPage() {
   const [tg] = useState(() => window.Telegram?.WebApp)
   const { user: storeUser, setUser } = useUserStore()
-  const { chats, fetchByUser, createChat } = useChatsStore()
+  const { chats, fetchByUser, createChat, updateChatName, deleteChat } = useChatsStore()
   const [selectedChat, setSelectedChat] = useState(null)
   const [showNewChatModal, setShowNewChatModal] = useState(false)
   const [theme, setTheme] = useState('light')
@@ -75,6 +75,28 @@ function ChatsPage() {
     setSelectedChat(null)
   }
 
+  const handleRenameChat = async (chatId, newName) => {
+    try {
+      await updateChatName(chatId, newName)
+    } catch (error) {
+      console.error('Failed to rename chat:', error)
+      alert('Ошибка при переименовании чата')
+    }
+  }
+
+  const handleDeleteChat = async (chatId) => {
+    try {
+      await deleteChat(chatId)
+      // If current chat is deleted, go back to list
+      if (selectedChat?.id === chatId) {
+        setSelectedChat(null)
+      }
+    } catch (error) {
+      console.error('Failed to delete chat:', error)
+      alert('Ошибка при удалении чата')
+    }
+  }
+
   return (
     <div className="w-full h-screen flex flex-col bg-tg-bg text-tg-text">
       {!selectedChat ? (
@@ -82,6 +104,8 @@ function ChatsPage() {
           chats={chats}
           onSelectChat={handleSelectChat}
           onNewChat={() => setShowNewChatModal(true)}
+          onRenameChat={handleRenameChat}
+          onDeleteChat={handleDeleteChat}
         />
       ) : (
         <ChatWindow

@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Param, ParseIntPipe, UseGuards, UploadedFile, UseInterceptors, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, ParseIntPipe, UseGuards, UploadedFile, UseInterceptors, Req, Patch, Delete } from '@nestjs/common';
 import { ChatsService } from './chats.service';
 import { AiService } from '../ai/ai.service';
 import { CreateChatDto } from './dto/create-chat.dto';
+import { UpdateChatDto } from './dto/update-chat.dto';
 import { SendMessageDto } from './dto/send-message.dto';
 import { TelegramGuard } from '../telegram-auth/telegram.guard';
 import { UsersService } from '../users/users.service';
@@ -290,6 +291,38 @@ export class ChatsController {
     } finally {
       // Optionally keep files; here we keep the uploaded file for auditing
     }
+  }
+
+  @Patch(':chatId')
+  async updateChat(
+    @Param('chatId', ParseIntPipe) chatId: number,
+    @Body() updateChatDto: UpdateChatDto,
+    @Req() req: Request,
+  ) {
+    const telegramUser = req['telegramUser'];
+    const userId = telegramUser?.id;
+    
+    if (!userId) {
+      throw new Error('User not authenticated');
+    }
+    
+    return this.chatsService.updateName(chatId, updateChatDto.name, userId);
+  }
+
+  @Delete(':chatId')
+  async deleteChat(
+    @Param('chatId', ParseIntPipe) chatId: number,
+    @Req() req: Request,
+  ) {
+    const telegramUser = req['telegramUser'];
+    const userId = telegramUser?.id;
+    
+    if (!userId) {
+      throw new Error('User not authenticated');
+    }
+    
+    await this.chatsService.remove(chatId, userId);
+    return { message: 'Chat deleted successfully' };
   }
 }
 

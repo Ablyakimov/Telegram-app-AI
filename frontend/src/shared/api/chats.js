@@ -1,4 +1,4 @@
-import { get, post } from './http'
+import { get, post, patch, del } from './http'
 
 export const ChatsApi = {
   getByUser(userId) {
@@ -19,6 +19,12 @@ export const ChatsApi = {
     formData.append('file', file)
     // Don't set Content-Type header - axios will set it automatically with boundary
     return post(`/chats/${chatId}/upload`, formData)
+  },
+  updateName(chatId, name) {
+    return patch(`/chats/${chatId}`, { name })
+  },
+  deleteChat(chatId) {
+    return del(`/chats/${chatId}`)
   },
 }
 
