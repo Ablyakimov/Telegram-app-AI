@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react'
 import MessageInput from '@features/send-message/ui/MessageInput'
 import { useMessagesStore } from '@entities/message/model/messagesStore'
+import Markdown from '@shared/ui/Markdown'
 
 function ChatWindow({ chat, user, onBack }) {
   const { messagesByChatId, loadMessages, sendMessage, uploadFile, loadingByChatId } = useMessagesStore()
@@ -69,7 +70,7 @@ function ChatWindow({ chat, user, onBack }) {
                   : 'bg-tg-secondary-bg text-tg-text rounded-2xl rounded-bl-sm'
               }`}
             >
-              {message.content}
+              <Markdown text={message.content} />
             </div>
             <div className="text-[11px] text-tg-hint px-2 self-end">
               {new Date(message.timestamp || Date.now()).toLocaleTimeString([], {
@@ -81,10 +82,11 @@ function ChatWindow({ chat, user, onBack }) {
         ))}
         {loadingByChatId[chat.id] && (
           <div className="max-w-[80%] flex flex-col gap-1 self-start">
-            <div className="bg-tg-secondary-bg text-tg-text rounded-2xl rounded-bl-sm p-3 px-4 flex gap-1">
+            <div className="bg-tg-secondary-bg text-tg-text rounded-2xl rounded-bl-sm p-3 px-4 flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-tg-hint animate-bounce [animation-delay:0ms]"></span>
               <span className="w-2 h-2 rounded-full bg-tg-hint animate-bounce [animation-delay:200ms]"></span>
               <span className="w-2 h-2 rounded-full bg-tg-hint animate-bounce [animation-delay:400ms]"></span>
+              <span className="text-sm text-tg-hint ml-2">ИИ печатает…</span>
             </div>
           </div>
         )}
