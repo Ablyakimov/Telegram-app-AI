@@ -50,7 +50,7 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
         <div className="flex justify-between items-center mb-5">
           <h2 className="text-xl font-semibold">Create chat</h2>
           <button 
-            className="w-8 h-8 border-none bg-transparent text-tg-hint text-[32px] flex items-center justify-center leading-none p-0"
+            className="w-8 h-8 border border-black/10 dark:border-white/10 rounded-full bg-transparent text-tg-hint text-[20px] flex items-center justify-center leading-none p-0 shadow-sm"
             onClick={onClose}
           >
             ×
@@ -130,14 +130,14 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
           <div className="flex gap-3 mt-2">
             <button 
               type="button" 
-              className="flex-1 p-3 px-6 border-none rounded-xl bg-tg-secondary-bg text-tg-text text-base font-medium active:opacity-80 transition"
+            className="flex-1 p-3 px-6 rounded-xl bg-tg-secondary-bg text-tg-text text-base font-medium active:opacity-80 transition border border-black/10 dark:border-white/10 shadow-sm"
               onClick={onClose}
             >
               Cancel
             </button>
             <button 
               type="submit" 
-              className="flex-1 p-3 px-6 border-none rounded-xl bg-tg-button text-tg-button-text text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed active:opacity-80 transition"
+            className="flex-1 p-3 px-6 rounded-xl bg-tg-button text-tg-button-text text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed active:opacity-80 transition border border-black/10 dark:border-white/10 shadow-md"
               disabled={!chatName.trim()}
             >
               Create
