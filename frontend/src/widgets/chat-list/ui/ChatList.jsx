@@ -39,7 +39,7 @@ function ChatList({ chats, onSelectChat, onNewChat, onRenameChat, onDeleteChat }
         <div className="flex items-center justify-between bg-tg-secondary-bg/60 backdrop-blur rounded-2xl px-4 py-3 border border-black/5 dark:border-white/5 shadow-sm">
           <h1 className="text-lg font-semibold tracking-tight">Telegram Mini App</h1>
           <button 
-            className="w-9 h-9 rounded-full bg-tg-button text-tg-button-text flex items-center justify-center active:opacity-80 transition"
+            className="w-9 h-9 rounded-full bg-tg-button text-tg-button-text flex items-center justify-center active:opacity-80 transition border border-black/10 dark:border-white/10 shadow-md shadow-black/10"
             onClick={onNewChat}
             aria-label="Create chat"
           >

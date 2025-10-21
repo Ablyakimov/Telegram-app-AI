@@ -212,7 +212,7 @@ function MessageInput({ onSend, onUpload, disabled }) {
       <button
         type="button"
         onClick={handleAttachClick}
-        className="w-8 h-8 border-none rounded-full text-tg-text flex items-center justify-center flex-shrink-0 active:opacity-70 transition"
+        className="w-8 h-8 border rounded-full text-tg-text flex items-center justify-center flex-shrink-0 active:opacity-70 transition border-black/10 dark:border-white/10 shadow-sm shadow-black/10"
         disabled={disabled}
         aria-label="Attach file"
       >
@@ -225,7 +225,7 @@ function MessageInput({ onSend, onUpload, disabled }) {
         <button
           type="button"
           onClick={recording ? stopRecognition : startRecognition}
-          className={`w-10 h-10 border-none rounded-full flex items-center justify-center flex-shrink-0 active:opacity-70 transition-opacity ${recording ? 'bg-red-500 text-white' : 'bg-tg-secondary-bg text-tg-text'}`}
+          className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 active:opacity-70 transition ${recording ? 'bg-red-500 text-white border border-red-400/40 shadow-md shadow-red-500/20' : 'bg-tg-secondary-bg text-tg-text border border-black/10 dark:border-white/10 shadow-sm shadow-black/10'}`}
           disabled={disabled}
           aria-label="Voice input"
         >
@@ -254,7 +254,7 @@ function MessageInput({ onSend, onUpload, disabled }) {
       <button 
         type="submit" 
         disabled={disabled || !message.trim()}
-        className="w-9 h-9 border-none rounded-full bg-tg-button text-tg-button-text flex items-center justify-center flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed active:opacity-80 transition"
+        className="w-9 h-9 rounded-full bg-tg-button text-tg-button-text flex items-center justify-center flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed active:opacity-80 transition border border-black/10 dark:border-white/10 shadow-md shadow-black/10"
       >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
           <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
