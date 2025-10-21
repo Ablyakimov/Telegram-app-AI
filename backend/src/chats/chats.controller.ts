@@ -1,13 +1,15 @@
-import { Controller, Get, Post, Body, Param, ParseIntPipe, UseGuards, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, ParseIntPipe, UseGuards, UploadedFile, UseInterceptors, Req } from '@nestjs/common';
 import { ChatsService } from './chats.service';
 import { AiService } from '../ai/ai.service';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { SendMessageDto } from './dto/send-message.dto';
 import { TelegramGuard } from '../telegram-auth/telegram.guard';
+import { UsersService } from '../users/users.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import * as fs from 'fs';
 import * as path from 'path';
+import { Request } from 'express';
 let pdfParse: any;
 
 @Controller('chats')
@@ -16,10 +18,26 @@ export class ChatsController {
   constructor(
     private readonly chatsService: ChatsService,
     private readonly aiService: AiService,
+    private readonly usersService: UsersService,
   ) {}
 
   @Post()
-  async create(@Body() createChatDto: CreateChatDto) {
+  async create(@Body() createChatDto: CreateChatDto, @Req() req: Request) {
+    // Get user from Telegram auth
+    const telegramUser = req['telegramUser'];
+    
+    if (telegramUser) {
+      // Ensure user exists in database
+      await this.usersService.findOrCreate({
+        id: telegramUser.id,
+        username: telegramUser.username || '',
+        firstName: telegramUser.first_name || '',
+      });
+      
+      // Use Telegram user ID
+      createChatDto.userId = telegramUser.id;
+    }
+    
     return this.chatsService.create(createChatDto);
   }
 
