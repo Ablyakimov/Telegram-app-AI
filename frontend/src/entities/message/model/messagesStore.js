@@ -71,6 +71,8 @@ export const useMessagesStore = create((set, get) => ({
   },
 
   uploadFile: async (chatId, file) => {
+    console.log('📤 messagesStore: uploadFile called', { chatId, fileName: file.name, fileType: file.type })
+    
     // Determine file type for better user message
     const isAudio = file.type.startsWith('audio/')
     const isImage = file.type.startsWith('image/')
@@ -85,6 +87,8 @@ export const useMessagesStore = create((set, get) => ({
       userMessage = '🎬 Обрабатываю видео...'
     }
     
+    console.log('📝 Adding optimistic message:', userMessage)
+    
     const optimistic = {
       role: 'user',
       content: userMessage,
@@ -98,13 +102,22 @@ export const useMessagesStore = create((set, get) => ({
       },
     }))
     try {
-      await ChatsApi.uploadFile(chatId, file)
+      console.log('🌐 Calling ChatsApi.uploadFile...')
+      const response = await ChatsApi.uploadFile(chatId, file)
+      console.log('✅ Upload response:', response)
+      
       // Refresh from server to avoid duplication and get extracted content + AI reply
+      console.log('🔄 Refreshing messages from server...')
       const messages = await ChatsApi.getMessages(chatId)
+      console.log('✅ Got', messages.length, 'messages from server')
+      
       set((state) => ({
         messagesByChatId: { ...state.messagesByChatId, [chatId]: messages },
       }))
     } catch (e) {
+      console.error('❌ Upload error:', e)
+      console.error('Error details:', e.response?.data || e.message)
+      
       set((state) => ({
         messagesByChatId: {
           ...state.messagesByChatId,

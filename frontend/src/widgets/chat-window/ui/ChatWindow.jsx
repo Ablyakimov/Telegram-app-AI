@@ -25,7 +25,13 @@ function ChatWindow({ chat, user, onBack }) {
   }
 
   const handleUploadFile = async (file) => {
-    await uploadFile(chat.id, file)
+    console.log('📎 ChatWindow: uploading file', { name: file.name, type: file.type, size: file.size })
+    try {
+      await uploadFile(chat.id, file)
+      console.log('✅ ChatWindow: file uploaded successfully')
+    } catch (error) {
+      console.error('❌ ChatWindow: file upload error', error)
+    }
   }
 
   return (
