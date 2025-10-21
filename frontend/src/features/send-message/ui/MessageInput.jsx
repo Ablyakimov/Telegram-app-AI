@@ -6,18 +6,27 @@ function MessageInput({ onSend, onUpload, disabled }) {
   const [isMobile, setIsMobile] = useState(false)
   const fileInputRef = useRef(null)
   const recognitionRef = useRef(null)
+  const transcriptRef = useRef({ final: '', interim: '' })
 
   useEffect(() => {
     // Detect if mobile device - strict desktop exclusion
     const checkMobile = () => {
-      // First check Telegram platform
+      // Check if running on Mac (always hide voice button on Mac)
+      const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0
+      if (isMac) {
+        console.log('🖥️ Mac detected, hiding voice button')
+        setIsMobile(false)
+        return
+      }
+      
+      // Check Telegram platform
       const telegramPlatform = window.Telegram?.WebApp?.platform
       console.log('🔍 Detected Telegram platform:', telegramPlatform)
       
       if (telegramPlatform) {
         // Desktop platforms to exclude
-        const desktopPlatforms = ['macos', 'tdesktop', 'unigram', 'web', 'weba', 'webk', 'unknown']
-        const isDesktop = desktopPlatforms.includes(telegramPlatform)
+        const desktopPlatforms = ['macos', 'tdesktop', 'unigram', 'web', 'weba', 'webk', 'unknown', 'linux', 'windows']
+        const isDesktop = desktopPlatforms.includes(telegramPlatform.toLowerCase())
         
         if (isDesktop) {
           console.log('🖥️ Desktop platform detected, hiding voice button')
@@ -25,16 +34,25 @@ function MessageInput({ onSend, onUpload, disabled }) {
           return
         }
         
-        // Mobile platforms
+        // Mobile platforms - ONLY these will show voice button
         const mobilePlatforms = ['android', 'ios', 'android_x']
-        const isTelegramMobile = mobilePlatforms.includes(telegramPlatform)
+        const isTelegramMobile = mobilePlatforms.includes(telegramPlatform.toLowerCase())
         console.log('📱 Mobile platform:', isTelegramMobile)
         setIsMobile(isTelegramMobile)
         return
       }
       
-      // Fallback to user agent check
+      // Fallback: check if it's NOT a desktop browser
       const ua = (navigator.userAgent || navigator.vendor || window.opera || '').toLowerCase()
+      const isDesktopUA = /mac|windows|linux|x11/i.test(ua) && !/mobile|android|iphone|ipad|ipod/i.test(ua)
+      
+      if (isDesktopUA) {
+        console.log('🖥️ Desktop browser detected, hiding voice button')
+        setIsMobile(false)
+        return
+      }
+      
+      // Only mobile devices
       const isMobileUA = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(ua)
       console.log('📱 User agent check, isMobile:', isMobileUA)
       setIsMobile(isMobileUA)
@@ -73,58 +91,49 @@ function MessageInput({ onSend, onUpload, disabled }) {
     }
   }
 
-  const startRecognition = () => {
+  useEffect(() => {
+    // Initialize recognition once and reuse it
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
-    if (!SpeechRecognition) {
-      alert('Распознавание речи не поддерживается на этом устройстве')
-      return
-    }
+    if (!SpeechRecognition || !isMobile) return
+    
     const recognition = new SpeechRecognition()
     recognition.lang = 'ru-RU'
-    recognition.interimResults = true // Show interim results while speaking
-    recognition.continuous = true // Keep listening until manually stopped
+    recognition.interimResults = true
+    recognition.continuous = true
     recognition.maxAlternatives = 1
     
-    let finalTranscript = ''
-    let interimTranscript = ''
-    
     recognition.onresult = (event) => {
-      interimTranscript = ''
+      transcriptRef.current.interim = ''
       
       for (let i = event.resultIndex; i < event.results.length; ++i) {
         const transcript = event.results[i][0].transcript
         if (event.results[i].isFinal) {
-          finalTranscript += transcript + ' '
+          transcriptRef.current.final += transcript + ' '
         } else {
-          interimTranscript += transcript
+          transcriptRef.current.interim += transcript
         }
       }
       
-      // Show current transcript (for debugging, optional)
-      console.log('🎤 Recording:', finalTranscript + interimTranscript)
+      console.log('🎤 Recording:', transcriptRef.current.final + transcriptRef.current.interim)
     }
     
     recognition.onend = () => {
-      // This should only fire when we manually stop
-      const fullTranscript = (finalTranscript + interimTranscript).trim()
+      const fullTranscript = (transcriptRef.current.final + transcriptRef.current.interim).trim()
       console.log('✅ Final transcript:', fullTranscript)
       
       setRecording(false)
       
-      // Auto-send the transcribed message
       if (fullTranscript) {
         onSend(fullTranscript)
       }
       
-      // Reset
-      finalTranscript = ''
-      interimTranscript = ''
+      // Reset transcripts
+      transcriptRef.current = { final: '', interim: '' }
     }
     
     recognition.onerror = (event) => {
       console.error('❌ Speech recognition error:', event.error)
       
-      // Don't stop on "no-speech" error, only on actual errors
       if (event.error === 'no-speech') {
         console.log('⏸️ No speech detected, still listening...')
         return
@@ -133,14 +142,36 @@ function MessageInput({ onSend, onUpload, disabled }) {
       setRecording(false)
       
       if (event.error === 'not-allowed') {
-        alert('Доступ к микрофону запрещен. Разрешите доступ в настройках.')
+        alert('Доступ к микрофону запрещен. Разрешите доступ в настройках Telegram.')
       }
     }
     
     recognitionRef.current = recognition
-    setRecording(true)
-    recognition.start()
-    console.log('🎙️ Voice recording started')
+    
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.abort()
+      }
+    }
+  }, [isMobile, onSend])
+
+  const startRecognition = () => {
+    if (!recognitionRef.current) {
+      alert('Распознавание речи не поддерживается на этом устройстве')
+      return
+    }
+    
+    // Reset transcripts before starting
+    transcriptRef.current = { final: '', interim: '' }
+    
+    try {
+      setRecording(true)
+      recognitionRef.current.start()
+      console.log('🎙️ Voice recording started')
+    } catch (e) {
+      console.error('Error starting recognition:', e)
+      setRecording(false)
+    }
   }
 
   const stopRecognition = () => {
