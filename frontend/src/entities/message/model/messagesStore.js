@@ -71,9 +71,23 @@ export const useMessagesStore = create((set, get) => ({
   },
 
   uploadFile: async (chatId, file) => {
+    // Determine file type for better user message
+    const isAudio = file.type.startsWith('audio/')
+    const isImage = file.type.startsWith('image/')
+    const isVideo = file.type.startsWith('video/')
+    
+    let userMessage = '📎 Отправка файла...'
+    if (isAudio) {
+      userMessage = '🎤 Обрабатываю голосовое сообщение...'
+    } else if (isImage) {
+      userMessage = '🖼️ Анализирую изображение...'
+    } else if (isVideo) {
+      userMessage = '🎬 Обрабатываю видео...'
+    }
+    
     const optimistic = {
       role: 'user',
-      content: `[Uploading file: ${file.name}]`,
+      content: userMessage,
       timestamp: new Date().toISOString(),
       __optimistic: true,
     }
