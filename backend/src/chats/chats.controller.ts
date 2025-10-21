@@ -131,7 +131,6 @@ export class ChatsController {
       } else if (mime.startsWith('audio/')) {
         // Transcribe via OpenAI Whisper if available
         try {
-          const chat = await this.chatsService.findOne(chatId);
           // @ts-ignore access openai
           const openai: any = (this.aiService as any).openai;
           if (openai?.audio?.transcriptions) {
@@ -141,11 +140,14 @@ export class ChatsController {
               file: stream as any,
             });
             extractedText = transcription.text || '';
+            console.log('Transcription successful:', extractedText);
           } else {
+            console.log('OpenAI transcription service not available');
             extractedText = '[Audio uploaded but transcription service not available]';
           }
         } catch (e) {
-          extractedText = '[Audio uploaded but transcription failed]';
+          console.error('Audio transcription error:', e);
+          extractedText = `[Audio uploaded but transcription failed: ${e.message}]`;
         }
       } else if (mime.startsWith('image/')) {
         // For images, we'll use vision API
