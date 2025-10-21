@@ -37,7 +37,7 @@ function ChatWindow({ chat, user, onBack }) {
 
   return (
     <div className="flex flex-col h-screen bg-tg-bg">
-      <div className="flex items-center p-3 px-4 border-b border-tg-hint bg-tg-bg">
+      <div className="flex items-center gap-3 p-3 px-4 bg-tg-bg sticky top-0 z-10">
         <button 
           className="w-10 h-10 border-none bg-transparent text-tg-link text-[32px] flex items-center justify-center mr-2"
           onClick={onBack}
@@ -45,7 +45,7 @@ function ChatWindow({ chat, user, onBack }) {
           ‹
         </button>
         <div className="flex flex-col">
-          <h2 className="text-lg font-semibold leading-tight">{chat.name}</h2>
+          <h2 className="text-[17px] font-semibold leading-tight">{chat.name}</h2>
           <div className="text-[12px] text-tg-hint leading-none mt-0.5">
             {(function map(id){
               const m = { 'gpt-3.5-turbo':'GPT-3.5 Turbo','gpt-3.5-turbo-16k':'GPT-3.5 Turbo 16K','gpt-4o':'GPT-4o','gpt-4o-mini':'GPT-4o mini','gpt-4-turbo':'GPT-4 Turbo','gpt-4.1':'GPT-4.1' };
@@ -64,7 +64,7 @@ function ChatWindow({ chat, user, onBack }) {
             }`}
           >
             <div 
-              className={`p-3 px-4 text-[15px] leading-relaxed break-words ${
+              className={`p-3 px-4 text-[15px] leading-relaxed break-words shadow-sm ${
                 message.role === 'user' 
                   ? 'bg-tg-button text-tg-button-text rounded-2xl rounded-br-sm' 
                   : 'bg-tg-secondary-bg text-tg-text rounded-2xl rounded-bl-sm'

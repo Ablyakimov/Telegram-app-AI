@@ -44,11 +44,11 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
       onClick={onClose}
     >
       <div 
-        className="bg-tg-bg rounded-2xl p-6 w-full max-w-md shadow-[0_4px_20px_rgba(0,0,0,0.15)]" 
+        className="bg-tg-bg rounded-2xl p-6 w-full max-w-md border border-black/5 dark:border-white/5 shadow-lg" 
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-5">
-          <h2 className="text-xl font-semibold">New Chat</h2>
+          <h2 className="text-xl font-semibold">Create chat</h2>
           <button 
             className="w-8 h-8 border-none bg-transparent text-tg-hint text-[32px] flex items-center justify-center leading-none p-0"
             onClick={onClose}
@@ -61,9 +61,9 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
             type="text"
             value={chatName}
             onChange={(e) => setChatName(e.target.value)}
-            placeholder="Enter chat name..."
+            placeholder="Title"
             autoFocus
-            className="w-full p-3 px-4 border border-tg-hint rounded-lg bg-tg-secondary-bg text-tg-text text-base outline-none placeholder:text-tg-hint focus:border-tg-button"
+            className="w-full p-3 px-4 border border-black/5 dark:border-white/5 rounded-xl bg-tg-secondary-bg text-tg-text text-base outline-none placeholder:text-tg-hint focus:outline-none"
           />
           <button
             type="button"
@@ -76,13 +76,13 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
           </button>
 
           {advancedOpen && (
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 bg-tg-secondary-bg/50 rounded-2xl p-4 border border-black/5 dark:border-white/5">
               <div>
                 <label className="block mb-2 text-sm text-tg-hint">AI Model</label>
                 <select
                   value={selectedModel}
                   onChange={(e) => setSelectedModel(e.target.value)}
-                  className="w-full p-3 px-4 border border-tg-hint rounded-lg bg-tg-secondary-bg text-tg-text text-base outline-none"
+                  className="w-full p-3 px-4 border border-black/5 dark:border-white/5 rounded-xl bg-tg-bg text-tg-text text-base outline-none"
                 >
                   {(models.length ? models : [
                     { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo' },
@@ -106,7 +106,7 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
                     const p = presets.find(pr => pr.id === val)
                     if (p) setPrompt(p.text)
                   }}
-                  className="w-full p-3 px-4 border border-tg-hint rounded-lg bg-tg-secondary-bg text-tg-text text-base outline-none"
+                  className="w-full p-3 px-4 border border-black/5 dark:border-white/5 rounded-xl bg-tg-bg text-tg-text text-base outline-none"
                 >
                   <option value="">— Не использовать пресет —</option>
                   {presets.map(p => (
@@ -121,8 +121,8 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
                   rows={5}
-                  placeholder="Введите свой промпт или выберите пресет выше"
-                  className="w-full p-3 px-4 border border-tg-hint rounded-lg bg-tg-secondary-bg text-tg-text text-base outline-none resize-y"
+                  placeholder="Custom AI prompt"
+                  className="w-full p-3 px-4 border border-black/5 dark:border-white/5 rounded-xl bg-tg-bg text-tg-text text-base outline-none resize-y"
                 />
               </div>
             </div>
@@ -130,14 +130,14 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
           <div className="flex gap-3 mt-2">
             <button 
               type="button" 
-              className="flex-1 p-3 px-6 border-none rounded-lg bg-tg-secondary-bg text-tg-text text-base font-medium active:opacity-70 transition-opacity"
+              className="flex-1 p-3 px-6 border-none rounded-xl bg-tg-secondary-bg text-tg-text text-base font-medium active:opacity-80 transition"
               onClick={onClose}
             >
               Cancel
             </button>
             <button 
               type="submit" 
-              className="flex-1 p-3 px-6 border-none rounded-lg bg-tg-button text-tg-button-text text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed active:opacity-70 transition-opacity"
+              className="flex-1 p-3 px-6 border-none rounded-xl bg-tg-button text-tg-button-text text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed active:opacity-80 transition"
               disabled={!chatName.trim()}
             >
               Create
