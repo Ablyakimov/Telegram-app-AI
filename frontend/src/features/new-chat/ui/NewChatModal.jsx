@@ -67,12 +67,12 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
           />
           <button
             type="button"
-            className="flex items-center justify-between px-2 py-2 text-sm text-tg-link"
+            className="flex items-center justify-between px-2 py-2 text-sm text-tg-link active:opacity-80 transition"
             onClick={() => setAdvancedOpen(v => !v)}
             aria-expanded={advancedOpen}
           >
             <span>Продвинутая настройка</span>
-            <span className={`transition-transform ${advancedOpen ? 'rotate-90' : ''}`}>›</span>
+            <span className={`transition-transform duration-200 ${advancedOpen ? 'rotate-90' : ''}`}>›</span>
           </button>
 
           {advancedOpen && (
