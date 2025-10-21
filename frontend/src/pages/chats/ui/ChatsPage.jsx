@@ -57,9 +57,9 @@ function ChatsPage() {
     }
   }, [storeUser])
 
-  const handleCreateChat = async (chatName) => {
+  const handleCreateChat = async ({ name, aiModel }) => {
     try {
-      const newChat = await createChat({ name: chatName, userId: storeUser.id })
+      const newChat = await createChat({ name, userId: storeUser.id, aiModel })
       setSelectedChat(newChat)
       setShowNewChatModal(false)
     } catch (error) {

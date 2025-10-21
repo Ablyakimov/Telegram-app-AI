@@ -1,4 +1,4 @@
-import { IsString, IsNumber } from 'class-validator';
+import { IsString, IsNumber, IsOptional } from 'class-validator';
 
 export class CreateChatDto {
   @IsString()
@@ -6,5 +6,10 @@ export class CreateChatDto {
 
   @IsNumber()
   userId: number;
+
+  // Optional AI model id (defaults to gpt-4o)
+  @IsOptional()
+  @IsString()
+  aiModel?: string;
 }
 

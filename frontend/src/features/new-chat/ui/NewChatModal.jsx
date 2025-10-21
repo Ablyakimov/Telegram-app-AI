@@ -1,12 +1,19 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useModelsStore } from '@entities/model/modelsStore'
 
 function NewChatModal({ onClose, onCreate }) {
   const [chatName, setChatName] = useState('')
+  const { models, fetch } = useModelsStore()
+  const [selectedModel, setSelectedModel] = useState('gpt-4o')
+
+  useEffect(() => {
+    fetch()
+  }, [fetch])
 
   const handleSubmit = (e) => {
     e.preventDefault()
     if (chatName.trim()) {
-      onCreate(chatName)
+      onCreate({ name: chatName, aiModel: selectedModel })
       setChatName('')
     }
   }
@@ -38,6 +45,23 @@ function NewChatModal({ onClose, onCreate }) {
             autoFocus
             className="w-full p-3 px-4 border border-tg-hint rounded-lg bg-tg-secondary-bg text-tg-text text-base outline-none placeholder:text-tg-hint focus:border-tg-button"
           />
+          <div>
+            <label className="block mb-2 text-sm text-tg-hint">AI Model</label>
+            <select
+              value={selectedModel}
+              onChange={(e) => setSelectedModel(e.target.value)}
+              className="w-full p-3 px-4 border border-tg-hint rounded-lg bg-tg-secondary-bg text-tg-text text-base outline-none"
+            >
+              {(models.length ? models : [
+                { id: 'gpt-4o', name: 'GPT-4o' },
+                { id: 'gpt-4o-mini', name: 'GPT-4o mini' },
+                { id: 'gpt-4-turbo', name: 'GPT-4 Turbo' },
+                { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo' },
+              ]).filter(m => m.enabled !== false).map((m) => (
+                <option key={m.id} value={m.id}>{m.name}</option>
+              ))}
+            </select>
+          </div>
           <div className="flex gap-3 mt-2">
             <button 
               type="button" 

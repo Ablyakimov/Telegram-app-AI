@@ -67,6 +67,7 @@ export class ChatsController {
       systemPrompt,
       temperature,
       maxTokens,
+      model: chat.aiModel,
     });
 
     // Save AI message
@@ -130,7 +131,7 @@ export class ChatsController {
         const aiResponse = await this.aiService.chat([
           ...chat.messages,
           { role: 'user', content: contextMessage }
-        ]);
+        ], { model: chat.aiModel });
         
         await this.chatsService.addMessage(chatId, 'assistant', aiResponse);
         
@@ -151,7 +152,7 @@ export class ChatsController {
         const aiResponse = await this.aiService.chat([
           ...chat.messages,
           { role: 'user', content: contextMessage }
-        ]);
+        ], { model: chat.aiModel });
         
         await this.chatsService.addMessage(chatId, 'assistant', aiResponse);
         
@@ -188,7 +189,7 @@ export class ChatsController {
         const aiResponse = await this.aiService.chat([
           ...chat.messages,
           { role: 'user', content: contextMessage }
-        ]);
+        ], { model: chat.aiModel });
         
         await this.chatsService.addMessage(chatId, 'assistant', aiResponse);
         
@@ -214,7 +215,7 @@ export class ChatsController {
             const chat = await this.chatsService.findOne(chatId);
             
             // Ask AI with the transcribed text
-            const aiResponse = await this.aiService.chat(chat.messages);
+            const aiResponse = await this.aiService.chat(chat.messages, { model: chat.aiModel });
             
             await this.chatsService.addMessage(chatId, 'assistant', aiResponse);
             
@@ -254,7 +255,8 @@ export class ChatsController {
           const aiResponse = await this.aiService.chatWithImage(
             chat.messages, 
             imageUrl, 
-            'Опиши что ты видишь на этом изображении'
+            'Опиши что ты видишь на этом изображении',
+            chat.aiModel
           );
           
           console.log('✅ AI response received, length:', aiResponse?.length);
@@ -283,7 +285,7 @@ export class ChatsController {
       const chat = await this.chatsService.findOne(chatId);
 
       // Ask AI with the new context
-      const aiResponse = await this.aiService.chat(chat.messages);
+      const aiResponse = await this.aiService.chat(chat.messages, { model: chat.aiModel });
 
       await this.chatsService.addMessage(chatId, 'assistant', aiResponse);
 

@@ -16,6 +16,7 @@ export class ChatsService {
       name: createChatDto.name,
       userId: createChatDto.userId,
       messages: [],
+      aiModel: createChatDto.aiModel || 'gpt-4o',
     });
     return this.chatsRepository.save(chat);
   }

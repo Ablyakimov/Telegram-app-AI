@@ -64,14 +64,15 @@ export class AiService {
 
   async chat(
     messages: Array<{ role: string; content: string }>,
-    options?: { systemPrompt?: string; temperature?: number; maxTokens?: number },
+    options?: { systemPrompt?: string; temperature?: number; maxTokens?: number; model?: string },
   ): Promise<string> {
     if (!this.openai) {
       throw new Error('OpenAI is not configured. Please set OPENAI_API_KEY in environment variables.');
     }
 
     try {
-      const model = this.configService.get<string>('OPENAI_MODEL') || 'gpt-4';
+      const defaultModel = this.configService.get<string>('OPENAI_MODEL') || 'gpt-4o';
+      const model = options?.model || defaultModel;
       const temperature = this.sanitizeTemperature(options?.temperature);
       const max_tokens = this.sanitizeMaxTokens(options?.maxTokens);
 
@@ -96,6 +97,7 @@ export class AiService {
     messages: Array<{ role: string; content: string }>,
     imageUrl: string,
     prompt: string,
+    modelOverride?: string,
   ): Promise<string> {
     if (!this.openai) {
       throw new Error('OpenAI is not configured. Please set OPENAI_API_KEY in environment variables.');
@@ -103,7 +105,7 @@ export class AiService {
 
     try {
       // Use vision-capable model (gpt-4o or gpt-4-vision-preview)
-      const model = 'gpt-4o';
+      const model = modelOverride && modelOverride.includes('4o') ? modelOverride : 'gpt-4o';
       const temperature = this.sanitizeTemperature(0.7);
       const max_tokens = this.sanitizeMaxTokens(1000);
 

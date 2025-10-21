@@ -18,17 +18,18 @@ export const useChatsStore = create((set, get) => ({
     }
   },
 
-  createChat: async ({ name, userId }) => {
+  createChat: async ({ name, userId, aiModel = 'gpt-4o' }) => {
     const optimisticChat = {
       id: Date.now(),
       name,
       userId,
+      aiModel,
       messages: [],
       __optimistic: true,
     }
     set({ chats: [optimisticChat, ...get().chats] })
     try {
-      const created = await ChatsApi.create({ name, userId })
+      const created = await ChatsApi.create({ name, userId, aiModel })
       set({
         chats: get().chats.map((c) => (c.__optimistic ? created : c)),
       })

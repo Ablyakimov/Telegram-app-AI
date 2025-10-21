@@ -3,6 +3,16 @@ import { useState } from 'react'
 function ChatList({ chats, onSelectChat, onNewChat, onRenameChat, onDeleteChat }) {
   const [openMenuChatId, setOpenMenuChatId] = useState(null)
 
+  const modelName = (id) => {
+    const map = {
+      'gpt-4o': 'GPT-4o',
+      'gpt-4o-mini': 'GPT-4o mini',
+      'gpt-4-turbo': 'GPT-4 Turbo',
+      'gpt-3.5-turbo': 'GPT-3.5 Turbo',
+    }
+    return map[id] || id || 'GPT-4o'
+  }
+
   const handleRename = (chat) => {
     const newName = prompt('Введите новое название чата:', chat.name)
     if (newName && newName.trim() && newName !== chat.name) {
@@ -66,9 +76,7 @@ function ChatList({ chats, onSelectChat, onNewChat, onRenameChat, onDeleteChat }
                 <div className="flex-1 min-w-0">
                   <div className="text-base font-medium mb-1">{chat.name}</div>
                   <div className="text-sm text-tg-hint overflow-hidden text-ellipsis whitespace-nowrap">
-                    {chat.messages.length > 0
-                      ? chat.messages[chat.messages.length - 1].content.substring(0, 50) + '...'
-                      : 'No messages yet'}
+                    {modelName(chat.aiModel)}
                   </div>
                 </div>
               </div>
