@@ -139,8 +139,21 @@ export class ChatsController {
               model: 'whisper-1',
               file: stream as any,
             });
-            extractedText = transcription.text || '';
-            console.log('Transcription successful:', extractedText);
+            const transcribedText = transcription.text || '';
+            console.log('Transcription successful:', transcribedText);
+            
+            // Save only transcribed text as user message (without "File: voice.webm")
+            await this.chatsService.addMessage(chatId, 'user', transcribedText);
+            
+            // Get chat history
+            const chat = await this.chatsService.findOne(chatId);
+            
+            // Ask AI with the transcribed text
+            const aiResponse = await this.aiService.chat(chat.messages);
+            
+            await this.chatsService.addMessage(chatId, 'assistant', aiResponse);
+            
+            return { message: aiResponse };
           } else {
             console.log('OpenAI transcription service not available');
             extractedText = '[Audio uploaded but transcription service not available]';
