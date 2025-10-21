@@ -18,7 +18,7 @@ export const useChatsStore = create((set, get) => ({
     }
   },
 
-  createChat: async ({ name, userId, aiModel = 'gpt-4o' }) => {
+  createChat: async ({ name, userId, aiModel = 'gpt-3.5-turbo', systemPrompt }) => {
     const optimisticChat = {
       id: Date.now(),
       name,
@@ -29,7 +29,7 @@ export const useChatsStore = create((set, get) => ({
     }
     set({ chats: [optimisticChat, ...get().chats] })
     try {
-      const created = await ChatsApi.create({ name, userId, aiModel })
+      const created = await ChatsApi.create({ name, userId, aiModel, systemPrompt })
       set({
         chats: get().chats.map((c) => (c.__optimistic ? created : c)),
       })

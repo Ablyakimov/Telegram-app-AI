@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsOptional } from 'class-validator';
+import { IsString, IsNumber, IsOptional, MaxLength } from 'class-validator';
 
 export class CreateChatDto {
   @IsString()
@@ -11,5 +11,11 @@ export class CreateChatDto {
   @IsOptional()
   @IsString()
   aiModel?: string;
+
+  // Optional system prompt to seed assistant on chat creation
+  @IsOptional()
+  @IsString()
+  @MaxLength(4000)
+  systemPrompt?: string;
 }
 

@@ -39,7 +39,23 @@ export class ChatsController {
       createChatDto.userId = telegramUser.id;
     }
     
-    return this.chatsService.create(createChatDto);
+    const chat = await this.chatsService.create(createChatDto);
+    // If systemPrompt provided, seed assistant's first reply using selected model
+    const seedPrompt = (createChatDto.systemPrompt || '').trim();
+    if (seedPrompt) {
+      try {
+        const aiResponse = await this.aiService.chat([], {
+          systemPrompt: seedPrompt,
+          model: chat.aiModel,
+        });
+        await this.chatsService.addMessage(chat.id, 'assistant', aiResponse);
+      } catch (e) {
+        // do not fail creation on AI seed error
+        console.error('Seed assistant error:', (e as any)?.message || e);
+      }
+    }
+    // Return fresh chat
+    return this.chatsService.findOne(chat.id);
   }
 
   @Get(':userId')

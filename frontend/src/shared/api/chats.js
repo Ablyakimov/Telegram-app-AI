@@ -4,8 +4,8 @@ export const ChatsApi = {
   getByUser(userId) {
     return get(`/chats/${userId}`)
   },
-  create({ name, userId, aiModel }) {
-    return post('/chats', { name, userId, aiModel })
+  create({ name, userId, aiModel, systemPrompt }) {
+    return post('/chats', { name, userId, aiModel, systemPrompt })
   },
   getMessages(chatId) {
     return get(`/chats/${chatId}/messages`)
