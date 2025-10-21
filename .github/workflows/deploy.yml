@@ -54,6 +54,7 @@ jobs:
             echo 'TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}' >> .env && \
             echo 'CORS_ORIGIN=https://24ablyakimov.ru' >> .env && \
             echo 'VITE_API_BASE_URL=/api' >> .env && \
+            mv docker-compose.override.yml docker-compose.override.yml.bak || true && \
             docker compose pull || true && \
             docker compose up -d --build && \
             docker compose --profile production up nginx -d \
