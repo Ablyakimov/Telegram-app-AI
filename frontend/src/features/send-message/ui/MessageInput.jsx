@@ -5,6 +5,8 @@ function MessageInput({ onSend, onUpload, disabled }) {
   const [recording, setRecording] = useState(false)
   const fileInputRef = useRef(null)
   const recognitionRef = useRef(null)
+  const mediaRecorderRef = useRef(null)
+  const audioChunksRef = useRef([])
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -37,33 +39,46 @@ function MessageInput({ onSend, onUpload, disabled }) {
     }
   }
 
-  const startRecognition = () => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
-    if (!SpeechRecognition) {
-      alert('Speech recognition not supported on this device')
-      return
-    }
-    const recognition = new SpeechRecognition()
-    recognition.lang = 'ru-RU'
-    recognition.interimResults = true
-    recognition.continuous = false
-    recognition.onresult = (event) => {
-      let transcript = ''
-      for (let i = event.resultIndex; i < event.results.length; ++i) {
-        transcript += event.results[i][0].transcript
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      audioChunksRef.current = []
+      
+      const mediaRecorder = new MediaRecorder(stream)
+      mediaRecorderRef.current = mediaRecorder
+      
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data)
+        }
       }
-      setMessage((prev) => (prev ? prev + ' ' : '') + transcript.trim())
+      
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' })
+        const audioFile = new File([audioBlob], 'voice.webm', { type: 'audio/webm' })
+        
+        // Stop all tracks
+        stream.getTracks().forEach(track => track.stop())
+        
+        // Upload audio file for transcription
+        if (onUpload) {
+          await onUpload(audioFile)
+        }
+      }
+      
+      mediaRecorder.start()
+      setRecording(true)
+    } catch (err) {
+      console.error('Error accessing microphone:', err)
+      alert('Could not access microphone. Please check permissions.')
     }
-    recognition.onend = () => setRecording(false)
-    recognition.onerror = () => setRecording(false)
-    recognitionRef.current = recognition
-    setRecording(true)
-    recognition.start()
   }
 
-  const stopRecognition = () => {
-    recognitionRef.current?.stop()
-    setRecording(false)
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && recording) {
+      mediaRecorderRef.current.stop()
+      setRecording(false)
+    }
   }
 
   return (
@@ -87,7 +102,7 @@ function MessageInput({ onSend, onUpload, disabled }) {
       </button>
       <button
         type="button"
-        onClick={recording ? stopRecognition : startRecognition}
+        onClick={recording ? stopRecording : startRecording}
         className={`w-10 h-10 border-none rounded-full flex items-center justify-center flex-shrink-0 active:opacity-70 transition-opacity ${recording ? 'bg-red-500 text-white' : 'bg-tg-secondary-bg text-tg-text'}`}
         disabled={disabled}
         aria-label="Voice input"
