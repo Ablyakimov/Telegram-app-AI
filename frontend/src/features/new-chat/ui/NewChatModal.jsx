@@ -40,11 +40,11 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
 
   return (
     <div 
-      className="fixed inset-0 bg-black/50 flex items-center justify-center p-5 z-[1000]" 
+      className="fixed inset-0 bg-black/50 flex items-center justify-center p-5 z-[1000] anim-backdrop" 
       onClick={onClose}
     >
       <div 
-        className="bg-tg-bg rounded-2xl p-6 w-full max-w-md border border-black/5 dark:border-white/5 shadow-lg" 
+        className="bg-tg-bg rounded-2xl p-6 w-full max-w-md border border-black/5 dark:border-white/5 shadow-lg anim-scale-in" 
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-5">
