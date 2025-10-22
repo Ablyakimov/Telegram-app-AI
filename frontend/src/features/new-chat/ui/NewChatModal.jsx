@@ -75,7 +75,7 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
             <span className={`transition-transform duration-200 ${advancedOpen ? 'rotate-90' : ''}`}>›</span>
           </button>
 
-          {advancedOpen && (
+          <div className={`overflow-hidden transition-all duration-300 ${advancedOpen ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}`}>
             <div className="flex flex-col gap-4 bg-tg-secondary-bg/50 rounded-2xl p-4 border border-black/5 dark:border-white/5">
               <div>
                 <label className="block mb-2 text-sm text-tg-hint">AI Model</label>
@@ -126,7 +126,7 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
                 />
               </div>
             </div>
-          )}
+          </div>
           <div className="flex gap-3 mt-2">
             <button 
               type="button" 
