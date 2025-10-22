@@ -62,7 +62,6 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
             value={chatName}
             onChange={(e) => setChatName(e.target.value)}
             placeholder="Title"
-            autoFocus
             className="w-full p-3 px-4 border border-black/5 dark:border-white/5 rounded-xl bg-tg-secondary-bg text-tg-text text-base outline-none placeholder:text-tg-hint focus:outline-none"
           />
           <button
