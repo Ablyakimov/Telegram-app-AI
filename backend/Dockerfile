@@ -40,17 +40,15 @@ FROM node:20-alpine AS production
 WORKDIR /app
 ENV NODE_ENV=production
 
-# Copy package files for production dependencies (lockfile optional)
-COPY package*.json ./
+# Copy package files
+COPY --from=builder /app/package*.json ./
 
-# Install ONLY production dependencies
-RUN if [ -f package-lock.json ]; then npm ci --omit=dev; else npm install --omit=dev; fi && npm cache clean --force
+# Copy node_modules from builder and prune dev dependencies
+COPY --from=builder /app/node_modules ./node_modules
+RUN npm prune --omit=dev && npm cache clean --force
 
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
-
-# Copy package.json for runtime (needed for some modules)
-COPY --from=builder /app/package.json ./
 
 # Debug: check what was copied
 RUN echo "Checking copied files:" && ls -la && echo "Checking dist folder:" && ls -la dist/ && echo "Checking main.js:" && ls -la dist/main.js
