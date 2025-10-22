@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 function ChatList({ chats, onSelectChat, onNewChat, onRenameChat, onDeleteChat }) {
+  const { t } = useTranslation()
   const [openMenuChatId, setOpenMenuChatId] = useState(null)
 
   const modelName = (id) => {
@@ -53,12 +55,12 @@ function ChatList({ chats, onSelectChat, onNewChat, onRenameChat, onDeleteChat }
       <div className="flex-1 overflow-y-auto px-4 pb-4 mt-3">
         {chats.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full px-5 text-center text-tg-hint">
-            <p className="mb-4 text-base">No chats yet</p>
+            <p className="mb-4 text-base">{t('chat.noMessages')}</p>
             <button 
               className="px-6 py-3 rounded-xl bg-tg-button text-tg-button-text text-base active:opacity-80 transition"
               onClick={onNewChat}
             >
-              Create your first chat
+              {t('chat.newChat')}
             </button>
           </div>
         ) : (

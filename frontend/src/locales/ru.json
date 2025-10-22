@@ -1,0 +1,40 @@
+{
+  "common": {
+    "loading": "Загрузка...",
+    "error": "Ошибка",
+    "success": "Успешно",
+    "cancel": "Отмена",
+    "ok": "OK",
+    "save": "Сохранить",
+    "delete": "Удалить",
+    "edit": "Изменить",
+    "close": "Закрыть",
+    "back": "Назад"
+  },
+  "chat": {
+    "placeholder": "Напишите сообщение...",
+    "send": "Отправить",
+    "voice": "Голосовое сообщение",
+    "attach": "Прикрепить файл",
+    "typing": "ИИ печатает...",
+    "noMessages": "Чатов пока нет",
+    "newChat": "Создайте свой первый чат",
+    "chats": "AI Ассистент"
+  },
+  "models": {
+    "selectModel": "Выберите модель ИИ",
+    "gpt35turbo": "GPT-3.5 Turbo",
+    "gpt35turbo16k": "GPT-3.5 Turbo 16K",
+    "gpt4o": "GPT-4o",
+    "gpt4omini": "GPT-4o mini",
+    "gpt4turbo": "GPT-4 Turbo",
+    "gpt41": "GPT-4.1"
+  },
+  "settings": {
+    "title": "Настройки",
+    "language": "Язык",
+    "english": "English",
+    "russian": "Русский"
+  }
+}
+
