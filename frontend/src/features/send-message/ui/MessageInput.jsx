@@ -4,6 +4,7 @@ function MessageInput({ onSend, onUpload, disabled }) {
   const [message, setMessage] = useState('')
   const [recording, setRecording] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  const [isSending, setIsSending] = useState(false)
   const fileInputRef = useRef(null)
   const recognitionRef = useRef(null)
   const transcriptRef = useRef({ final: '', interim: '' })
@@ -60,11 +61,16 @@ function MessageInput({ onSend, onUpload, disabled }) {
     checkMobile()
   }, [])
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    if (message.trim() && !disabled) {
-      onSend(message)
-      setMessage('')
+    if (message.trim() && !disabled && !isSending) {
+      setIsSending(true)
+      try {
+        await onSend(message)
+        setMessage('')
+      } finally {
+        setIsSending(false)
+      }
     }
   }
 
@@ -235,12 +241,12 @@ function MessageInput({ onSend, onUpload, disabled }) {
 
       {/* Right side buttons - voice or send with smooth animations */}
       <div className="relative w-10 h-10 flex items-center justify-center">
-        {/* Voice button - fades in when no text and not recording */}
+        {/* Voice button - fades in when no text, not recording, and not sending */}
         <button
           type="button"
           onClick={startRecognition}
           className={`absolute w-10 h-10 rounded-full bg-tg-bg text-tg-text/70 hover:text-tg-text flex items-center justify-center flex-shrink-0 active:scale-95 shadow-sm mb-auto transition-all duration-200 ${
-            isMobile && !message.trim() && !recording
+            isMobile && !message.trim() && !recording && !isSending
               ? 'opacity-100 scale-100 pointer-events-auto'
               : 'opacity-0 scale-90 pointer-events-none'
           }`}
@@ -254,12 +260,12 @@ function MessageInput({ onSend, onUpload, disabled }) {
           </svg>
         </button>
 
-        {/* Send button - fades in when there's text */}
+        {/* Send button - fades in when there's text and not sending */}
         <button
           type="submit"
-          disabled={disabled}
+          disabled={disabled || isSending}
           className={`absolute w-10 h-10 rounded-full bg-tg-button text-white flex items-center justify-center flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 shadow-lg disabled:shadow-sm mb-auto transition-all duration-200 ${
-            message.trim() ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-90 pointer-events-none'
+            message.trim() && !isSending ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-90 pointer-events-none'
           }`}
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
