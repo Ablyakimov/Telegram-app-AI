@@ -233,13 +233,17 @@ function MessageInput({ onSend, onUpload, disabled }) {
         />
       </div>
 
-      {/* Right side buttons - voice or send */}
-      {isMobile && !message.trim() && !recording ? (
-        // Voice button when no text and not recording
+      {/* Right side buttons - voice or send with smooth animations */}
+      <div className="relative w-10 h-10 flex items-center justify-center">
+        {/* Voice button - fades in when no text and not recording */}
         <button
           type="button"
           onClick={startRecognition}
-          className="w-10 h-10 rounded-full bg-tg-bg text-tg-text/70 hover:text-tg-text flex items-center justify-center flex-shrink-0 active:scale-95 transition-all shadow-sm mb-auto"
+          className={`absolute w-10 h-10 rounded-full bg-tg-bg text-tg-text/70 hover:text-tg-text flex items-center justify-center flex-shrink-0 active:scale-95 shadow-sm mb-auto transition-all duration-200 ${
+            isMobile && !message.trim() && !recording
+              ? 'opacity-100 scale-100 pointer-events-auto'
+              : 'opacity-0 scale-90 pointer-events-none'
+          }`}
           disabled={disabled}
           aria-label="Voice input"
         >
@@ -249,23 +253,27 @@ function MessageInput({ onSend, onUpload, disabled }) {
             <path d="M12 19v3"/>
           </svg>
         </button>
-      ) : message.trim() ? (
-        // Send button when there's text
+
+        {/* Send button - fades in when there's text */}
         <button
           type="submit"
           disabled={disabled}
-          className="w-10 h-10 rounded-full bg-tg-button text-white flex items-center justify-center flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 transition-all shadow-lg disabled:shadow-sm mb-auto"
+          className={`absolute w-10 h-10 rounded-full bg-tg-button text-white flex items-center justify-center flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 shadow-lg disabled:shadow-sm mb-auto transition-all duration-200 ${
+            message.trim() ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-90 pointer-events-none'
+          }`}
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13"/>
           </svg>
         </button>
-      ) : recording ? (
-        // Recording stop button when recording
+
+        {/* Recording stop button - fades in when recording */}
         <button
           type="button"
           onClick={stopRecognition}
-          className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center flex-shrink-0 active:scale-95 transition-all shadow-lg shadow-red-500/30 mb-auto"
+          className={`absolute w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center flex-shrink-0 active:scale-95 shadow-lg shadow-red-500/30 mb-auto transition-all duration-200 ${
+            recording ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-90 pointer-events-none'
+          }`}
           disabled={disabled}
           aria-label="Stop recording"
         >
@@ -273,7 +281,7 @@ function MessageInput({ onSend, onUpload, disabled }) {
             <rect x="6" y="6" width="12" height="12" rx="2"/>
           </svg>
         </button>
-      ) : null}
+      </div>
       </div>
     </form>
   )
