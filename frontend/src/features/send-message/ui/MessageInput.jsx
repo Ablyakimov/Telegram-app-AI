@@ -139,13 +139,13 @@ function MessageInput({ onSend, onUpload, disabled }) {
     recognition.onend = () => {
       const fullTranscript = (transcriptRef.current.final + transcriptRef.current.interim).trim()
       console.log('✅ Final transcript:', fullTranscript)
-      
+
       setRecording(false)
-      
+
       if (fullTranscript) {
         onSend(fullTranscript)
       }
-      
+
       // Reset transcripts
       transcriptRef.current = { final: '', interim: '' }
     }
@@ -202,7 +202,7 @@ function MessageInput({ onSend, onUpload, disabled }) {
 
   return (
     <form className="p-3 px-4 pb-safe-offset-4 bg-tg-bg anim-fade-in" onSubmit={handleSubmit}>
-      <div className="flex items-center gap-3 bg-tg-secondary-bg rounded-full px-3 py-3 border border-black/10 dark:border-white/10 shadow-lg anim-scale-in">
+      <div className="flex items-end gap-3 bg-tg-secondary-bg rounded-full px-3 py-3 border border-black/10 dark:border-white/10 shadow-lg anim-scale-in">
       <input
         ref={fileInputRef}
         type="file"
@@ -212,7 +212,7 @@ function MessageInput({ onSend, onUpload, disabled }) {
       <button
         type="button"
         onClick={handleAttachClick}
-        className="w-10 h-10 rounded-full bg-tg-bg text-tg-text/70 hover:text-tg-text flex items-center justify-center flex-shrink-0 active:scale-95 transition-all shadow-sm"
+        className="w-10 h-10 rounded-full bg-tg-bg text-tg-text/70 hover:text-tg-text flex items-center justify-center flex-shrink-0 active:scale-95 transition-all shadow-sm mb-auto"
         disabled={disabled}
         aria-label="Attach file"
       >
@@ -220,46 +220,63 @@ function MessageInput({ onSend, onUpload, disabled }) {
           <path d="M21 12V7a5 5 0 0 0-10 0v9a3 3 0 1 0 6 0V8"/>
         </svg>
       </button>
-      {/* Voice button - only show on mobile */}
-      {isMobile && (
+
+      <div className="flex-1 flex flex-col">
+        <textarea
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          onKeyPress={handleKeyPress}
+          placeholder="Type a message..."
+          disabled={disabled}
+          rows="1"
+          className="w-full min-h-[40px] max-h-[120px] bg-transparent text-tg-text text-[15px] resize-none outline-none placeholder:text-tg-hint"
+        />
+      </div>
+
+      {/* Voice button - only show on mobile when no text */}
+      {isMobile && !message.trim() && !recording && (
         <button
           type="button"
-          onClick={recording ? stopRecognition : startRecognition}
-          className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 active:scale-95 transition-all ${recording ? 'bg-red-500 text-white shadow-lg shadow-red-500/30' : 'bg-tg-bg text-tg-text/70 hover:text-tg-text shadow-sm'}`}
+          onClick={startRecognition}
+          className="w-10 h-10 rounded-full bg-tg-bg text-tg-text/70 hover:text-tg-text flex items-center justify-center flex-shrink-0 active:scale-95 transition-all shadow-sm mb-auto"
           disabled={disabled}
           aria-label="Voice input"
         >
-          {recording ? (
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-              <rect x="6" y="6" width="12" height="12" rx="2"/>
-            </svg>
-          ) : (
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 14a3 3 0 0 0 3-3V7a3 3 0 1 0-6 0v4a3 3 0 0 0 3 3Z"/>
-              <path d="M19 11v1a7 7 0 0 1-14 0v-1"/>
-              <path d="M12 19v3"/>
-            </svg>
-          )}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 14a3 3 0 0 0 3-3V7a3 3 0 1 0-6 0v4a3 3 0 0 0 3 3Z"/>
+            <path d="M19 11v1a7 7 0 0 1-14 0v-1"/>
+            <path d="M12 19v3"/>
+          </svg>
         </button>
       )}
-      <textarea
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        onKeyPress={handleKeyPress}
-        placeholder="Type a message..."
-        disabled={disabled}
-        rows="1"
-        className="flex-1 min-h-[40px] max-h-[120px] bg-transparent text-tg-text text-[15px] resize-none outline-none placeholder:text-tg-hint px-2"
-      />
-      <button
-        type="submit"
-        disabled={disabled || !message.trim()}
-        className="w-10 h-10 rounded-full bg-tg-button text-white flex items-center justify-center flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 transition-all shadow-lg disabled:shadow-sm"
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13"/>
-        </svg>
-      </button>
+
+      {/* Send button - show when there's text */}
+      {message.trim() && (
+        <button
+          type="submit"
+          disabled={disabled}
+          className="w-10 h-10 rounded-full bg-tg-button text-white flex items-center justify-center flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 transition-all shadow-lg disabled:shadow-sm mb-auto"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13"/>
+          </svg>
+        </button>
+      )}
+
+      {/* Recording indicator */}
+      {recording && (
+        <button
+          type="button"
+          onClick={stopRecognition}
+          className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center flex-shrink-0 active:scale-95 transition-all shadow-lg shadow-red-500/30 mb-auto"
+          disabled={disabled}
+          aria-label="Stop recording"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <rect x="6" y="6" width="12" height="12" rx="2"/>
+          </svg>
+        </button>
+      )}
       </div>
     </form>
   )
