@@ -12,6 +12,22 @@ function ChatsPage() {
   const [selectedChat, setSelectedChat] = useState(null)
   const [showNewChatModal, setShowNewChatModal] = useState(false)
   const [theme, setTheme] = useState('light')
+  
+  useEffect(() => {
+    // Platform detection → apple | android | windows
+    const platformFromTg = window.Telegram?.WebApp?.platform
+    const ua = (navigator.userAgent || '').toLowerCase()
+    let platform = 'windows'
+    if (platformFromTg) {
+      if (['ios', 'macos'].includes(platformFromTg)) platform = 'apple'
+      else if (platformFromTg.includes('android')) platform = 'android'
+      else platform = 'windows'
+    } else {
+      if (/iphone|ipad|ipod|mac os x/.test(ua)) platform = 'apple'
+      else if (/android/.test(ua)) platform = 'android'
+    }
+    document.documentElement.setAttribute('data-platform', platform)
+  }, [])
 
   useEffect(() => {
     if (tg) {
