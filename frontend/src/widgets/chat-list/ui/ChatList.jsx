@@ -104,12 +104,12 @@ function ChatList({ chats, onSelectChat, onNewChat, onRenameChat, onDeleteChat }
                 <>
                   {/* Backdrop to close menu */}
                   <div 
-                    className="fixed inset-0 z-10"
+                    className="fixed inset-0 z-[100]"
                     onClick={() => setOpenMenuChatId(null)}
                   />
                   
                   {/* Menu popup */}
-                  <div className="absolute right-4 top-12 z-20 bg-tg-bg border border-black/5 dark:border-white/5 rounded-xl shadow-lg overflow-hidden min-w-[180px] anim-dropdown">
+                  <div className="absolute right-4 top-12 z-[110] bg-tg-bg border border-black/5 dark:border-white/5 rounded-xl shadow-lg overflow-hidden min-w-[180px] anim-dropdown">
                     <button
                       className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-tg-secondary-bg active:bg-tg-secondary-bg transition"
                       onClick={(e) => {
