@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useModelsStore } from '@entities/model/modelsStore'
 
 function NewChatModal({ onClose, onCreate, defaultName }) {
+  const { t } = useTranslation()
   const normalize = (s) => (s || '').replace(/№{2,}/g, '№').replace(/\s+/g, ' ').trim()
   const [chatName, setChatName] = useState(normalize(defaultName))
   const { models, fetch } = useModelsStore()
@@ -48,7 +50,7 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-5">
-          <h2 className="text-xl font-semibold">Create chat</h2>
+          <h2 className="text-xl font-semibold">{t('chat.newChat')}</h2>
           <button 
             className="w-8 h-8 border border-black/10 dark:border-white/10 rounded-full bg-transparent text-tg-hint text-[20px] flex items-center justify-center leading-none p-0 shadow-sm"
             onClick={onClose}
@@ -132,14 +134,14 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
             className="flex-1 p-3 px-6 rounded-xl bg-tg-secondary-bg text-tg-text text-base font-medium active:opacity-80 transition border border-black/10 dark:border-white/10 shadow-sm"
               onClick={onClose}
             >
-              Cancel
+              {t('common.cancel')}
             </button>
             <button 
               type="submit" 
             className="flex-1 p-3 px-6 rounded-xl bg-tg-button text-tg-button-text text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed active:opacity-80 transition border border-black/10 dark:border-white/10 shadow-md"
               disabled={!chatName.trim()}
             >
-              Create
+              {t('common.save')}
             </button>
           </div>
         </form>

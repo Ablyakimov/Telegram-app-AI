@@ -1,0 +1,40 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "ok": "OK",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "back": "Back"
+  },
+  "chat": {
+    "placeholder": "Type a message...",
+    "send": "Send",
+    "voice": "Voice message",
+    "attach": "Attach file",
+    "typing": "AI is typing...",
+    "noMessages": "No chats yet",
+    "newChat": "Create your first chat",
+    "chats": "AI Assistant"
+  },
+  "models": {
+    "selectModel": "Select AI Model",
+    "gpt35turbo": "GPT-3.5 Turbo",
+    "gpt35turbo16k": "GPT-3.5 Turbo 16K",
+    "gpt4o": "GPT-4o",
+    "gpt4omini": "GPT-4o mini",
+    "gpt4turbo": "GPT-4 Turbo",
+    "gpt41": "GPT-4.1"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "english": "English",
+    "russian": "Русский"
+  }
+}
+

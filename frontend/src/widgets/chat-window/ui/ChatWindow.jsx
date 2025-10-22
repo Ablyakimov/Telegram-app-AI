@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import MessageInput from '@features/send-message/ui/MessageInput'
 import { useMessagesStore } from '@entities/message/model/messagesStore'
 import Markdown from '@shared/ui/Markdown'
 
 function ChatWindow({ chat, user, onBack }) {
+  const { t } = useTranslation()
   const { messagesByChatId, loadMessages, sendMessage, uploadFile, loadingByChatId, replyingByChatId } = useMessagesStore()
   const [viewportHeight, setViewportHeight] = useState('100vh')
   const messages = useMemo(() => messagesByChatId[chat.id] || [], [messagesByChatId, chat.id])
@@ -114,7 +116,7 @@ function ChatWindow({ chat, user, onBack }) {
               <span className="w-2 h-2 rounded-full bg-tg-hint animate-bounce [animation-delay:0ms]"></span>
               <span className="w-2 h-2 rounded-full bg-tg-hint animate-bounce [animation-delay:200ms]"></span>
               <span className="w-2 h-2 rounded-full bg-tg-hint animate-bounce [animation-delay:400ms]"></span>
-              <span className="text-sm text-tg-hint ml-2">ИИ печатает…</span>
+              <span className="text-sm text-tg-hint ml-2">{t('chat.typing')}</span>
             </div>
           </div>
         )}
