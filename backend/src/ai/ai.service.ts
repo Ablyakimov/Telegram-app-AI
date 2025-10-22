@@ -20,16 +20,16 @@ export class AiService {
   }
 
   private sanitizeTemperature(temperature?: number): number {
-    const fallback = this.configService.get<number>('OPENAI_TEMPERATURE') ?? 0.7;
-    if (typeof temperature !== 'number') return fallback;
+    const fallback = parseFloat(this.configService.get<string>('OPENAI_TEMPERATURE') || '0.7');
+    if (typeof temperature !== 'number' || isNaN(temperature)) return fallback;
     if (temperature < 0) return 0;
     if (temperature > 2) return 2;
     return temperature;
   }
 
   private sanitizeMaxTokens(maxTokens?: number): number {
-    const fallback = this.configService.get<number>('OPENAI_MAX_TOKENS') ?? 1000;
-    if (typeof maxTokens !== 'number') return fallback;
+    const fallback = parseInt(this.configService.get<string>('OPENAI_MAX_TOKENS') || '1000', 10);
+    if (typeof maxTokens !== 'number' || isNaN(maxTokens)) return fallback;
     if (maxTokens < 1) return 1;
     if (maxTokens > 4000) return 4000; // guardrail
     return maxTokens;
@@ -64,14 +64,15 @@ export class AiService {
 
   async chat(
     messages: Array<{ role: string; content: string }>,
-    options?: { systemPrompt?: string; temperature?: number; maxTokens?: number },
+    options?: { systemPrompt?: string; temperature?: number; maxTokens?: number; model?: string },
   ): Promise<string> {
     if (!this.openai) {
       throw new Error('OpenAI is not configured. Please set OPENAI_API_KEY in environment variables.');
     }
 
     try {
-      const model = this.configService.get<string>('OPENAI_MODEL') || 'gpt-4';
+      const defaultModel = this.configService.get<string>('OPENAI_MODEL') || 'gpt-3.5-turbo';
+      const model = options?.model || defaultModel;
       const temperature = this.sanitizeTemperature(options?.temperature);
       const max_tokens = this.sanitizeMaxTokens(options?.maxTokens);
 
@@ -89,6 +90,48 @@ export class AiService {
       const message = (error as any)?.message || 'Unknown OpenAI error';
       this.logger.error(`Error in AI chat: ${message}`);
       throw new Error(`AI chat error: ${message}`);
+    }
+  }
+
+  async chatWithImage(
+    messages: Array<{ role: string; content: string }>,
+    imageUrl: string,
+    prompt: string,
+    modelOverride?: string,
+  ): Promise<string> {
+    if (!this.openai) {
+      throw new Error('OpenAI is not configured. Please set OPENAI_API_KEY in environment variables.');
+    }
+
+    try {
+      // Use vision-capable model (gpt-4o or gpt-4-vision-preview)
+      const model = modelOverride && modelOverride.includes('4o') ? modelOverride : 'gpt-4o';
+      const temperature = this.sanitizeTemperature(0.7);
+      const max_tokens = this.sanitizeMaxTokens(1000);
+
+      // Build messages with image
+      const visionMessages = [
+        {
+          role: 'user',
+          content: [
+            { type: 'text', text: prompt },
+            { type: 'image_url', image_url: { url: imageUrl } },
+          ],
+        },
+      ];
+
+      const completion = await this.openai.chat.completions.create({
+        model,
+        messages: visionMessages as any,
+        temperature,
+        max_tokens,
+      });
+
+      return completion.choices[0].message.content;
+    } catch (error) {
+      const message = (error as any)?.message || 'Unknown OpenAI error';
+      this.logger.error(`Error in AI vision: ${message}`);
+      throw new Error(`AI vision error: ${message}`);
     }
   }
 }

@@ -8,10 +8,26 @@ import { useChatsStore } from '@entities/chat/model/chatsStore'
 function ChatsPage() {
   const [tg] = useState(() => window.Telegram?.WebApp)
   const { user: storeUser, setUser } = useUserStore()
-  const { chats, fetchByUser, createChat } = useChatsStore()
+  const { chats, fetchByUser, createChat, updateChatName, deleteChat } = useChatsStore()
   const [selectedChat, setSelectedChat] = useState(null)
   const [showNewChatModal, setShowNewChatModal] = useState(false)
   const [theme, setTheme] = useState('light')
+  
+  useEffect(() => {
+    // Platform detection → apple | android | windows
+    const platformFromTg = window.Telegram?.WebApp?.platform
+    const ua = (navigator.userAgent || '').toLowerCase()
+    let platform = 'windows'
+    if (platformFromTg) {
+      if (['ios', 'macos'].includes(platformFromTg)) platform = 'apple'
+      else if (platformFromTg.includes('android')) platform = 'android'
+      else platform = 'windows'
+    } else {
+      if (/iphone|ipad|ipod|mac os x/.test(ua)) platform = 'apple'
+      else if (/android/.test(ua)) platform = 'android'
+    }
+    document.documentElement.setAttribute('data-platform', platform)
+  }, [])
 
   useEffect(() => {
     if (tg) {
@@ -57,9 +73,9 @@ function ChatsPage() {
     }
   }, [storeUser])
 
-  const handleCreateChat = async (chatName) => {
+  const handleCreateChat = async ({ name, aiModel }) => {
     try {
-      const newChat = await createChat({ name: chatName, userId: storeUser.id })
+      const newChat = await createChat({ name, userId: storeUser.id, aiModel })
       setSelectedChat(newChat)
       setShowNewChatModal(false)
     } catch (error) {
@@ -75,6 +91,28 @@ function ChatsPage() {
     setSelectedChat(null)
   }
 
+  const handleRenameChat = async (chatId, newName) => {
+    try {
+      await updateChatName(chatId, newName)
+    } catch (error) {
+      console.error('Failed to rename chat:', error)
+      alert('Ошибка при переименовании чата')
+    }
+  }
+
+  const handleDeleteChat = async (chatId) => {
+    try {
+      await deleteChat(chatId)
+      // If current chat is deleted, go back to list
+      if (selectedChat?.id === chatId) {
+        setSelectedChat(null)
+      }
+    } catch (error) {
+      console.error('Failed to delete chat:', error)
+      alert('Ошибка при удалении чата')
+    }
+  }
+
   return (
     <div className="w-full h-screen flex flex-col bg-tg-bg text-tg-text">
       {!selectedChat ? (
@@ -82,6 +120,8 @@ function ChatsPage() {
           chats={chats}
           onSelectChat={handleSelectChat}
           onNewChat={() => setShowNewChatModal(true)}
+          onRenameChat={handleRenameChat}
+          onDeleteChat={handleDeleteChat}
         />
       ) : (
         <ChatWindow
@@ -95,6 +135,7 @@ function ChatsPage() {
         <NewChatModal
           onClose={() => setShowNewChatModal(false)}
           onCreate={handleCreateChat}
+          defaultName={`Чат № ${(chats?.length || 0) + 1}`}
         />
       )}
     </div>
