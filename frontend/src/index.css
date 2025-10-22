@@ -90,14 +90,25 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow: hidden;
-  /* Safe-area paddings for full-screen on mobile */
-  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 #root {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
+}
+
+/* Safe area utilities */
+.pb-safe-offset-4 {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+.pt-safe-offset-4 {
+  padding-top: max(1rem, env(safe-area-inset-top));
+}
+
+.p-safe-offset-4 {
+  padding: max(1rem, env(safe-area-inset-top)) 1rem max(1rem, env(safe-area-inset-bottom)) 1rem;
 }
 
 /* Desktop comfortable gutters */
