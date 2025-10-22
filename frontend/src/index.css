@@ -100,15 +100,15 @@ body {
 
 /* Safe area utilities */
 .pb-safe-offset-4 {
-  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
 }
 
 .pt-safe-offset-4 {
-  padding-top: max(1rem, env(safe-area-inset-top));
+  padding-top: calc(1rem + env(safe-area-inset-top, 0px));
 }
 
 .p-safe-offset-4 {
-  padding: max(1rem, env(safe-area-inset-top)) 1rem max(1rem, env(safe-area-inset-bottom)) 1rem;
+  padding: calc(1rem + env(safe-area-inset-top, 0px)) 1rem calc(1.5rem + env(safe-area-inset-bottom, 0px)) 1rem;
 }
 
 /* Desktop comfortable gutters */
