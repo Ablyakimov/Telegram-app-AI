@@ -62,16 +62,16 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
   }, [])
 
   // Auto-resize textarea
-  const adjustTextareaHeight = () => {
+  useEffect(() => {
     const textarea = textareaRef.current
     if (textarea) {
-      textarea.style.height = 'auto'
-      textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`
+      // Reset height to calculate new scrollHeight
+      textarea.style.height = '40px'
+      
+      // Calculate new height based on content
+      const newHeight = Math.min(Math.max(textarea.scrollHeight, 40), 120)
+      textarea.style.height = `${newHeight}px`
     }
-  }
-
-  useEffect(() => {
-    adjustTextareaHeight()
   }, [message])
 
   const handleSubmit = async (e) => {
@@ -83,7 +83,7 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
         setMessage('')
         // Reset textarea height
         if (textareaRef.current) {
-          textareaRef.current.style.height = 'auto'
+          textareaRef.current.style.height = '40px'
         }
       }, 50)
     }
@@ -250,8 +250,8 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
           onKeyPress={handleKeyPress}
           placeholder="Type a message..."
           disabled={disabled}
-          rows="1"
-          className="w-full min-h-[40px] bg-transparent text-tg-text text-[15px] resize-none outline-none placeholder:text-tg-hint overflow-hidden"
+          className="w-full h-[40px] bg-transparent text-tg-text text-[15px] resize-none outline-none placeholder:text-tg-hint overflow-y-auto leading-5 py-2.5"
+          style={{ scrollbarWidth: 'thin' }}
         />
       </div>
 
