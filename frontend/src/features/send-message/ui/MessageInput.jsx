@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
+import TextareaAutosize from 'react-textarea-autosize'
 
 function MessageInput({ onSend, onUpload, disabled, replying }) {
   const [message, setMessage] = useState('')
   const [recording, setRecording] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const fileInputRef = useRef(null)
-  const textareaRef = useRef(null)
   const recognitionRef = useRef(null)
   const transcriptRef = useRef({ final: '', interim: '' })
 
@@ -61,31 +61,12 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
     checkMobile()
   }, [])
 
-  // Auto-resize textarea
-  useEffect(() => {
-    const textarea = textareaRef.current
-    if (textarea) {
-      // Reset height to calculate new scrollHeight
-      textarea.style.height = '40px'
-      
-      // Calculate new height based on content
-      const newHeight = Math.min(Math.max(textarea.scrollHeight, 40), 120)
-      textarea.style.height = `${newHeight}px`
-    }
-  }, [message])
-
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (message.trim() && !disabled && !replying) {
       await onSend(message)
       // Добавляем небольшую задержку перед очисткой, чтобы избежать мерцания кнопок
-      setTimeout(() => {
-        setMessage('')
-        // Reset textarea height
-        if (textareaRef.current) {
-          textareaRef.current.style.height = '40px'
-        }
-      }, 50)
+      setTimeout(() => setMessage(''), 50)
     }
   }
 
@@ -243,15 +224,15 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
       </button>
 
       <div className="flex-1 flex flex-col">
-        <textarea
-          ref={textareaRef}
+        <TextareaAutosize
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          onKeyPress={handleKeyPress}
+          onKeyDown={handleKeyPress}
           placeholder="Type a message..."
           disabled={disabled}
-          className="w-full h-[40px] bg-transparent text-tg-text text-[15px] resize-none outline-none placeholder:text-tg-hint overflow-y-auto leading-5 py-2.5"
-          style={{ scrollbarWidth: 'thin' }}
+          minRows={1}
+          maxRows={5}
+          className="w-full bg-transparent text-tg-text text-[15px] resize-none outline-none placeholder:text-tg-hint leading-5 py-2.5"
         />
       </div>
 
