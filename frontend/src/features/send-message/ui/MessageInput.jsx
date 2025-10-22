@@ -5,6 +5,7 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
   const [recording, setRecording] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const fileInputRef = useRef(null)
+  const textareaRef = useRef(null)
   const recognitionRef = useRef(null)
   const transcriptRef = useRef({ final: '', interim: '' })
 
@@ -60,12 +61,31 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
     checkMobile()
   }, [])
 
+  // Auto-resize textarea
+  const adjustTextareaHeight = () => {
+    const textarea = textareaRef.current
+    if (textarea) {
+      textarea.style.height = 'auto'
+      textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`
+    }
+  }
+
+  useEffect(() => {
+    adjustTextareaHeight()
+  }, [message])
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (message.trim() && !disabled && !replying) {
       await onSend(message)
       // Добавляем небольшую задержку перед очисткой, чтобы избежать мерцания кнопок
-      setTimeout(() => setMessage(''), 50)
+      setTimeout(() => {
+        setMessage('')
+        // Reset textarea height
+        if (textareaRef.current) {
+          textareaRef.current.style.height = 'auto'
+        }
+      }, 50)
     }
   }
 
@@ -213,7 +233,7 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
       <button
         type="button"
         onClick={handleAttachClick}
-        className="w-10 h-10 rounded-full bg-tg-bg text-tg-text/70 hover:text-tg-text flex items-center justify-center flex-shrink-0 active:scale-95 transition-all shadow-sm mb-auto"
+        className="w-10 h-10 rounded-full bg-tg-bg text-tg-text/70 hover:text-tg-text flex items-center justify-center flex-shrink-0 active:scale-95 transition-all shadow-sm"
         disabled={disabled}
         aria-label="Attach file"
       >
@@ -224,13 +244,14 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
 
       <div className="flex-1 flex flex-col">
         <textarea
+          ref={textareaRef}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyPress={handleKeyPress}
           placeholder="Type a message..."
           disabled={disabled}
           rows="1"
-          className="w-full min-h-[40px] max-h-[120px] bg-transparent text-tg-text text-[15px] resize-none outline-none placeholder:text-tg-hint"
+          className="w-full min-h-[40px] bg-transparent text-tg-text text-[15px] resize-none outline-none placeholder:text-tg-hint overflow-hidden"
         />
       </div>
 
@@ -240,7 +261,7 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
         <button
           type="button"
           onClick={startRecognition}
-          className={`absolute w-10 h-10 rounded-full bg-tg-bg text-tg-text/70 hover:text-tg-text flex items-center justify-center flex-shrink-0 active:scale-95 shadow-sm mb-auto transition-all duration-200 ${
+          className={`absolute w-10 h-10 rounded-full bg-tg-bg text-tg-text/70 hover:text-tg-text flex items-center justify-center flex-shrink-0 active:scale-95 shadow-sm transition-all duration-200 ${
             isMobile && !message.trim() && !recording && !replying
               ? 'opacity-100 scale-100 pointer-events-auto'
               : 'opacity-0 scale-90 pointer-events-none'
@@ -259,7 +280,7 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
         <button
           type="submit"
           disabled={disabled || replying}
-          className={`absolute w-10 h-10 rounded-full bg-tg-button text-white flex items-center justify-center flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 shadow-lg disabled:shadow-sm mb-auto transition-all duration-200 ${
+          className={`absolute w-10 h-10 rounded-full bg-tg-button text-white flex items-center justify-center flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 shadow-lg disabled:shadow-sm transition-all duration-200 ${
             message.trim() && !replying ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-90 pointer-events-none'
           }`}
         >
@@ -272,7 +293,7 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
         <button
           type="button"
           onClick={stopRecognition}
-          className={`absolute w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center flex-shrink-0 active:scale-95 shadow-lg shadow-red-500/30 mb-auto transition-all duration-200 ${
+          className={`absolute w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center flex-shrink-0 active:scale-95 shadow-lg shadow-red-500/30 transition-all duration-200 ${
             recording ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-90 pointer-events-none'
           }`}
           disabled={disabled}
