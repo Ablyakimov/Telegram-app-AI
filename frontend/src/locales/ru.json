@@ -9,7 +9,8 @@
     "delete": "Удалить",
     "edit": "Изменить",
     "close": "Закрыть",
-    "back": "Назад"
+    "back": "Назад",
+    "create": "Создать"
   },
   "chat": {
     "placeholder": "Напишите сообщение...",
@@ -18,11 +19,14 @@
     "attach": "Прикрепить файл",
     "typing": "ИИ печатает...",
     "noMessages": "Чатов пока нет",
-    "newChat": "Создайте свой первый чат",
-    "chats": "AI Ассистент"
+    "newChat": "Новый чат",
+    "createChat": "Создать чат",
+    "chats": "AI Ассистент",
+    "chatTitle": "Название чата",
+    "rename": "Переименовать"
   },
   "models": {
-    "selectModel": "Выберите модель ИИ",
+    "selectModel": "Модель ИИ",
     "gpt35turbo": "GPT-3.5 Turbo",
     "gpt35turbo16k": "GPT-3.5 Turbo 16K",
     "gpt4o": "GPT-4o",
@@ -34,7 +38,12 @@
     "title": "Настройки",
     "language": "Язык",
     "english": "English",
-    "russian": "Русский"
+    "russian": "Русский",
+    "advanced": "Продвинутая настройка",
+    "preset": "Пресет (необязательно)",
+    "noPreset": "— Не использовать пресет —",
+    "prompt": "Промпт (необязательно)",
+    "customPrompt": "Пользовательский промпт для ИИ"
   }
 }
 

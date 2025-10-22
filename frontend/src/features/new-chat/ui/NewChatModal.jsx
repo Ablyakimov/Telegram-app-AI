@@ -63,7 +63,7 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
             type="text"
             value={chatName}
             onChange={(e) => setChatName(e.target.value)}
-            placeholder="Title"
+            placeholder={t('chat.chatTitle')}
             className="w-full p-3 px-4 border border-black/5 dark:border-white/5 rounded-xl bg-tg-secondary-bg text-tg-text text-base outline-none placeholder:text-tg-hint focus:outline-none"
           />
           <button
@@ -72,14 +72,14 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
             onClick={() => setAdvancedOpen(v => !v)}
             aria-expanded={advancedOpen}
           >
-            <span>Продвинутая настройка</span>
+            <span>{t('settings.advanced')}</span>
             <span className={`transition-transform duration-200 ${advancedOpen ? 'rotate-90' : ''}`}>›</span>
           </button>
 
           <div className={`overflow-hidden transition-all duration-300 ${advancedOpen ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}`}>
             <div className="flex flex-col gap-4 bg-tg-secondary-bg/50 rounded-2xl p-4 border border-black/5 dark:border-white/5">
               <div>
-                <label className="block mb-2 text-sm text-tg-hint">AI Model</label>
+                <label className="block mb-2 text-sm text-tg-hint">{t('models.selectModel')}</label>
                 <select
                   value={selectedModel}
                   onChange={(e) => setSelectedModel(e.target.value)}
@@ -97,7 +97,7 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
               </div>
 
               <div>
-                <label className="block mb-2 text-sm text-tg-hint">Пресет (необязательно)</label>
+                <label className="block mb-2 text-sm text-tg-hint">{t('settings.preset')}</label>
                 <select
                   value={presetId}
                   onChange={(e) => {
@@ -109,7 +109,7 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
                   }}
                   className="w-full p-3 px-4 border border-black/5 dark:border-white/5 rounded-xl bg-tg-bg text-tg-text text-base outline-none"
                 >
-                  <option value="">— Не использовать пресет —</option>
+                  <option value="">{t('settings.noPreset')}</option>
                   {presets.map(p => (
                     <option key={p.id} value={p.id}>{p.name}</option>
                   ))}
@@ -117,12 +117,12 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
               </div>
 
               <div>
-                <label className="block mb-2 text-sm text-tg-hint">Промпт (необязательно)</label>
+                <label className="block mb-2 text-sm text-tg-hint">{t('settings.prompt')}</label>
                 <textarea
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
                   rows={5}
-                  placeholder="Custom AI prompt"
+                  placeholder={t('settings.customPrompt')}
                   className="w-full p-3 px-4 border border-black/5 dark:border-white/5 rounded-xl bg-tg-bg text-tg-text text-base outline-none resize-y"
                 />
               </div>
