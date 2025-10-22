@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import MessageInput from '@features/send-message/ui/MessageInput'
 import { useMessagesStore } from '@entities/message/model/messagesStore'
@@ -9,10 +9,18 @@ function ChatWindow({ chat, user, onBack }) {
   const { messagesByChatId, loadMessages, sendMessage, uploadFile, loadingByChatId, replyingByChatId } = useMessagesStore()
   const [viewportHeight, setViewportHeight] = useState('100vh')
   const messages = useMemo(() => messagesByChatId[chat.id] || [], [messagesByChatId, chat.id])
+  const messagesEndRef = useRef(null)
 
   useEffect(() => {
     loadMessages(chat.id)
   }, [chat.id, loadMessages])
+
+  // Scroll to bottom when messages change or when entering chat
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [messages, chat.id])
 
   // Handle viewport height changes (mobile keyboard)
   useEffect(() => {
@@ -120,6 +128,8 @@ function ChatWindow({ chat, user, onBack }) {
             </div>
           </div>
         )}
+        {/* Invisible element to scroll to */}
+        <div ref={messagesEndRef} />
       </div>
 
       <MessageInput onSend={handleSendMessage} onUpload={handleUploadFile} disabled={!!replyingByChatId[chat.id]} replying={!!replyingByChatId[chat.id]} />
