@@ -9,7 +9,8 @@
     "delete": "Delete",
     "edit": "Edit",
     "close": "Close",
-    "back": "Back"
+    "back": "Back",
+    "create": "Create"
   },
   "chat": {
     "placeholder": "Type a message...",
@@ -18,11 +19,14 @@
     "attach": "Attach file",
     "typing": "AI is typing...",
     "noMessages": "No chats yet",
-    "newChat": "Create your first chat",
-    "chats": "AI Assistant"
+    "newChat": "New Chat",
+    "createChat": "Create chat",
+    "chats": "AI Assistant",
+    "chatTitle": "Chat title",
+    "rename": "Rename"
   },
   "models": {
-    "selectModel": "Select AI Model",
+    "selectModel": "AI Model",
     "gpt35turbo": "GPT-3.5 Turbo",
     "gpt35turbo16k": "GPT-3.5 Turbo 16K",
     "gpt4o": "GPT-4o",
@@ -34,7 +38,12 @@
     "title": "Settings",
     "language": "Language",
     "english": "English",
-    "russian": "Русский"
+    "russian": "Русский",
+    "advanced": "Advanced settings",
+    "preset": "Preset (optional)",
+    "noPreset": "— No preset —",
+    "prompt": "Prompt (optional)",
+    "customPrompt": "Custom AI prompt"
   }
 }
 
