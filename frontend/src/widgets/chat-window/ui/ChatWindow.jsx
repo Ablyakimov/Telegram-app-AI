@@ -93,7 +93,7 @@ function ChatWindow({ chat, user, onBack }) {
         <div ref={messagesEndRef} />
       </div>
 
-      <MessageInput onSend={handleSendMessage} onUpload={handleUploadFile} disabled={!!replyingByChatId[chat.id]} />
+      <MessageInput onSend={handleSendMessage} onUpload={handleUploadFile} disabled={!!replyingByChatId[chat.id]} replying={!!replyingByChatId[chat.id]} />
     </div>
   )
 }
