@@ -22,6 +22,10 @@ export class Chat {
     timestamp: string;
   }>;
 
+  // AI model used in this chat (e.g., gpt-3.5-turbo, gpt-4o)
+  @Column({ default: 'gpt-3.5-turbo' })
+  aiModel: string;
+
   @CreateDateColumn()
   createdAt: Date;
 }
