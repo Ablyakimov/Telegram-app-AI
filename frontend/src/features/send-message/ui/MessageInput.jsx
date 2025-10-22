@@ -204,7 +204,7 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
 
   return (
     <form className="p-3 px-4 pb-safe-offset-4 bg-tg-bg anim-fade-in" onSubmit={handleSubmit}>
-      <div className="flex items-end gap-3 bg-tg-secondary-bg rounded-full px-3 py-3 border border-black/10 dark:border-white/10 shadow-lg anim-scale-in">
+      <div className="flex items-center gap-3 bg-tg-secondary-bg rounded-full px-4 py-2 border border-black/10 dark:border-white/10 shadow-lg anim-scale-in">
       <input
         ref={fileInputRef}
         type="file"
@@ -214,7 +214,7 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
       <button
         type="button"
         onClick={handleAttachClick}
-        className="w-10 h-10 rounded-full bg-tg-bg text-tg-text/70 hover:text-tg-text flex items-center justify-center flex-shrink-0 active:scale-95 transition-all shadow-sm"
+        className="w-10 h-10 rounded-full bg-tg-bg text-tg-text/70 hover:text-tg-text flex items-center justify-center flex-shrink-0 active:scale-95 transition-all shadow-sm self-center"
         disabled={disabled}
         aria-label="Attach file"
       >
@@ -231,8 +231,8 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
           placeholder="Type a message..."
           disabled={disabled}
           minRows={1}
-          maxRows={5}
-          className="w-full bg-transparent text-tg-text text-[15px] resize-none outline-none placeholder:text-tg-hint leading-5 py-2.5"
+          maxRows={4}
+          className="w-full bg-transparent text-tg-text text-[15px] resize-none outline-none placeholder:text-tg-hint leading-5"
         />
       </div>
 
@@ -242,7 +242,7 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
         <button
           type="button"
           onClick={startRecognition}
-          className={`absolute w-10 h-10 rounded-full bg-tg-bg text-tg-text/70 hover:text-tg-text flex items-center justify-center flex-shrink-0 active:scale-95 shadow-sm transition-all duration-200 ${
+          className={`absolute w-10 h-10 rounded-full bg-tg-bg text-tg-text/70 hover:text-tg-text flex items-center justify-center flex-shrink-0 active:scale-95 shadow-sm transition-all duration-200 self-center ${
             isMobile && !message.trim() && !recording && !replying
               ? 'opacity-100 scale-100 pointer-events-auto'
               : 'opacity-0 scale-90 pointer-events-none'
@@ -261,7 +261,7 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
         <button
           type="submit"
           disabled={disabled || replying}
-          className={`absolute w-10 h-10 rounded-full bg-tg-button text-white flex items-center justify-center flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 shadow-lg disabled:shadow-sm transition-all duration-200 ${
+          className={`absolute w-10 h-10 rounded-full bg-tg-button text-white flex items-center justify-center flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 shadow-lg disabled:shadow-sm transition-all duration-200 self-center ${
             message.trim() && !replying ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-90 pointer-events-none'
           }`}
         >
@@ -274,7 +274,7 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
         <button
           type="button"
           onClick={stopRecognition}
-          className={`absolute w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center flex-shrink-0 active:scale-95 shadow-lg shadow-red-500/30 transition-all duration-200 ${
+          className={`absolute w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center flex-shrink-0 active:scale-95 shadow-lg shadow-red-500/30 transition-all duration-200 self-center ${
             recording ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-90 pointer-events-none'
           }`}
           disabled={disabled}
