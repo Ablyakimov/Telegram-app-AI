@@ -204,7 +204,7 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
 
   return (
     <form className="p-3 px-4 pb-safe-offset-4 bg-tg-bg anim-fade-in" onSubmit={handleSubmit}>
-      <div className="flex items-end gap-3">
+      <div className="flex items-center gap-3">
         {/* Left side - attach button */}
         <button
           type="button"
