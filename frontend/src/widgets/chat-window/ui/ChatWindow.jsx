@@ -1,24 +1,52 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import MessageInput from '@features/send-message/ui/MessageInput'
 import { useMessagesStore } from '@entities/message/model/messagesStore'
 import Markdown from '@shared/ui/Markdown'
 
 function ChatWindow({ chat, user, onBack }) {
   const { messagesByChatId, loadMessages, sendMessage, uploadFile, loadingByChatId, replyingByChatId } = useMessagesStore()
-  const messagesEndRef = useRef(null)
+  const [viewportHeight, setViewportHeight] = useState('100vh')
   const messages = useMemo(() => messagesByChatId[chat.id] || [], [messagesByChatId, chat.id])
 
   useEffect(() => {
     loadMessages(chat.id)
   }, [chat.id, loadMessages])
 
+  // Handle viewport height changes (mobile keyboard)
   useEffect(() => {
-    scrollToBottom()
-  }, [messages])
+    const updateViewportHeight = () => {
+      setViewportHeight(`${window.innerHeight}px`)
+    }
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
+    // Set initial height
+    updateViewportHeight()
+
+    // Listen for viewport changes (keyboard open/close)
+    window.addEventListener('resize', updateViewportHeight)
+    window.addEventListener('orientationchange', updateViewportHeight)
+
+    // Also listen for visual viewport changes if available (better mobile support)
+    if (window.visualViewport) {
+      const handleVisualViewportChange = () => {
+        if (window.visualViewport) {
+          setViewportHeight(`${window.visualViewport.height}px`)
+        }
+      }
+      window.visualViewport.addEventListener('resize', handleVisualViewportChange)
+
+      return () => {
+        window.removeEventListener('resize', updateViewportHeight)
+        window.removeEventListener('orientationchange', updateViewportHeight)
+        window.visualViewport.removeEventListener('resize', handleVisualViewportChange)
+      }
+    }
+
+    return () => {
+      window.removeEventListener('resize', updateViewportHeight)
+      window.removeEventListener('orientationchange', updateViewportHeight)
+    }
+  }, [])
+
 
   const handleSendMessage = async (message) => {
     if (!message.trim()) return
@@ -36,7 +64,7 @@ function ChatWindow({ chat, user, onBack }) {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-tg-bg">
+    <div className="flex flex-col bg-tg-bg" style={{ height: viewportHeight }}>
       <div className="flex items-center gap-3 p-3 px-4 bg-tg-bg sticky top-0 z-10 anim-fade-in">
         <button 
           className="w-10 h-10 border-none bg-transparent text-tg-link text-[32px] flex items-center justify-center mr-2"
@@ -90,7 +118,6 @@ function ChatWindow({ chat, user, onBack }) {
             </div>
           </div>
         )}
-        <div ref={messagesEndRef} />
       </div>
 
       <MessageInput onSend={handleSendMessage} onUpload={handleUploadFile} disabled={!!replyingByChatId[chat.id]} replying={!!replyingByChatId[chat.id]} />
