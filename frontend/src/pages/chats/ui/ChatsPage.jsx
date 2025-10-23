@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import ChatList from '@widgets/chat-list/ui/ChatList'
 import ChatWindow from '@widgets/chat-window/ui/ChatWindow'
+import SubscriptionPage from '@widgets/subscription/ui/SubscriptionPage'
 import NewChatModal from '@features/new-chat/ui/NewChatModal'
 import { useUserStore } from '@entities/user/model/userStore'
 import { useChatsStore } from '@entities/chat/model/chatsStore'
@@ -13,6 +14,7 @@ function ChatsPage() {
   const { chats, fetchByUser, createChat, updateChatName, deleteChat } = useChatsStore()
   const [selectedChat, setSelectedChat] = useState(null)
   const [showNewChatModal, setShowNewChatModal] = useState(false)
+  const [showSubscription, setShowSubscription] = useState(false)
   const [theme, setTheme] = useState('light')
   
   useEffect(() => {
@@ -117,13 +119,16 @@ function ChatsPage() {
 
   return (
     <div className="w-full h-screen flex flex-col bg-tg-bg text-tg-text">
-      {!selectedChat ? (
+      {showSubscription ? (
+        <SubscriptionPage onBack={() => setShowSubscription(false)} />
+      ) : !selectedChat ? (
         <ChatList
           chats={chats}
           onSelectChat={handleSelectChat}
           onNewChat={() => setShowNewChatModal(true)}
           onRenameChat={handleRenameChat}
           onDeleteChat={handleDeleteChat}
+          onShowSubscription={() => setShowSubscription(true)}
         />
       ) : (
         <ChatWindow

@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-function ChatList({ chats, onSelectChat, onNewChat, onRenameChat, onDeleteChat }) {
+function ChatList({ chats, onSelectChat, onNewChat, onRenameChat, onDeleteChat, onShowSubscription }) {
   const { t } = useTranslation()
   const [openMenuChatId, setOpenMenuChatId] = useState(null)
   const [menuPosition, setMenuPosition] = useState({ top: 0, right: 0 })
@@ -54,15 +54,24 @@ function ChatList({ chats, onSelectChat, onNewChat, onRenameChat, onDeleteChat }
       <div className="px-4 pt-4 anim-fade-up">
         <div className="flex items-center justify-between bg-tg-secondary-bg/60 backdrop-blur rounded-2xl px-4 py-3 border border-black/5 dark:border-white/5 shadow-sm">
           <h1 className="text-lg font-semibold tracking-tight">Telegram Mini App</h1>
-          <button 
-            className="w-9 h-9 rounded-full bg-tg-button text-tg-button-text flex items-center justify-center active:opacity-80 transition border border-black/10 dark:border-white/10 shadow-md shadow-black/10"
-            onClick={onNewChat}
-            aria-label="Create chat"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-            </svg>
-          </button>
+          <div className="flex items-center gap-2">
+            <button 
+              className="w-9 h-9 rounded-full bg-tg-secondary-bg text-tg-text flex items-center justify-center active:opacity-80 transition border border-black/10 dark:border-white/10 shadow-sm"
+              onClick={onShowSubscription}
+              aria-label="Subscription"
+            >
+              ⭐
+            </button>
+            <button 
+              className="w-9 h-9 rounded-full bg-tg-button text-tg-button-text flex items-center justify-center active:opacity-80 transition border border-black/10 dark:border-white/10 shadow-md shadow-black/10"
+              onClick={onNewChat}
+              aria-label="Create chat"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 
