@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, ParseIntPipe, UseGuards, UploadedFile, UseInterceptors, Req, Patch, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, ParseIntPipe, UseGuards, UploadedFile, UseInterceptors, Req, Patch, Delete, BadRequestException } from '@nestjs/common';
 import { ChatsService } from './chats.service';
 import { AiService } from '../ai/ai.service';
 import { CreateChatDto } from './dto/create-chat.dto';
@@ -6,6 +6,7 @@ import { UpdateChatDto } from './dto/update-chat.dto';
 import { SendMessageDto } from './dto/send-message.dto';
 import { TelegramGuard } from '../telegram-auth/telegram.guard';
 import { UsersService } from '../users/users.service';
+import { SubscriptionService } from '../users/subscription.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import * as fs from 'fs';
@@ -20,6 +21,7 @@ export class ChatsController {
     private readonly chatsService: ChatsService,
     private readonly aiService: AiService,
     private readonly usersService: UsersService,
+    private readonly subscriptionService: SubscriptionService,
   ) {}
 
   @Post()
@@ -69,14 +71,36 @@ export class ChatsController {
   }
 
   @Post('messages')
-  async sendMessage(@Body() sendMessageDto: SendMessageDto) {
+  async sendMessage(@Body() sendMessageDto: SendMessageDto, @Req() req: Request) {
     const { chatId, message, systemPrompt, temperature, maxTokens } = sendMessageDto;
+    const telegramUser = req['telegramUser'];
+
+    // Get chat to check model
+    const chat = await this.chatsService.findOne(chatId);
+
+    // Check access and limits
+    const accessCheck = await this.subscriptionService.checkAccess(telegramUser.id, chat.aiModel);
+    
+    if (!accessCheck.allowed) {
+      let errorMessage = 'Access denied';
+      
+      if (accessCheck.reason === 'subscription_expired') {
+        errorMessage = 'Your subscription has expired. Please upgrade to continue.';
+      } else if (accessCheck.reason === 'model_not_allowed') {
+        errorMessage = 'This model is not available on your current plan. Please upgrade to PRO.';
+      } else if (accessCheck.reason === 'monthly_limit_reached') {
+        errorMessage = 'Monthly message limit reached. Please buy credits or upgrade to PRO.';
+      }
+      
+      throw new BadRequestException({
+        message: errorMessage,
+        reason: accessCheck.reason,
+        subscription: accessCheck.subscription,
+      });
+    }
 
     // Save user message
     await this.chatsService.addMessage(chatId, 'user', message);
-
-    // Get chat history
-    const chat = await this.chatsService.findOne(chatId);
     
     // Get AI response
     const aiResponse = await this.aiService.chat(chat.messages, {
@@ -88,6 +112,9 @@ export class ChatsController {
 
     // Save AI message
     await this.chatsService.addMessage(chatId, 'assistant', aiResponse);
+
+    // Deduct usage (credits or increment counter)
+    await this.subscriptionService.deductUsage(telegramUser.id, chat.aiModel, 0);
 
     return {
       message: aiResponse,
