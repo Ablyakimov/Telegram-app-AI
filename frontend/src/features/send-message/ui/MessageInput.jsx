@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import TextareaAutosize from 'react-textarea-autosize'
 
 function MessageInput({ onSend, onUpload, disabled, replying }) {
+  const { t } = useTranslation()
   const [message, setMessage] = useState('')
   const [recording, setRecording] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
@@ -232,7 +234,7 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={handleKeyPress}
-              placeholder="Type a message..."
+              placeholder={t('chat.placeholder')}
               disabled={disabled}
               minRows={1}
               maxRows={4}

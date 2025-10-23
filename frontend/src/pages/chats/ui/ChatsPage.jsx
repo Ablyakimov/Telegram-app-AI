@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import ChatList from '@widgets/chat-list/ui/ChatList'
 import ChatWindow from '@widgets/chat-window/ui/ChatWindow'
 import NewChatModal from '@features/new-chat/ui/NewChatModal'
@@ -6,6 +7,7 @@ import { useUserStore } from '@entities/user/model/userStore'
 import { useChatsStore } from '@entities/chat/model/chatsStore'
 
 function ChatsPage() {
+  const { t } = useTranslation()
   const [tg] = useState(() => window.Telegram?.WebApp)
   const { user: storeUser, setUser } = useUserStore()
   const { chats, fetchByUser, createChat, updateChatName, deleteChat } = useChatsStore()
@@ -135,7 +137,7 @@ function ChatsPage() {
         <NewChatModal
           onClose={() => setShowNewChatModal(false)}
           onCreate={handleCreateChat}
-          defaultName={`Чат № ${(chats?.length || 0) + 1}`}
+          defaultName={`${t('chat.chatNumber')} ${(chats?.length || 0) + 1}`}
         />
       )}
     </div>
