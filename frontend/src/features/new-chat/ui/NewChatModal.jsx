@@ -135,18 +135,18 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
           </button>
         </div>
         {/* DEBUG INFO - Remove after testing */}
-        <div className="mb-4 p-3 bg-yellow-500/20 rounded-lg border-2 border-yellow-500">
-          <p className="text-xs font-bold text-yellow-900 dark:text-yellow-300 mb-1">🔍 DEBUG INFO:</p>
-          <p className="text-xs font-mono text-yellow-800 dark:text-yellow-200 break-words">
+        <div className="mb-4 p-3 bg-red-500 rounded-lg border-4 border-white shadow-xl">
+          <p className="text-sm font-bold text-white mb-2">🔍 DEBUG (scroll up if not visible):</p>
+          <div className="text-xs font-mono text-white break-all bg-black/30 p-2 rounded">
             {subscription ? (
               <>
-                Plan: {subscription.plan}<br/>
-                Available: {availableModels.map(m => m.id).join(', ')}<br/>
-                Locked: {unavailableModels.map(m => m.id).join(', ')}<br/>
-                Limits: {JSON.stringify(subscription.limits)}
+                <div>Plan: <strong>{subscription.plan}</strong></div>
+                <div>Available: <strong>{availableModels.map(m => m.id).join(', ')}</strong></div>
+                <div>Locked: <strong>{unavailableModels.map(m => m.id).join(', ')}</strong></div>
+                <div>Limits: <strong>{JSON.stringify(subscription.limits)}</strong></div>
               </>
-            ) : 'Subscription not loaded'}
-          </p>
+            ) : <div>⚠️ Subscription not loaded</div>}
+          </div>
         </div>
 
         <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
