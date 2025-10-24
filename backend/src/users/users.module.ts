@@ -7,9 +7,13 @@ import { UsersController } from './users.controller';
 import { SubscriptionService } from './subscription.service';
 import { SubscriptionController } from './subscription.controller';
 import { PaymentController } from './payment.controller';
+import { TelegramAuthModule } from '../telegram-auth/telegram-auth.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Subscription])],
+  imports: [
+    TypeOrmModule.forFeature([User, Subscription]),
+    TelegramAuthModule,
+  ],
   controllers: [UsersController, SubscriptionController, PaymentController],
   providers: [UsersService, SubscriptionService],
   exports: [UsersService, SubscriptionService],
