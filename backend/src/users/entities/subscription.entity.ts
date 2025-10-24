@@ -15,8 +15,7 @@ export class Subscription {
   userId: number;
 
   @Column({
-    type: 'enum',
-    enum: PlanType,
+    type: 'varchar',
     default: PlanType.FREE,
   })
   plan: PlanType;
