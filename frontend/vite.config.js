@@ -9,6 +9,17 @@ export default defineConfig({
     port: 5173,
     host: true,
   },
+  build: {
+    // Generate hashed filenames for cache busting
+    rollupOptions: {
+      output: {
+        // Add hash to filenames
+        entryFileNames: 'assets/[name].[hash].js',
+        chunkFileNames: 'assets/[name].[hash].js',
+        assetFileNames: 'assets/[name].[hash].[ext]'
+      }
+    }
+  },
   resolve: {
     alias: {
       '@app': path.resolve(__dirname, 'src/app'),
