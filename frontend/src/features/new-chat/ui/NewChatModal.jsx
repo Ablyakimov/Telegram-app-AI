@@ -28,21 +28,12 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
 
   useEffect(() => {
     fetch()
-    fetchSubscription().then(sub => {
-      console.log('✅ Subscription fetched in NewChatModal:', sub)
-    }).catch(err => {
-      console.error('❌ Failed to fetch subscription in NewChatModal:', err)
-    })
+    fetchSubscription()
   }, [fetch, fetchSubscription])
 
   useEffect(() => {
     setChatName(normalize(defaultName))
   }, [defaultName])
-
-  // Debug: Log subscription changes
-  useEffect(() => {
-    console.log('🔄 Subscription state changed:', subscription)
-  }, [subscription])
 
   // Get all models with availability status
   const { availableModels, unavailableModels } = useMemo(() => {
@@ -55,19 +46,14 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
     
     // If subscription is not loaded yet, default to free plan (only GPT-3.5)
     if (!subscription) {
-      console.log('⚠️ Subscription not loaded, defaulting to free plan (GPT-3.5 only)')
       return { 
         availableModels: allModels.filter(m => m.id === 'gpt-3.5-turbo'),
         unavailableModels: allModels.filter(m => m.id !== 'gpt-3.5-turbo').map(m => ({ ...m, disabledReason: 'PRO required' }))
       }
     }
     
-    console.log('📊 Subscription loaded:', subscription)
-    
     const isFree = subscription.plan === 'free'
     const isPro = subscription.plan === 'pro' && subscription.expiresAt && new Date(subscription.expiresAt) > new Date()
-    
-    console.log('🔍 User plan:', { isFree, isPro, plan: subscription.plan })
     
     const available = []
     const unavailable = []
@@ -82,9 +68,6 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
         available.push(m)
       }
     })
-    
-    console.log('✅ Available models:', available.map(m => m.id))
-    console.log('🔒 Locked models:', unavailable.map(m => m.id))
     
     return { availableModels: available, unavailableModels: unavailable }
   }, [subscription, models])
@@ -128,7 +111,21 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-5">
-          <h2 className="text-xl font-semibold">{t('chat.newChat')}</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-xl font-semibold">{t('chat.newChat')}</h2>
+            {subscription && (
+              <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                subscription.plan === 'pro' && subscription.expiresAt && new Date(subscription.expiresAt) > new Date()
+                  ? 'bg-blue-500/20 text-blue-500'
+                  : 'bg-gray-500/20 text-gray-500'
+              }`}>
+                {subscription.plan === 'pro' && subscription.expiresAt && new Date(subscription.expiresAt) > new Date()
+                  ? '⭐ PRO'
+                  : '🆓 FREE'
+                }
+              </span>
+            )}
+          </div>
           <button 
             className="w-8 h-8 border border-black/10 dark:border-white/10 rounded-full bg-transparent text-tg-hint text-[20px] flex items-center justify-center leading-none p-0 shadow-sm"
             onClick={onClose}
@@ -179,6 +176,13 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
                     </ul>
                   </div>
                 )}
+                
+                {/* DEBUG INFO - Remove after testing */}
+                <div className="mt-2 p-2 bg-yellow-500/10 rounded-lg border border-yellow-500/20">
+                  <p className="text-xs font-mono text-yellow-600 dark:text-yellow-400">
+                    DEBUG: {subscription ? `Plan=${subscription.plan}, Available=${availableModels.length}, Locked=${unavailableModels.length}` : 'Subscription not loaded'}
+                  </p>
+                </div>
               </div>
 
               <div>
