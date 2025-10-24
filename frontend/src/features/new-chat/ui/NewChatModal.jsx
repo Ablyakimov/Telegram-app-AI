@@ -169,7 +169,7 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
                     </option>
                   ))}
                 </select>
-                {unavailableModels.length > 0 && (
+                {unavailableModels.length > 0 && subscription && subscription.plan === 'free' && (
                   <div className="mt-2 p-3 bg-tg-secondary-bg/30 rounded-lg border border-black/5 dark:border-white/5">
                     <p className="text-xs text-tg-hint mb-1.5">{t('subscription.lockedModels')}</p>
                     <ul className="text-xs text-tg-hint space-y-0.5">
