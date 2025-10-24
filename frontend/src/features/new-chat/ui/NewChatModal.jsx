@@ -28,12 +28,21 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
 
   useEffect(() => {
     fetch()
-    fetchSubscription()
+    fetchSubscription().then(sub => {
+      console.log('✅ Subscription fetched in NewChatModal:', sub)
+    }).catch(err => {
+      console.error('❌ Failed to fetch subscription in NewChatModal:', err)
+    })
   }, [fetch, fetchSubscription])
 
   useEffect(() => {
     setChatName(normalize(defaultName))
   }, [defaultName])
+
+  // Debug: Log subscription changes
+  useEffect(() => {
+    console.log('🔄 Subscription state changed:', subscription)
+  }, [subscription])
 
   // Get all models with availability status
   const { availableModels, unavailableModels } = useMemo(() => {
