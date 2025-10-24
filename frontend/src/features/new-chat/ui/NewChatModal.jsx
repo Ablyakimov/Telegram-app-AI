@@ -10,9 +10,9 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
   const { models, fetch } = useModelsStore()
   const { subscription, fetchSubscription } = useSubscriptionStore()
   const [selectedModel, setSelectedModel] = useState('gpt-3.5-turbo')
-  const [prompt, setPrompt] = useState('')
+  const [prompt, setPrompt] = useState('⏳ Loading DEBUG info...')
   const [presetId, setPresetId] = useState('')
-  const [advancedOpen, setAdvancedOpen] = useState(false)
+  const [advancedOpen, setAdvancedOpen] = useState(true) // Open by default to show DEBUG
   const presets = useMemo(() => ([
     { id: 'universal', name: t('presets.universal'), text: t('presets.universalPrompt') },
     { id: 'copywriter', name: t('presets.copywriter'), text: t('presets.copywriterPrompt') },
@@ -79,6 +79,21 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
       setSelectedModel(availableModels[0].id)
     }
   }, [availableModels, selectedModel])
+
+  // Update prompt with DEBUG info when subscription loads
+  useEffect(() => {
+    if (subscription && availableModels.length > 0) {
+      const debugInfo = `🔍 DEBUG INFO:
+Plan: ${subscription.plan}
+Available: ${availableModels.map(m => m.id).join(', ')}
+Locked: ${unavailableModels.map(m => m.id).join(', ')}
+Limits: ${JSON.stringify(subscription.limits)}
+
+---
+Clear this and write your prompt below`
+      setPrompt(debugInfo)
+    }
+  }, [subscription, availableModels, unavailableModels])
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -205,9 +220,9 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
                 <textarea
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
-                  rows={5}
-                  placeholder={subscription ? `DEBUG: Plan=${subscription.plan} | Available=${availableModels.map(m => m.id).join(', ')} | Locked=${unavailableModels.map(m => m.id).join(', ')} | Limits=${JSON.stringify(subscription.limits)}` : 'DEBUG: Subscription not loaded'}
-                  className="w-full p-3 px-4 border border-black/5 dark:border-white/5 rounded-xl bg-tg-bg text-tg-text text-sm outline-none resize-y"
+                  rows={8}
+                  placeholder={t('settings.customPrompt')}
+                  className="w-full p-3 px-4 border border-black/5 dark:border-white/5 rounded-xl bg-tg-bg text-tg-text text-sm outline-none resize-y font-mono"
                 />
               </div>
             </div>
