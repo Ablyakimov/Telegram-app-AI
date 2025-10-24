@@ -111,34 +111,24 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
         className="bg-tg-bg rounded-2xl p-6 w-full max-w-md border border-black/5 dark:border-white/5 shadow-lg anim-scale-in" 
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex justify-between items-start mb-3">
-          <div className="flex flex-col gap-2 flex-1">
-            <div className="flex items-center gap-2">
-              <h2 className="text-xl font-semibold">{t('chat.newChat')}</h2>
-              {subscription && (
-                <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                  subscription.plan === 'pro' && subscription.expiresAt && new Date(subscription.expiresAt) > new Date()
-                    ? 'bg-blue-500/20 text-blue-500'
-                    : 'bg-gray-500/20 text-gray-500'
-                }`}>
-                  {subscription.plan === 'pro' && subscription.expiresAt && new Date(subscription.expiresAt) > new Date()
-                    ? '⭐ PRO'
-                    : '🆓 FREE'
-                  }
-                </span>
-              )}
-            </div>
-            {/* DEBUG INFO - Inline with header */}
-            <div className="text-[10px] font-mono bg-red-500 text-white px-2 py-1 rounded border-2 border-white">
-              {subscription ? (
-                <div>
-                  Plan:{subscription.plan} | Avail:{availableModels.length} | Lock:{unavailableModels.length} | Lim:{JSON.stringify(subscription.limits)}
-                </div>
-              ) : '⚠️ No subscription'}
-            </div>
+        <div className="flex justify-between items-center mb-5">
+          <div className="flex items-center gap-2">
+            <h2 className="text-xl font-semibold">{t('chat.newChat')}</h2>
+            {subscription && (
+              <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                subscription.plan === 'pro' && subscription.expiresAt && new Date(subscription.expiresAt) > new Date()
+                  ? 'bg-blue-500/20 text-blue-500'
+                  : 'bg-gray-500/20 text-gray-500'
+              }`}>
+                {subscription.plan === 'pro' && subscription.expiresAt && new Date(subscription.expiresAt) > new Date()
+                  ? '⭐ PRO'
+                  : '🆓 FREE'
+                }
+              </span>
+            )}
           </div>
           <button 
-            className="w-8 h-8 border border-black/10 dark:border-white/10 rounded-full bg-transparent text-tg-hint text-[20px] flex items-center justify-center leading-none p-0 shadow-sm ml-2"
+            className="w-8 h-8 border border-black/10 dark:border-white/10 rounded-full bg-transparent text-tg-hint text-[20px] flex items-center justify-center leading-none p-0 shadow-sm"
             onClick={onClose}
           >
             ×
@@ -216,8 +206,8 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
                   rows={5}
-                  placeholder={t('settings.customPrompt')}
-                  className="w-full p-3 px-4 border border-black/5 dark:border-white/5 rounded-xl bg-tg-bg text-tg-text text-base outline-none resize-y"
+                  placeholder={subscription ? `DEBUG: Plan=${subscription.plan} | Available=${availableModels.map(m => m.id).join(', ')} | Locked=${unavailableModels.map(m => m.id).join(', ')} | Limits=${JSON.stringify(subscription.limits)}` : 'DEBUG: Subscription not loaded'}
+                  className="w-full p-3 px-4 border border-black/5 dark:border-white/5 rounded-xl bg-tg-bg text-tg-text text-sm outline-none resize-y"
                 />
               </div>
             </div>
