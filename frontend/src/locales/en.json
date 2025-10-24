@@ -95,7 +95,8 @@
     "upgradeRequired": "This model requires PRO subscription. Please upgrade or select GPT-3.5.",
     "limitReached": "Monthly message limit reached. Please upgrade to PRO or buy credits.",
     "upgradePrompt": "Open subscription page to upgrade?",
-    "freeModelHint": "⭐ Upgrade to PRO to unlock GPT-4 and other advanced models"
+    "freeModelHint": "⭐ Upgrade to PRO to unlock GPT-4 and other advanced models",
+    "lockedModels": "🔒 Locked models (upgrade to access):"
   }
 }
 
