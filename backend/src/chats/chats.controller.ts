@@ -39,6 +39,24 @@ export class ChatsController {
       
       // Use Telegram user ID
       createChatDto.userId = telegramUser.id;
+
+      // Check subscription and model access before creating chat
+      const model = createChatDto.aiModel || 'gpt-3.5-turbo';
+      const accessCheck = await this.subscriptionService.checkAccess(telegramUser.id, model);
+      
+      if (!accessCheck.allowed) {
+        let errorMessage = 'Access denied';
+        
+        if (accessCheck.reason === 'model_not_allowed') {
+          errorMessage = `Model ${model} is not available on your current plan. Please upgrade to PRO or select GPT-3.5.`;
+        }
+        
+        throw new BadRequestException({
+          message: errorMessage,
+          reason: accessCheck.reason,
+          subscription: accessCheck.subscription,
+        });
+      }
     }
     
     const chat = await this.chatsService.create(createChatDto);

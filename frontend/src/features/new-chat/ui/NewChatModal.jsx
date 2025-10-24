@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useModelsStore } from '@entities/model/modelsStore'
+import { useSubscriptionStore } from '@entities/subscription/model/subscriptionStore'
 
 function NewChatModal({ onClose, onCreate, defaultName }) {
   const { t } = useTranslation()
   const normalize = (s) => (s || '').replace(/№{2,}/g, '№').replace(/\s+/g, ' ').trim()
   const [chatName, setChatName] = useState(normalize(defaultName))
   const { models, fetch } = useModelsStore()
+  const { subscription, fetchSubscription } = useSubscriptionStore()
   const [selectedModel, setSelectedModel] = useState('gpt-3.5-turbo')
   const [prompt, setPrompt] = useState('')
   const [presetId, setPresetId] = useState('')
@@ -26,11 +28,34 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
 
   useEffect(() => {
     fetch()
-  }, [fetch])
+    fetchSubscription()
+  }, [fetch, fetchSubscription])
 
   useEffect(() => {
     setChatName(normalize(defaultName))
   }, [defaultName])
+
+  // Filter models based on subscription
+  const allowedModels = useMemo(() => {
+    if (!subscription) return []
+    
+    const allModels = models.length ? models : [
+      { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo' },
+      { id: 'gpt-4o', name: 'GPT-4o' },
+      { id: 'gpt-4o-mini', name: 'GPT-4o mini' },
+      { id: 'gpt-4-turbo', name: 'GPT-4 Turbo' },
+    ]
+    
+    // Free users can only use GPT-3.5
+    if (subscription.plan === 'free') {
+      return allModels.filter(m => m.id === 'gpt-3.5-turbo')
+    }
+    
+    // PRO and above can use all available models
+    return allModels.filter(m => 
+      subscription.limits?.allowedModels?.includes(m.id) ?? true
+    )
+  }, [subscription, models])
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -85,15 +110,15 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
                   onChange={(e) => setSelectedModel(e.target.value)}
                   className="w-full p-3 px-4 border border-black/5 dark:border-white/5 rounded-xl bg-tg-bg text-tg-text text-base outline-none"
                 >
-                  {(models.length ? models : [
-                    { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo' },
-                    { id: 'gpt-4o', name: 'GPT-4o' },
-                    { id: 'gpt-4o-mini', name: 'GPT-4o mini' },
-                    { id: 'gpt-4-turbo', name: 'GPT-4 Turbo' },
-                  ]).filter(m => m.enabled !== false).map((m) => (
+                  {allowedModels.filter(m => m.enabled !== false).map((m) => (
                     <option key={m.id} value={m.id}>{m.name}</option>
                   ))}
                 </select>
+                {subscription?.plan === 'free' && (
+                  <p className="text-xs text-tg-hint mt-2">
+                    ⭐ Upgrade to PRO to unlock GPT-4 and other advanced models
+                  </p>
+                )}
               </div>
 
               <div>

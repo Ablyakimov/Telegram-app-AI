@@ -60,7 +60,32 @@ function ChatWindow({ chat, user, onBack }) {
 
   const handleSendMessage = async (message) => {
     if (!message.trim()) return
-    await sendMessage(chat.id, message)
+    try {
+      await sendMessage(chat.id, message)
+    } catch (error) {
+      console.error('Failed to send message:', error)
+      
+      // Check if it's a subscription error
+      if (error.response?.data) {
+        const { message: errorMsg, reason } = error.response.data
+        
+        if (reason === 'model_not_allowed' || reason === 'monthly_limit_reached') {
+          // Show upgrade prompt
+          const tg = window.Telegram?.WebApp
+          if (tg?.showConfirm) {
+            tg.showConfirm(errorMsg + '\n\nOpen subscription page?', (confirmed) => {
+              if (confirmed) {
+                // Need to navigate back and show subscription
+                // This requires lifting state up or using a router
+                alert('Please navigate to subscription page from chat list.')
+              }
+            })
+          } else {
+            alert(errorMsg + '\n\nPlease upgrade your subscription from the chat list.')
+          }
+        }
+      }
+    }
   }
 
   const handleUploadFile = async (file) => {
