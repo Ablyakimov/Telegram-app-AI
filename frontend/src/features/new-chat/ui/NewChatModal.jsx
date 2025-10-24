@@ -35,6 +35,7 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
     setChatName(normalize(defaultName))
   }, [defaultName])
 
+
   // Get all models with availability status
   const { availableModels, unavailableModels } = useMemo(() => {
     const allModels = models.length ? models : [
@@ -178,9 +179,17 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
                 )}
                 
                 {/* DEBUG INFO - Remove after testing */}
-                <div className="mt-2 p-2 bg-yellow-500/10 rounded-lg border border-yellow-500/20">
-                  <p className="text-xs font-mono text-yellow-600 dark:text-yellow-400">
-                    DEBUG: {subscription ? `Plan=${subscription.plan}, Available=${availableModels.length}, Locked=${unavailableModels.length}` : 'Subscription not loaded'}
+                <div className="mt-2 p-3 bg-yellow-500/20 rounded-lg border-2 border-yellow-500">
+                  <p className="text-xs font-bold text-yellow-900 dark:text-yellow-300 mb-1">🔍 DEBUG INFO:</p>
+                  <p className="text-xs font-mono text-yellow-800 dark:text-yellow-200">
+                    {subscription ? (
+                      <>
+                        Plan: {subscription.plan}<br/>
+                        Available: {availableModels.map(m => m.id).join(', ')}<br/>
+                        Locked: {unavailableModels.map(m => m.id).join(', ')}<br/>
+                        Limits: {JSON.stringify(subscription.limits)}
+                      </>
+                    ) : 'Subscription not loaded'}
                   </p>
                 </div>
               </div>
