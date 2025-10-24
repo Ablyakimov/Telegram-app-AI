@@ -134,6 +134,21 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
             ×
           </button>
         </div>
+        {/* DEBUG INFO - Remove after testing */}
+        <div className="mb-4 p-3 bg-yellow-500/20 rounded-lg border-2 border-yellow-500">
+          <p className="text-xs font-bold text-yellow-900 dark:text-yellow-300 mb-1">🔍 DEBUG INFO:</p>
+          <p className="text-xs font-mono text-yellow-800 dark:text-yellow-200 break-words">
+            {subscription ? (
+              <>
+                Plan: {subscription.plan}<br/>
+                Available: {availableModels.map(m => m.id).join(', ')}<br/>
+                Locked: {unavailableModels.map(m => m.id).join(', ')}<br/>
+                Limits: {JSON.stringify(subscription.limits)}
+              </>
+            ) : 'Subscription not loaded'}
+          </p>
+        </div>
+
         <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
           <input
             type="text"
@@ -177,21 +192,6 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
                     </ul>
                   </div>
                 )}
-                
-                {/* DEBUG INFO - Remove after testing */}
-                <div className="mt-2 p-3 bg-yellow-500/20 rounded-lg border-2 border-yellow-500">
-                  <p className="text-xs font-bold text-yellow-900 dark:text-yellow-300 mb-1">🔍 DEBUG INFO:</p>
-                  <p className="text-xs font-mono text-yellow-800 dark:text-yellow-200">
-                    {subscription ? (
-                      <>
-                        Plan: {subscription.plan}<br/>
-                        Available: {availableModels.map(m => m.id).join(', ')}<br/>
-                        Locked: {unavailableModels.map(m => m.id).join(', ')}<br/>
-                        Limits: {JSON.stringify(subscription.limits)}
-                      </>
-                    ) : 'Subscription not loaded'}
-                  </p>
-                </div>
               </div>
 
               <div>
