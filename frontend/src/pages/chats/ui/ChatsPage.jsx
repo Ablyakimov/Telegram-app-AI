@@ -77,6 +77,19 @@ function ChatsPage() {
     }
   }, [storeUser])
 
+  // Listen for custom event from NewChatModal to show subscription
+  useEffect(() => {
+    const handleShowSubscription = () => {
+      setShowSubscription(true)
+    }
+    
+    window.addEventListener('show-subscription', handleShowSubscription)
+    
+    return () => {
+      window.removeEventListener('show-subscription', handleShowSubscription)
+    }
+  }, [])
+
   const handleCreateChat = async ({ name, aiModel }) => {
     try {
       const newChat = await createChat({ name, userId: storeUser.id, aiModel })
@@ -85,41 +98,13 @@ function ChatsPage() {
     } catch (error) {
       console.error('Failed to create chat:', error)
       
-      // Check if it's a subscription error
-      if (error.response?.data) {
-        const { message, reason, subscription } = error.response.data
-        
-        if (reason === 'model_not_allowed') {
-          // Show upgrade prompt
-          if (tg?.showAlert) {
-            tg.showAlert(message + '\n\nOpen subscription page to upgrade?', (confirmed) => {
-              if (confirmed) {
-                setShowNewChatModal(false)
-                setShowSubscription(true)
-              }
-            })
-          } else {
-            const shouldUpgrade = window.confirm(message + '\n\nOpen subscription page to upgrade?')
-            if (shouldUpgrade) {
-              setShowNewChatModal(false)
-              setShowSubscription(true)
-            }
-          }
-        } else {
-          // Generic error
-          if (tg?.showAlert) {
-            tg.showAlert(message || 'Failed to create chat')
-          } else {
-            alert(message || 'Failed to create chat')
-          }
-        }
+      // Generic error handling
+      const errorMessage = error.response?.data?.message || 'Failed to create chat. Please try again.'
+      
+      if (tg?.showAlert) {
+        tg.showAlert(errorMessage)
       } else {
-        // Network or other error
-        if (tg?.showAlert) {
-          tg.showAlert('Failed to create chat. Please try again.')
-        } else {
-          alert('Failed to create chat. Please try again.')
-        }
+        alert(errorMessage)
       }
     }
   }
