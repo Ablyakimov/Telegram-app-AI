@@ -44,12 +44,21 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
       { id: 'gpt-4-turbo', name: 'GPT-4 Turbo' },
     ]
     
+    // If subscription is not loaded yet, default to free plan (only GPT-3.5)
     if (!subscription) {
-      return { availableModels: allModels, unavailableModels: [] }
+      console.log('⚠️ Subscription not loaded, defaulting to free plan (GPT-3.5 only)')
+      return { 
+        availableModels: allModels.filter(m => m.id === 'gpt-3.5-turbo'),
+        unavailableModels: allModels.filter(m => m.id !== 'gpt-3.5-turbo').map(m => ({ ...m, disabledReason: 'PRO required' }))
+      }
     }
+    
+    console.log('📊 Subscription loaded:', subscription)
     
     const isFree = subscription.plan === 'free'
     const isPro = subscription.plan === 'pro' && subscription.expiresAt && new Date(subscription.expiresAt) > new Date()
+    
+    console.log('🔍 User plan:', { isFree, isPro, plan: subscription.plan })
     
     const available = []
     const unavailable = []
@@ -64,6 +73,9 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
         available.push(m)
       }
     })
+    
+    console.log('✅ Available models:', available.map(m => m.id))
+    console.log('🔒 Locked models:', unavailable.map(m => m.id))
     
     return { availableModels: available, unavailableModels: unavailable }
   }, [subscription, models])
