@@ -36,7 +36,7 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
   }, [defaultName])
 
   // Get all models with availability status
-  const availableModels = useMemo(() => {
+  const { availableModels, unavailableModels } = useMemo(() => {
     const allModels = models.length ? models : [
       { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo' },
       { id: 'gpt-4o-mini', name: 'GPT-4o mini' },
@@ -45,59 +45,52 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
     ]
     
     if (!subscription) {
-      return allModels.map(m => ({ ...m, disabled: false }))
+      return { availableModels: allModels, unavailableModels: [] }
     }
     
     const isFree = subscription.plan === 'free'
     const isPro = subscription.plan === 'pro' && subscription.expiresAt && new Date(subscription.expiresAt) > new Date()
     
-    return allModels.map(m => {
+    const available = []
+    const unavailable = []
+    
+    allModels.forEach(m => {
       // Free users can only use GPT-3.5
       if (isFree && m.id !== 'gpt-3.5-turbo') {
-        return { ...m, disabled: true, disabledReason: 'PRO required' }
+        unavailable.push({ ...m, disabledReason: 'PRO required' })
+      } else if (subscription.limits?.allowedModels && !subscription.limits.allowedModels.includes(m.id)) {
+        unavailable.push({ ...m, disabledReason: 'Not available' })
+      } else {
+        available.push(m)
       }
-      
-      // Check if model is in allowed list (if limits exist)
-      if (subscription.limits?.allowedModels) {
-        const allowed = subscription.limits.allowedModels.includes(m.id)
-        return { ...m, disabled: !allowed, disabledReason: allowed ? null : 'Not available' }
-      }
-      
-      return { ...m, disabled: false }
     })
+    
+    return { availableModels: available, unavailableModels: unavailable }
   }, [subscription, models])
+
+  // Ensure selected model is available
+  useEffect(() => {
+    if (availableModels.length > 0 && !availableModels.find(m => m.id === selectedModel)) {
+      setSelectedModel(availableModels[0].id)
+    }
+  }, [availableModels, selectedModel])
 
   const handleSubmit = (e) => {
     e.preventDefault()
     if (!chatName.trim()) return
 
-    // Check if user has access to selected model
-    if (subscription) {
-      const isFree = subscription.plan === 'free'
-      const isPro = subscription.plan === 'pro' && subscription.expiresAt && new Date(subscription.expiresAt) > new Date()
+    // Double-check that selected model is available (should always be true now)
+    const isModelAvailable = availableModels.find(m => m.id === selectedModel)
+    if (!isModelAvailable) {
+      const tg = window.Telegram?.WebApp
+      const message = t('subscription.upgradeRequired')
       
-      // If free user tries to use non-GPT-3.5 model
-      if (isFree && selectedModel !== 'gpt-3.5-turbo') {
-        const tg = window.Telegram?.WebApp
-        const message = t('subscription.upgradeRequired')
-        
-        if (tg?.showConfirm) {
-          tg.showConfirm(message + '\n\n' + t('subscription.upgradePrompt'), (confirmed) => {
-            if (confirmed) {
-              onClose()
-              // Signal parent to show subscription page
-              window.dispatchEvent(new CustomEvent('show-subscription'))
-            }
-          })
-        } else {
-          const shouldUpgrade = window.confirm(message + '\n\n' + t('subscription.upgradePrompt'))
-          if (shouldUpgrade) {
-            onClose()
-            window.dispatchEvent(new CustomEvent('show-subscription'))
-          }
-        }
-        return
+      if (tg?.showAlert) {
+        tg.showAlert(message)
+      } else {
+        alert(message)
       }
+      return
     }
 
     onCreate({ name: chatName, aiModel: selectedModel, systemPrompt: prompt.trim() || undefined })
@@ -150,19 +143,20 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
                   className="w-full p-3 px-4 border border-black/5 dark:border-white/5 rounded-xl bg-tg-bg text-tg-text text-base outline-none"
                 >
                   {availableModels.filter(m => m.enabled !== false).map((m) => (
-                    <option 
-                      key={m.id} 
-                      value={m.id}
-                      disabled={m.disabled}
-                    >
-                      {m.name}{m.disabled && m.disabledReason ? ` (🔒 ${m.disabledReason})` : ''}
+                    <option key={m.id} value={m.id}>
+                      {m.name}
                     </option>
                   ))}
                 </select>
-                {subscription?.plan === 'free' && (
-                  <p className="text-xs text-tg-hint mt-2">
-                    {t('subscription.freeModelHint')}
-                  </p>
+                {unavailableModels.length > 0 && (
+                  <div className="mt-2 p-3 bg-tg-secondary-bg/30 rounded-lg border border-black/5 dark:border-white/5">
+                    <p className="text-xs text-tg-hint mb-1.5">{t('subscription.lockedModels')}</p>
+                    <ul className="text-xs text-tg-hint space-y-0.5">
+                      {unavailableModels.map((m) => (
+                        <li key={m.id}>• {m.name}</li>
+                      ))}
+                    </ul>
+                  </div>
                 )}
               </div>
 
