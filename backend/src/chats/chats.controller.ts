@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Body, Param, ParseIntPipe, UseGuards, UploadedFile, UseInterceptors, Req, Patch, Delete, BadRequestException } from '@nestjs/common';
 import { ChatsService } from './chats.service';
 import { AiService } from '../ai/ai.service';
+import { DedupCacheService } from './dedup-cache.service';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
 import { SendMessageDto } from './dto/send-message.dto';
@@ -22,6 +23,7 @@ export class ChatsController {
     private readonly aiService: AiService,
     private readonly usersService: UsersService,
     private readonly subscriptionService: SubscriptionService,
+    private readonly dedupCache: DedupCacheService,
   ) {}
 
   @Post()
@@ -95,6 +97,29 @@ export class ChatsController {
 
     // Get chat to check model
     const chat = await this.chatsService.findOne(chatId);
+    
+    // Get subscription to check message length limits
+    const subscription = await this.subscriptionService.getSubscription(telegramUser.id);
+    const isPro = subscription.plan === 'pro' && subscription.expiresAt && new Date(subscription.expiresAt) > new Date();
+    
+    // Check message length limits
+    const maxMessageLength = isPro ? 4000 : 500;
+    if (message.length > maxMessageLength) {
+      throw new BadRequestException({
+        message: `Message too long. Maximum ${maxMessageLength} characters allowed for your plan.`,
+        reason: 'message_too_long',
+        maxLength: maxMessageLength,
+        currentLength: message.length,
+      });
+    }
+
+    // Check for duplicate messages (deduplication)
+    if (this.dedupCache.isDuplicate(telegramUser.id, chatId, message)) {
+      throw new BadRequestException({
+        message: 'Duplicate message detected. Please wait a moment before sending the same message again.',
+        reason: 'duplicate_message',
+      });
+    }
 
     // Check access and limits
     const accessCheck = await this.subscriptionService.checkAccess(telegramUser.id, chat.aiModel);
@@ -117,14 +142,21 @@ export class ChatsController {
       });
     }
 
+    // Add message to dedup cache
+    this.dedupCache.add(telegramUser.id, chatId, message);
+
     // Save user message
     await this.chatsService.addMessage(chatId, 'user', message);
     
-    // Get AI response
-    const aiResponse = await this.aiService.chat(chat.messages, {
+    // Limit context size based on subscription
+    const contextLimit = isPro ? 50 : 10;
+    const recentMessages = chat.messages.slice(-contextLimit);
+    
+    // Get AI response with limited context
+    const aiResponse = await this.aiService.chat(recentMessages, {
       systemPrompt,
       temperature,
-      maxTokens,
+      maxTokens: isPro ? (maxTokens || 2000) : Math.min(maxTokens || 500, 500), // Limit maxTokens for FREE
       model: chat.aiModel,
     });
 

@@ -65,13 +65,24 @@ function ChatWindow({ chat, user, onBack }) {
     } catch (error) {
       console.error('Failed to send message:', error)
       
-      // Check if it's a subscription error
+      // Check if it's an error with response data
       if (error.response?.data) {
         const { message: errorMsg, reason } = error.response.data
+        const tg = window.Telegram?.WebApp
         
+        // Handle duplicate message error
+        if (reason === 'duplicate_message') {
+          if (tg?.showAlert) {
+            tg.showAlert(t('chat.duplicateMessage'))
+          } else {
+            alert(t('chat.duplicateMessage'))
+          }
+          return
+        }
+        
+        // Handle subscription-related errors
         if (reason === 'model_not_allowed' || reason === 'monthly_limit_reached') {
           // Show upgrade prompt
-          const tg = window.Telegram?.WebApp
           if (tg?.showConfirm) {
             tg.showConfirm(errorMsg + '\n\nOpen subscription page?', (confirmed) => {
               if (confirmed) {
@@ -82,6 +93,16 @@ function ChatWindow({ chat, user, onBack }) {
             })
           } else {
             alert(errorMsg + '\n\nPlease upgrade your subscription from the chat list.')
+          }
+          return
+        }
+        
+        // Generic error with message
+        if (errorMsg) {
+          if (tg?.showAlert) {
+            tg.showAlert(errorMsg)
+          } else {
+            alert(errorMsg)
           }
         }
       }
