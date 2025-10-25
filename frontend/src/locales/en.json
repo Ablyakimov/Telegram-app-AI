@@ -24,7 +24,10 @@
     "chats": "AI Assistant",
     "chatTitle": "Chat title",
     "chatNumber": "Chat №",
-    "rename": "Rename"
+    "rename": "Rename",
+    "messageTooLong": "Message too long. Maximum {{maxLength}} characters allowed.",
+    "messageLimit": "{{current}}/{{max}} characters",
+    "duplicateMessage": "Duplicate message detected. Please wait a moment before sending the same message again."
   },
   "models": {
     "selectModel": "AI Model",

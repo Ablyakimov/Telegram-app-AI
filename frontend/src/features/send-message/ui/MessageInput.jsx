@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import TextareaAutosize from 'react-textarea-autosize'
+import { useSubscriptionStore } from '@entities/subscription/model/subscriptionStore'
 
 function MessageInput({ onSend, onUpload, disabled, replying }) {
   const { t } = useTranslation()
@@ -10,6 +11,7 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
   const fileInputRef = useRef(null)
   const recognitionRef = useRef(null)
   const transcriptRef = useRef({ final: '', interim: '' })
+  const { subscription } = useSubscriptionStore()
 
   useEffect(() => {
     // Detect if mobile device - strict desktop exclusion
@@ -66,6 +68,22 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (message.trim() && !disabled && !replying) {
+      // Check message length limit
+      const isPro = subscription?.plan === 'pro' && subscription?.expiresAt && new Date(subscription.expiresAt) > new Date()
+      const maxLength = isPro ? 4000 : 500
+      
+      if (message.length > maxLength) {
+        const tg = window.Telegram?.WebApp
+        const errorMsg = t('chat.messageTooLong', { maxLength })
+        
+        if (tg?.showAlert) {
+          tg.showAlert(errorMsg)
+        } else {
+          alert(errorMsg)
+        }
+        return
+      }
+      
       await onSend(message)
       // Добавляем небольшую задержку перед очисткой, чтобы избежать мерцания кнопок
       setTimeout(() => setMessage(''), 50)
@@ -240,6 +258,22 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
               maxRows={4}
               className="w-full bg-transparent text-tg-text text-[15px] resize-none outline-none placeholder:text-tg-hint leading-5"
             />
+            {message.length > 0 && (() => {
+              const isPro = subscription?.plan === 'pro' && subscription?.expiresAt && new Date(subscription.expiresAt) > new Date()
+              const maxLength = isPro ? 4000 : 500
+              const isNearLimit = message.length > maxLength * 0.8
+              const isOverLimit = message.length > maxLength
+              
+              return (
+                <div className={`text-[10px] mt-0.5 transition-colors ${
+                  isOverLimit ? 'text-red-500 font-medium' : 
+                  isNearLimit ? 'text-yellow-500' : 
+                  'text-tg-hint'
+                }`}>
+                  {t('chat.messageLimit', { current: message.length, max: maxLength })}
+                </div>
+              )
+            })()}
           </div>
 
           {/* Right side buttons - voice or send with smooth animations */}
