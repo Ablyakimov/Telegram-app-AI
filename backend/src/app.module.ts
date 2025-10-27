@@ -16,7 +16,7 @@ import { APP_GUARD } from '@nestjs/core';
     }),
     TypeOrmModule.forRoot({
       type: 'sqlite',
-      database: 'database.sqlite',
+      database: process.env.DATABASE_PATH || (process.env.NODE_ENV === 'production' ? '/app/data/database.sqlite' : 'database.sqlite'),
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
