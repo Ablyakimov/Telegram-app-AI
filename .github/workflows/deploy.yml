@@ -57,6 +57,8 @@ jobs:
             echo 'VITE_API_BASE_URL=/api' >> .env && \
             mv docker-compose.override.yml docker-compose.override.yml.bak || true && \
             docker compose pull || true && \
-            docker compose up -d --build && \
+            docker builder prune -f && \
+            DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker compose build && \
+            docker compose up -d && \
             docker compose --profile production up nginx -d \
           "

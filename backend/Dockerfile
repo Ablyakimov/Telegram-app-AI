@@ -6,14 +6,16 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies (including dev for building)
-RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
+# Limit npm memory usage to avoid OOM
+RUN NODE_OPTIONS="--max-old-space-size=512" npm ci --prefer-offline --no-audit --progress=false || \
+    NODE_OPTIONS="--max-old-space-size=512" npm install --prefer-offline --no-audit --progress=false
 
 # Copy source code
 COPY tsconfig.json nest-cli.json ./
 COPY src ./src
 
-# Build the application
-RUN ls -la && echo "Building..." && npx nest build && echo "Build completed" && ls -la dist/
+# Build the application with memory limit
+RUN NODE_OPTIONS="--max-old-space-size=512" npx nest build
 
 # ---- Development stage ----
 FROM node:20-alpine AS development
