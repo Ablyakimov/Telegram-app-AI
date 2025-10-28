@@ -145,12 +145,12 @@ export class ChatsController {
     // Add message to dedup cache
     this.dedupCache.add(telegramUser.id, chatId, message);
 
-    // Save user message
-    await this.chatsService.addMessage(chatId, 'user', message);
+    // Save user message and get updated chat with new message
+    const updatedChat = await this.chatsService.addMessage(chatId, 'user', message);
     
     // Limit context size based on subscription
     const contextLimit = isPro ? 50 : 10;
-    const recentMessages = chat.messages.slice(-contextLimit);
+    const recentMessages = updatedChat.messages.slice(-contextLimit);
     
     // Get AI response with limited context
     const aiResponse = await this.aiService.chat(recentMessages, {
