@@ -54,9 +54,6 @@ COPY --from=builder /app/dist ./dist
 # Copy package.json for runtime (needed for some modules)
 COPY --from=builder /app/package.json ./
 
-# Debug: check what was copied
-RUN echo "Checking copied files:" && ls -la && echo "Checking dist folder:" && ls -la dist/ && echo "Checking main.js:" && ls -la dist/main.js
-
 # Create data directory for persistent SQLite database
 RUN mkdir -p /app/data && chmod 755 /app/data
 
