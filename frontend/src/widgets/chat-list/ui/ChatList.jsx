@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 function ChatList({ chats, onSelectChat, onNewChat, onRenameChat, onDeleteChat, onShowSubscription }) {
