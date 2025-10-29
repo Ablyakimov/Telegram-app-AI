@@ -14,52 +14,39 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
   const { subscription } = useSubscriptionStore()
 
   useEffect(() => {
-    // Detect if mobile device - strict desktop exclusion
     const checkMobile = () => {
-      // Check if running on Mac (always hide voice button on Mac)
       const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0
       if (isMac) {
-        console.log('🖥️ Mac detected, hiding voice button')
         setIsMobile(false)
         return
       }
       
-      // Check Telegram platform
       const telegramPlatform = window.Telegram?.WebApp?.platform
-      console.log('🔍 Detected Telegram platform:', telegramPlatform)
       
       if (telegramPlatform) {
-        // Desktop platforms to exclude
         const desktopPlatforms = ['macos', 'tdesktop', 'unigram', 'web', 'weba', 'webk', 'unknown', 'linux', 'windows']
         const isDesktop = desktopPlatforms.includes(telegramPlatform.toLowerCase())
         
         if (isDesktop) {
-          console.log('🖥️ Desktop platform detected, hiding voice button')
           setIsMobile(false)
           return
         }
         
-        // Mobile platforms - ONLY these will show voice button
         const mobilePlatforms = ['android', 'ios', 'android_x']
         const isTelegramMobile = mobilePlatforms.includes(telegramPlatform.toLowerCase())
-        console.log('📱 Mobile platform:', isTelegramMobile)
         setIsMobile(isTelegramMobile)
         return
       }
       
-      // Fallback: check if it's NOT a desktop browser
       const ua = (navigator.userAgent || navigator.vendor || window.opera || '').toLowerCase()
       const isDesktopUA = /mac|windows|linux|x11/i.test(ua) && !/mobile|android|iphone|ipad|ipod/i.test(ua)
       
       if (isDesktopUA) {
-        console.log('🖥️ Desktop browser detected, hiding voice button')
         setIsMobile(false)
         return
       }
       
-      // Only mobile devices
       const isMobileUA = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(ua)
-      console.log('📱 User agent check, isMobile:', isMobileUA)
       setIsMobile(isMobileUA)
     }
     checkMobile()
@@ -102,38 +89,25 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
   }
 
   const handleFileChange = async (e) => {
-    console.log('📎 MessageInput: file input changed', e.target.files)
     const file = e.target.files?.[0]
     if (!file) {
-      console.log('❌ MessageInput: no file selected')
       return
     }
     
-    console.log('📎 MessageInput: file selected', { 
-      name: file.name, 
-      type: file.type, 
-      size: file.size 
-    })
-    
     try {
       if (onUpload) {
-        console.log('📤 MessageInput: calling onUpload...')
         await onUpload(file)
-        console.log('✅ MessageInput: onUpload completed')
       } else {
-        console.log('❌ MessageInput: onUpload is not defined!')
       }
     } catch (error) {
       console.error('❌ MessageInput: error in handleFileChange', error)
       alert('Ошибка при загрузке файла: ' + (error.message || 'Unknown error'))
     } finally {
       e.target.value = ''
-      console.log('🧹 MessageInput: cleared file input')
     }
   }
 
   useEffect(() => {
-    // Initialize recognition once and reuse it
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
     if (!SpeechRecognition || !isMobile) return
     
@@ -155,12 +129,10 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
         }
       }
       
-      console.log('🎤 Recording:', transcriptRef.current.final + transcriptRef.current.interim)
     }
     
     recognition.onend = () => {
       const fullTranscript = (transcriptRef.current.final + transcriptRef.current.interim).trim()
-      console.log('✅ Final transcript:', fullTranscript)
 
       setRecording(false)
 
@@ -175,10 +147,7 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
     recognition.onerror = (event) => {
       console.error('❌ Speech recognition error:', event.error)
       
-      if (event.error === 'no-speech') {
-        console.log('⏸️ No speech detected, still listening...')
-        return
-      }
+      if (event.error === 'no-speech') return
       
       setRecording(false)
       
@@ -202,13 +171,11 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
       return
     }
     
-    // Reset transcripts before starting
     transcriptRef.current = { final: '', interim: '' }
     
     try {
       setRecording(true)
       recognitionRef.current.start()
-      console.log('🎙️ Voice recording started')
     } catch (e) {
       console.error('Error starting recognition:', e)
       setRecording(false)
@@ -216,7 +183,6 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
   }
 
   const stopRecognition = () => {
-    console.log('🛑 Stopping voice recording...')
     if (recognitionRef.current) {
       recognitionRef.current.stop()
     }
