@@ -32,19 +32,19 @@ export class ChatsController {
     const telegramUser = req['telegramUser'];
     
     if (telegramUser) {
-      // Ensure user exists in database
-      await this.usersService.findOrCreate({
+      // Ensure user exists in database (or reuse by username)
+      const dbUser = await this.usersService.findOrCreate({
         id: telegramUser.id,
         username: telegramUser.username || null,
         firstName: telegramUser.first_name || '',
       });
       
-      // Use Telegram user ID
-      createChatDto.userId = telegramUser.id;
+      // Use actual DB user id to avoid FK violations
+      createChatDto.userId = dbUser.id;
 
-      // Check subscription and model access before creating chat
+      // Check subscription and model access before creating chat using the same user id
       const model = createChatDto.aiModel || 'gpt-3.5-turbo';
-      const accessCheck = await this.subscriptionService.checkAccess(telegramUser.id, model);
+      const accessCheck = await this.subscriptionService.checkAccess(dbUser.id, model);
       
       if (!accessCheck.allowed) {
         let errorMessage = 'Access denied';
