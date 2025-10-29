@@ -206,15 +206,9 @@ export class ChatsController {
       } else if (mime === 'application/json' || ext === '.json') {
         const json = JSON.parse(fs.readFileSync(file.path, 'utf-8'));
         const fileContent = JSON.stringify(json, null, 2).slice(0, 15000);
-        
-        // Save user message with just file name
         const userMessage = `📄 Файл: ${fileName}`;
         await this.chatsService.addMessage(chatId, 'user', userMessage);
-        
-        // Get chat history
         const chat = await this.chatsService.findOne(chatId);
-        
-        // Ask AI with file content in context
         const contextMessage = `Пользователь отправил JSON файл "${fileName}" с содержимым:\n\n${fileContent}`;
         const aiResponse = await this.aiService.chat([
           ...chat.messages,
@@ -264,14 +258,8 @@ export class ChatsController {
               file: stream as any,
             });
             const transcribedText = transcription.text || '';
-            
-            // Save only transcribed text as user message (without "File: voice.webm")
             await this.chatsService.addMessage(chatId, 'user', transcribedText);
-            
-            // Get chat history
             const chat = await this.chatsService.findOne(chatId);
-            
-            // Ask AI with the transcribed text
             const aiResponse = await this.aiService.chat(chat.messages, { model: chat.aiModel });
             
             await this.chatsService.addMessage(chatId, 'assistant', aiResponse);
