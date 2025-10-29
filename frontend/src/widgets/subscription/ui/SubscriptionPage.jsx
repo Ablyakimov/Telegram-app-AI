@@ -22,7 +22,7 @@ function SubscriptionPage({ onBack }) {
 
   const handleBuyPlan = async (planId) => {
     try {
-      const invoice = await createInvoice降落subscription', planId)
+      const invoice = await createInvoice('subscription', planId)
       if (window.Telegram?.WebApp) {
         window.Telegram.WebApp.openInvoice(invoice.payload, (status) => {
           if (status === 'paid') {

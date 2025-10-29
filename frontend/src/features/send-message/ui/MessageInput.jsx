@@ -201,8 +201,6 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
             <path d="M21 12V7a5 5 0 0 0-10 0v9a3 3 0 1 0 6 0V8"/>
           </svg>
         </button>
-
-        {/* Right side - input with buttons */}
         <div className="flex items-center gap-3 bg-tg-secondary-bg rounded-full px-4 py-2 border border-black/10 dark:border-white/10 shadow-lg anim-scale-in flex-1">
           <input
             ref={fileInputRef}
