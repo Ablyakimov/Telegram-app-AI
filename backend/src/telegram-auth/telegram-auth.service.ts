@@ -8,13 +8,12 @@ export class TelegramAuthService {
 
   // Validates initData per Telegram docs: https://core.telegram.org/bots/webapps#validating-data-received-via-the-mini-app
   validateInitData(initData: string): { user?: any } {
-    console.log('Received initData:', initData);
+    
     
     if (!initData) throw new UnauthorizedException('No initData');
 
     // Development fallback
     if (initData === 'dev-fallback') {
-      console.log('Using dev fallback');
       return { user: { id: 1, first_name: 'Dev User', username: 'devuser' } };
     }
 

@@ -202,12 +202,7 @@ export class ChatsController {
     const mime = file.mimetype;
     let extractedText = '';
     
-    console.log('📎 File upload:', {
-      original: file.originalname,
-      decoded: fileName,
-      mime,
-      size: file.size
-    });
+    
 
     try {
       if (mime.startsWith('text/') || ['.txt', '.md', '.csv', '.log'].includes(ext)) {
@@ -299,7 +294,6 @@ export class ChatsController {
               file: stream as any,
             });
             const transcribedText = transcription.text || '';
-            console.log('Transcription successful:', transcribedText);
             
             // Save only transcribed text as user message (without "File: voice.webm")
             await this.chatsService.addMessage(chatId, 'user', transcribedText);
@@ -314,7 +308,6 @@ export class ChatsController {
             
             return { message: aiResponse };
           } else {
-            console.log('OpenAI transcription service not available');
             extractedText = '[Audio uploaded but transcription service not available]';
           }
         } catch (e) {
@@ -323,28 +316,20 @@ export class ChatsController {
         }
       } else if (mime.startsWith('image/')) {
         try {
-          console.log('🖼️ Processing image:', fileName, 'mime:', mime, 'size:', file.size);
           
           // Convert image to base64
           const imageBuffer = fs.readFileSync(file.path);
           const base64Image = imageBuffer.toString('base64');
           const imageUrl = `data:${mime};base64,${base64Image}`;
           
-          console.log('✅ Image converted to base64, length:', base64Image.length);
-          
           // Save message with image reference
           const userMessage = `🖼️ Изображение: ${fileName}`;
           await this.chatsService.addMessage(chatId, 'user', userMessage);
           
-          console.log('✅ User message saved');
-          
           // Get chat history
           const chat = await this.chatsService.findOne(chatId);
           
-          console.log('✅ Chat history loaded, message count:', chat.messages.length);
-          
           // Ask AI about the image using vision with context
-          console.log('🤖 Calling OpenAI Vision API...');
           const aiResponse = await this.aiService.chatWithImage(
             chat.messages, 
             imageUrl, 
@@ -352,11 +337,7 @@ export class ChatsController {
             chat.aiModel
           );
           
-          console.log('✅ AI response received, length:', aiResponse?.length);
-          
           await this.chatsService.addMessage(chatId, 'assistant', aiResponse);
-          
-          console.log('✅ AI message saved');
           
           return { message: aiResponse };
         } catch (error) {
