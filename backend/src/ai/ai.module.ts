@@ -1,6 +1,6 @@
-import { Module } from '@nestjs/common';
-import { AiService } from './ai.service';
-import { ModelsController } from './models.controller';
+import { Module } from "@nestjs/common";
+import { AiService } from "./ai.service";
+import { ModelsController } from "./models.controller";
 
 @Module({
   controllers: [ModelsController],
@@ -8,4 +8,3 @@ import { ModelsController } from './models.controller';
   exports: [AiService],
 })
 export class AiModule {}
-

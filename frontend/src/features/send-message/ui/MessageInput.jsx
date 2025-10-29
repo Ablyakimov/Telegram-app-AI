@@ -96,7 +96,6 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
     try {
       if (onUpload) {
         await onUpload(file)
-      } else {
       }
     } catch (error) {
       console.error('❌ MessageInput: error in handleFileChange', error)

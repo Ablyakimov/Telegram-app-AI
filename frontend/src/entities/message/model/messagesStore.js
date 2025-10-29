@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { ChatsApi } from '@shared/api/chats'
 
-export const useMessagesStore = create((set, get) => ({
+export const useMessagesStore = create((set) => ({
   messagesByChatId: {},
   loadingByChatId: {},
   errorByChatId: {},
@@ -115,7 +115,7 @@ export const useMessagesStore = create((set, get) => ({
       },
     }))
     try {
-      const response = await ChatsApi.uploadFile(chatId, file)
+      await ChatsApi.uploadFile(chatId, file)
       
       // Refresh from server to avoid duplication and get extracted content + AI reply
       const messages = await ChatsApi.getMessages(chatId)

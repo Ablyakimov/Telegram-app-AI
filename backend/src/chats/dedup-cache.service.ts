@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable } from "@nestjs/common";
 
 interface CacheEntry {
   message: string;
@@ -50,7 +50,7 @@ export class DedupCacheService {
     if (this.cache.size >= this.MAX_CACHE_SIZE) {
       // Remove oldest entries (first 100)
       const keysToDelete = Array.from(this.cache.keys()).slice(0, 100);
-      keysToDelete.forEach(key => this.cache.delete(key));
+      keysToDelete.forEach((key) => this.cache.delete(key));
     }
 
     const key = this.getCacheKey(userId, chatId, message);
@@ -73,7 +73,7 @@ export class DedupCacheService {
       }
     });
 
-    keysToDelete.forEach(key => this.cache.delete(key));
+    keysToDelete.forEach((key) => this.cache.delete(key));
   }
 
   /**
@@ -93,4 +93,3 @@ export class DedupCacheService {
     };
   }
 }
-

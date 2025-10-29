@@ -1,7 +1,15 @@
-import { Controller, Post, Body, Req, UseGuards, BadRequestException, Get } from '@nestjs/common';
-import { SubscriptionService } from './subscription.service';
-import { PlanType } from './entities/subscription.entity';
-import { TelegramGuard } from '../telegram-auth/telegram.guard';
+import {
+  Controller,
+  Post,
+  Body,
+  Req,
+  UseGuards,
+  BadRequestException,
+  Get,
+} from "@nestjs/common";
+import { SubscriptionService } from "./subscription.service";
+import { PlanType } from "./entities/subscription.entity";
+import { TelegramGuard } from "../telegram-auth/telegram.guard";
 
 interface TelegramPaymentData {
   update_id: number;
@@ -28,13 +36,13 @@ interface TelegramPaymentData {
 }
 
 interface InvoicePayload {
-  type: 'subscription' | 'credits';
+  type: "subscription" | "credits";
   plan?: string;
   credits?: number;
   userId: number;
 }
 
-@Controller('payments')
+@Controller("payments")
 export class PaymentController {
   constructor(private readonly subscriptionService: SubscriptionService) {}
 
@@ -47,9 +55,8 @@ export class PaymentController {
     credits_1000: { stars: 1000, credits: 1000 }, // ≈ $15
   };
 
-  @Post('webhook')
+  @Post("webhook")
   async handlePaymentWebhook(@Body() data: TelegramPaymentData) {
-
     // Handle pre-checkout query
     if (data.pre_checkout_query) {
       return {
@@ -61,31 +68,35 @@ export class PaymentController {
     // Handle successful payment
     if (data.message?.successful_payment) {
       const payment = data.message.successful_payment;
-      
+
       try {
         const payload: InvoicePayload = JSON.parse(payment.invoice_payload);
-        
-        if (payload.type === 'subscription' && payload.plan) {
+
+        if (payload.type === "subscription" && payload.plan) {
           const planConfig = this.PRICING[payload.plan];
           if (!planConfig || !planConfig.days) {
-            throw new BadRequestException('Invalid plan');
+            throw new BadRequestException("Invalid plan");
           }
 
-          const planType = payload.plan.startsWith('pro') ? PlanType.PRO : PlanType.ENTERPRISE;
-          
+          const planType = payload.plan.startsWith("pro")
+            ? PlanType.PRO
+            : PlanType.ENTERPRISE;
+
           await this.subscriptionService.upgradePlan(
             payload.userId,
             planType,
             planConfig.days,
           );
-
-        } else if (payload.type === 'credits' && payload.credits) {
-          await this.subscriptionService.addCredits(payload.userId, payload.credits);
+        } else if (payload.type === "credits" && payload.credits) {
+          await this.subscriptionService.addCredits(
+            payload.userId,
+            payload.credits,
+          );
         }
 
-        return { ok: true, message: 'Payment processed successfully' };
+        return { ok: true, message: "Payment processed successfully" };
       } catch (error) {
-        console.error('Payment processing error:', error);
+        console.error("Payment processing error:", error);
         return { ok: false, error: error.message };
       }
     }
@@ -93,15 +104,18 @@ export class PaymentController {
     return { ok: true };
   }
 
-  @Post('create-invoice')
+  @Post("create-invoice")
   @UseGuards(TelegramGuard)
-  async createInvoice(@Body() body: { type: 'subscription' | 'credits'; item: string }, @Req() req: Request) {
-    const telegramUser = req['telegramUser'];
+  async createInvoice(
+    @Body() body: { type: "subscription" | "credits"; item: string },
+    @Req() req: Request,
+  ) {
+    const telegramUser = req["telegramUser"];
     const { type, item } = body;
 
     const pricing = this.PRICING[item];
     if (!pricing) {
-      throw new BadRequestException('Invalid item');
+      throw new BadRequestException("Invalid item");
     }
 
     const payload: InvoicePayload = {
@@ -109,7 +123,7 @@ export class PaymentController {
       userId: telegramUser.id,
     };
 
-    if (type === 'subscription') {
+    if (type === "subscription") {
       payload.plan = item;
     } else {
       payload.credits = pricing.credits;
@@ -120,53 +134,53 @@ export class PaymentController {
       title: this.getInvoiceTitle(item),
       description: this.getInvoiceDescription(item),
       payload: JSON.stringify(payload),
-      currency: 'XTR', // Telegram Stars
+      currency: "XTR", // Telegram Stars
       prices: [{ label: this.getInvoiceTitle(item), amount: pricing.stars }],
     };
   }
 
-  @Get('pricing')
+  @Get("pricing")
   getPricing() {
     return {
       plans: {
         pro_monthly: {
           price: this.PRICING.pro_monthly.stars,
-          currency: 'XTR',
-          duration: '30 days',
+          currency: "XTR",
+          duration: "30 days",
           features: [
-            '5000 messages/month',
-            'GPT-4 access',
-            'File uploads',
-            'Priority support',
+            "5000 messages/month",
+            "GPT-4 access",
+            "File uploads",
+            "Priority support",
           ],
         },
         pro_yearly: {
           price: this.PRICING.pro_yearly.stars,
-          currency: 'XTR',
-          duration: '365 days',
+          currency: "XTR",
+          duration: "365 days",
           features: [
-            '5000 messages/month',
-            'GPT-4 access',
-            'File uploads',
-            'Priority support',
-            'Save 17%',
+            "5000 messages/month",
+            "GPT-4 access",
+            "File uploads",
+            "Priority support",
+            "Save 17%",
           ],
         },
       },
       credits: {
         credits_100: {
           price: this.PRICING.credits_100.stars,
-          currency: 'XTR',
+          currency: "XTR",
           amount: this.PRICING.credits_100.credits,
         },
         credits_500: {
           price: this.PRICING.credits_500.stars,
-          currency: 'XTR',
+          currency: "XTR",
           amount: this.PRICING.credits_500.credits,
         },
         credits_1000: {
           price: this.PRICING.credits_1000.stars,
-          currency: 'XTR',
+          currency: "XTR",
           amount: this.PRICING.credits_1000.credits,
         },
       },
@@ -175,24 +189,23 @@ export class PaymentController {
 
   private getInvoiceTitle(item: string): string {
     const titles = {
-      pro_monthly: 'PRO Plan - Monthly',
-      pro_yearly: 'PRO Plan - Yearly',
-      credits_100: '100 Credits',
-      credits_500: '500 Credits',
-      credits_1000: '1000 Credits',
+      pro_monthly: "PRO Plan - Monthly",
+      pro_yearly: "PRO Plan - Yearly",
+      credits_100: "100 Credits",
+      credits_500: "500 Credits",
+      credits_1000: "1000 Credits",
     };
     return titles[item] || item;
   }
 
   private getInvoiceDescription(item: string): string {
     const descriptions = {
-      pro_monthly: 'Unlock GPT-4, 5000 messages/month, file uploads',
-      pro_yearly: 'Unlock GPT-4, 5000 messages/month, file uploads (Save 17%)',
-      credits_100: 'Buy 100 credits for pay-as-you-go usage',
-      credits_500: 'Buy 500 credits for pay-as-you-go usage',
-      credits_1000: 'Buy 1000 credits for pay-as-you-go usage',
+      pro_monthly: "Unlock GPT-4, 5000 messages/month, file uploads",
+      pro_yearly: "Unlock GPT-4, 5000 messages/month, file uploads (Save 17%)",
+      credits_100: "Buy 100 credits for pay-as-you-go usage",
+      credits_500: "Buy 500 credits for pay-as-you-go usage",
+      credits_1000: "Buy 1000 credits for pay-as-you-go usage",
     };
     return descriptions[item] || item;
   }
 }
-
