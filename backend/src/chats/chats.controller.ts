@@ -36,8 +36,6 @@ export class ChatsController {
         firstName: telegramUser.first_name || '',
       });
       createChatDto.userId = dbUser.id;
-
-      // Check subscription and model access before creating chat using the same user id
       const model = createChatDto.aiModel || 'gpt-3.5-turbo';
       const accessCheck = await this.subscriptionService.checkAccess(dbUser.id, model);
       
