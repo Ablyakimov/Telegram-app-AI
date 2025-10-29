@@ -35,7 +35,7 @@ export class ChatsController {
       // Ensure user exists in database
       await this.usersService.findOrCreate({
         id: telegramUser.id,
-        username: telegramUser.username || '',
+        username: telegramUser.username || null,
         firstName: telegramUser.first_name || '',
       });
       
