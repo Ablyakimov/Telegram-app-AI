@@ -66,8 +66,6 @@ export class ChatsService {
 
   async remove(chatId: number, userId: number): Promise<void> {
     const chat = await this.findOne(chatId);
-    
-    // Verify ownership
     if (chat.userId !== userId) {
       throw new NotFoundException('Chat not found or access denied');
     }

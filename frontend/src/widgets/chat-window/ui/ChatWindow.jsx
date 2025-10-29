@@ -60,12 +60,10 @@ function ChatWindow({ chat, user, onBack }) {
     } catch (error) {
       console.error('Failed to send message:', error)
       
-      // Check if it's an error with response data
       if (error.response?.data) {
         const { message: errorMsg, reason } = error.response.data
         const tg = window.Telegram?.WebApp
         
-        // Handle duplicate message error
         if (reason === 'duplicate_message') {
           if (tg?.showAlert) {
             tg.showAlert(t('chat.duplicateMessage'))
@@ -75,9 +73,7 @@ function ChatWindow({ chat, user, onBack }) {
           return
         }
         
-        // Handle subscription-related errors
         if (reason === 'model_not_allowed' || reason === 'monthly_limit_reached') {
-          // Show upgrade prompt
           if (tg?.showConfirm) {
             tg.showConfirm(errorMsg + '\n\nOpen subscription page?', (confirmed) => {
               if (confirmed) {

@@ -72,7 +72,6 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
       }
       
       await onSend(message)
-      // Добавляем небольшую задержку перед очисткой, чтобы избежать мерцания кнопок
       setTimeout(() => setMessage(''), 50)
     }
   }
@@ -188,10 +187,9 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
     }
   }
 
-  return (
+    return (
     <form className="p-3 px-4 pb-safe-offset-4 bg-tg-bg anim-fade-in" onSubmit={handleSubmit}>
       <div className="flex items-center gap-3">
-        {/* Left side - attach button */}
         <button
           type="button"
           onClick={handleAttachClick}
@@ -241,10 +239,7 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
               )
             })()}
           </div>
-
-          {/* Right side buttons - voice or send with smooth animations */}
           <div className="relative w-10 h-10 flex items-center justify-center">
-        {/* Voice button - fades in when no text, not recording, and not replying */}
         <button
           type="button"
           onClick={startRecognition}
@@ -262,8 +257,6 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
             <path d="M12 19v3"/>
           </svg>
         </button>
-
-        {/* Send button - fades in when there's text and not replying */}
         <button
           type="submit"
           disabled={disabled || replying}

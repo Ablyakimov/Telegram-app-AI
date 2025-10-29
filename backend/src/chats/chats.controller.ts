@@ -62,7 +62,6 @@ export class ChatsController {
     }
     
     const chat = await this.chatsService.create(createChatDto);
-    // If systemPrompt provided, seed assistant's first reply using selected model
     const seedPrompt = (createChatDto.systemPrompt || '').trim();
     if (seedPrompt) {
       try {
@@ -72,11 +71,9 @@ export class ChatsController {
         });
         await this.chatsService.addMessage(chat.id, 'assistant', aiResponse);
       } catch (e) {
-        // do not fail creation on AI seed error
         console.error('Seed assistant error:', (e as any)?.message || e);
       }
     }
-    // Return fresh chat
     return this.chatsService.findOne(chat.id);
   }
 
@@ -113,7 +110,6 @@ export class ChatsController {
       });
     }
 
-    // Check for duplicate messages (deduplication)
     if (this.dedupCache.isDuplicate(telegramUser.id, chatId, message)) {
       throw new BadRequestException({
         message: 'Duplicate message detected. Please wait a moment before sending the same message again.',
@@ -121,7 +117,6 @@ export class ChatsController {
       });
     }
 
-    // Check access and limits
     const accessCheck = await this.subscriptionService.checkAccess(telegramUser.id, chat.aiModel);
     
     if (!accessCheck.allowed) {
@@ -156,14 +151,10 @@ export class ChatsController {
     const aiResponse = await this.aiService.chat(recentMessages, {
       systemPrompt,
       temperature,
-      maxTokens: isPro ? (maxTokens || 2000) : Math.min(maxTokens || 500, 500), // Limit maxTokens for FREE
+      maxTokens: isPro ? (maxTokens || 2000) : Math.min(maxTokens || 500, 500),
       model: chat.aiModel,
     });
-
-    // Save AI message
     await this.chatsService.addMessage(chatId, 'assistant', aiResponse);
-
-    // Deduct usage (credits or increment counter)
     await this.subscriptionService.deductUsage(telegramUser.id, chat.aiModel, 0);
 
     return {
@@ -207,14 +198,9 @@ export class ChatsController {
     try {
       if (mime.startsWith('text/') || ['.txt', '.md', '.csv', '.log'].includes(ext)) {
         const fileContent = fs.readFileSync(file.path, 'utf-8');
-        // Save user message with just file name
         const userMessage = `📄 Файл: ${fileName}`;
         await this.chatsService.addMessage(chatId, 'user', userMessage);
-        
-        // Get chat history
-        const chat = await this.chatsService.findOne(chatId);
-        
-        // Ask AI with file content in context
+        const chat = await this.chatsService.findOne(chat в);
         const contextMessage = `Пользователь отправил файл "${fileName}" с содержимым:\n\n${fileContent.slice(0, 15000)}`;
         const aiResponse = await this.aiService.chat([
           ...chat.messages,
@@ -316,20 +302,12 @@ export class ChatsController {
         }
       } else if (mime.startsWith('image/')) {
         try {
-          
-          // Convert image to base64
           const imageBuffer = fs.readFileSync(file.path);
           const base64Image = imageBuffer.toString('base64');
           const imageUrl = `data:${mime};base64,${base64Image}`;
-          
-          // Save message with image reference
           const userMessage = `🖼️ Изображение: ${fileName}`;
           await this.chatsService.addMessage(chatId, 'user', userMessage);
-          
-          // Get chat history
           const chat = await this.chatsService.findOne(chatId);
-          
-          // Ask AI about the image using vision with context
           const aiResponse = await this.aiService.chatWithImage(
             chat.messages, 
             imageUrl, 
