@@ -1,5 +1,5 @@
 # ---- Build stage ----
-FROM node:20-alpine AS builder
+FROM ghcr.io/docker/library/node:20-alpine AS builder
 WORKDIR /app
 
 # Copy package files (lockfile optional)
@@ -18,7 +18,7 @@ COPY src ./src
 RUN NODE_OPTIONS="--max-old-space-size=512" npx nest build
 
 # ---- Development stage ----
-FROM node:20-alpine AS development
+FROM ghcr.io/docker/library/node:20-alpine AS development
 WORKDIR /app
 
 # Copy package files (lockfile optional)
@@ -38,7 +38,7 @@ EXPOSE 3001
 CMD ["npm", "run", "start:dev"]
 
 # ---- Production stage ----
-FROM node:20-alpine AS production
+FROM ghcr.io/docker/library/node:20-alpine AS production
 WORKDIR /app
 ENV NODE_ENV=production
 
