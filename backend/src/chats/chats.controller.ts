@@ -137,17 +137,10 @@ export class ChatsController {
       });
     }
 
-    // Add message to dedup cache
     this.dedupCache.add(telegramUser.id, chatId, message);
-
-    // Save user message and get updated chat with new message
     const updatedChat = await this.chatsService.addMessage(chatId, 'user', message);
-    
-    // Limit context size based on subscription
     const contextLimit = isPro ? 50 : 10;
     const recentMessages = updatedChat.messages.slice(-contextLimit);
-    
-    // Get AI response with limited context
     const aiResponse = await this.aiService.chat(recentMessages, {
       systemPrompt,
       temperature,
@@ -200,7 +193,7 @@ export class ChatsController {
         const fileContent = fs.readFileSync(file.path, 'utf-8');
         const userMessage = `📄 Файл: ${fileName}`;
         await this.chatsService.addMessage(chatId, 'user', userMessage);
-        const chat = await this.chatsService.findOne(chat в);
+        const chat = await this.chatsService.findOne(chatId);
         const contextMessage = `Пользователь отправил файл "${fileName}" с содержимым:\n\n${fileContent.slice(0, 15000)}`;
         const aiResponse = await this.aiService.chat([
           ...chat.messages,
@@ -234,8 +227,6 @@ export class ChatsController {
       } else if (mime === 'application/pdf' || ext === '.pdf') {
         if (!pdfParse) {
           try {
-            // Lazy require to avoid startup penalty
-            // eslint-disable-next-line @typescript-eslint/no-var-requires
             pdfParse = require('pdf-parse');
           } catch (e) {
             pdfParse = null;
@@ -251,14 +242,9 @@ export class ChatsController {
           pdfContent = '[PDF uploaded but unable to parse]';
         }
         
-        // Save user message with just file name
         const userMessage = `📄 PDF: ${fileName}`;
         await this.chatsService.addMessage(chatId, 'user', userMessage);
-        
-        // Get chat history
         const chat = await this.chatsService.findOne(chatId);
-        
-        // Ask AI with file content in context
         const contextMessage = `Пользователь отправил PDF файл "${fileName}" с содержимым:\n\n${pdfContent}`;
         const aiResponse = await this.aiService.chat([
           ...chat.messages,
@@ -269,9 +255,7 @@ export class ChatsController {
         
         return { message: aiResponse };
       } else if (mime.startsWith('audio/')) {
-        // Transcribe via OpenAI Whisper if available
         try {
-          // @ts-ignore access openai
           const openai: any = (this.aiService as any).openai;
           if (openai?.audio?.transcriptions) {
             const stream = fs.createReadStream(file.path);
@@ -330,20 +314,14 @@ export class ChatsController {
 
       const userMessage = `File: ${file.originalname}\n\n${extractedText}`.slice(0, 16000);
 
-      // Save user message with extracted content
       await this.chatsService.addMessage(chatId, 'user', userMessage);
-
-      // Get updated chat history
       const chat = await this.chatsService.findOne(chatId);
-
-      // Ask AI with the new context
       const aiResponse = await this.aiService.chat(chat.messages, { model: chat.aiModel });
 
       await this.chatsService.addMessage(chatId, 'assistant', aiResponse);
 
       return { message: aiResponse };
     } finally {
-      // Optionally keep files; here we keep the uploaded file for auditing
     }
   }
 

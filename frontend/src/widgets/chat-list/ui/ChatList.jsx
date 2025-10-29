@@ -38,8 +38,6 @@ function ChatList({ chats, onSelectChat, onNewChat, onRenameChat, onDeleteChat, 
       setOpenMenuChatId(null)
       return
     }
-    
-    // Calculate menu position based on button position
     const rect = e.currentTarget.getBoundingClientRect()
     const position = {
       top: rect.bottom + 4,

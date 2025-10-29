@@ -77,8 +77,6 @@ function ChatWindow({ chat, user, onBack }) {
           if (tg?.showConfirm) {
             tg.showConfirm(errorMsg + '\n\nOpen subscription page?', (confirmed) => {
               if (confirmed) {
-                // Need to navigate back and show subscription
-                // This requires lifting state up or using a router
                 alert('Please navigate to subscription page from chat list.')
               }
             })
@@ -87,8 +85,6 @@ function ChatWindow({ chat, user, onBack }) {
           }
           return
         }
-        
-        // Generic error with message
         if (errorMsg) {
           if (tg?.showAlert) {
             tg.showAlert(errorMsg)

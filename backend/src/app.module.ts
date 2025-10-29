@@ -14,7 +14,6 @@ import { APP_GUARD } from '@nestjs/core';
       isGlobal: true,
       envFilePath: '.env',
     }),
-    // Build ORM config with correct typing to satisfy union of Postgres/SQLite options
     TypeOrmModule.forRoot((() => {
       const isPostgres = Boolean(process.env.DATABASE_URL);
       const common = {
