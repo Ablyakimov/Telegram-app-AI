@@ -18,7 +18,6 @@ function ChatsPage() {
   const [theme, setTheme] = useState('light')
   
   useEffect(() => {
-    // Platform detection → apple | android | windows
     const platformFromTg = window.Telegram?.WebApp?.platform
     const ua = (navigator.userAgent || '').toLowerCase()
     let platform = 'windows'
@@ -77,7 +76,6 @@ function ChatsPage() {
     }
   }, [storeUser])
 
-  // Listen for custom event from NewChatModal to show subscription
   useEffect(() => {
     const handleShowSubscription = () => {
       setShowSubscription(true)
@@ -97,8 +95,6 @@ function ChatsPage() {
       setShowNewChatModal(false)
     } catch (error) {
       console.error('Failed to create chat:', error)
-      
-      // Generic error handling
       const errorMessage = error.response?.data?.message || 'Failed to create chat. Please try again.'
       
       if (tg?.showAlert) {
@@ -129,7 +125,6 @@ function ChatsPage() {
   const handleDeleteChat = async (chatId) => {
     try {
       await deleteChat(chatId)
-      // If current chat is deleted, go back to list
       if (selectedChat?.id === chatId) {
         setSelectedChat(null)
       }

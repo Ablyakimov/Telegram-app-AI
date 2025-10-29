@@ -35,8 +35,6 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
     setChatName(normalize(defaultName))
   }, [defaultName])
 
-
-  // Get all models with availability status
   const { availableModels, unavailableModels } = useMemo(() => {
     const allModels = models.length ? models : [
       { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo' },
@@ -73,7 +71,6 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
     return { availableModels: available, unavailableModels: unavailable }
   }, [subscription, models])
 
-  // Ensure selected model is available
   useEffect(() => {
     if (availableModels.length > 0 && !availableModels.find(m => m.id === selectedModel)) {
       setSelectedModel(availableModels[0].id)
@@ -84,8 +81,6 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
   const handleSubmit = (e) => {
     e.preventDefault()
     if (!chatName.trim()) return
-
-    // Double-check that selected model is available (should always be true now)
     const isModelAvailable = availableModels.find(m => m.id === selectedModel)
     if (!isModelAvailable) {
       const tg = window.Telegram?.WebApp

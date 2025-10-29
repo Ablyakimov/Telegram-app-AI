@@ -22,13 +22,10 @@ function SubscriptionPage({ onBack }) {
 
   const handleBuyPlan = async (planId) => {
     try {
-      const invoice = await createInvoice('subscription', planId)
-      
-      // Open Telegram invoice
+      const invoice = await createInvoice降落subscription', planId)
       if (window.Telegram?.WebApp) {
         window.Telegram.WebApp.openInvoice(invoice.payload, (status) => {
           if (status === 'paid') {
-            // Refresh subscription after payment
             fetchSubscription()
             window.Telegram.WebApp.showAlert('Subscription activated! 🎉')
           } else if (status === 'cancelled') {
@@ -82,7 +79,6 @@ function SubscriptionPage({ onBack }) {
 
   return (
     <div className="flex flex-col h-screen bg-tg-bg text-tg-text">
-      {/* Header */}
       <div className="flex items-center gap-3 p-3 px-4 bg-tg-bg border-b border-tg-hint/20">
         <button 
           className="w-10 h-10 border-none bg-transparent text-tg-link text-[32px] flex items-center justify-center mr-2"
@@ -99,7 +95,6 @@ function SubscriptionPage({ onBack }) {
       </div>
 
       <div className="flex-1 overflow-y-auto p-4">
-        {/* Current Plan Card */}
         <div className="bg-tg-secondary-bg rounded-2xl p-4 mb-4 border border-black/5 dark:border-white/5">
           <div className="flex justify-between items-start mb-3">
             <div>
@@ -121,7 +116,6 @@ function SubscriptionPage({ onBack }) {
             </div>
           )}
 
-          {/* Usage Stats */}
           <div className="grid grid-cols-2 gap-3 mt-4">
             <div className="bg-tg-bg rounded-xl p-3">
               <div className="text-xs text-tg-hint">Messages Used</div>
@@ -139,7 +133,6 @@ function SubscriptionPage({ onBack }) {
           </div>
         </div>
 
-        {/* Subscription Plans */}
         {subscription?.plan === 'free' && (
           <>
             <div className="text-sm font-semibold text-tg-hint mb-3 px-1">⭐ Upgrade to PRO</div>
@@ -176,7 +169,6 @@ function SubscriptionPage({ onBack }) {
           </>
         )}
 
-        {/* Buy Credits */}
         <div className="text-sm font-semibold text-tg-hint mb-3 px-1 mt-6">💰 Buy Credits</div>
         <div className="grid grid-cols-1 gap-3">
           {pricing?.credits && Object.entries(pricing.credits).map(([key, credit]) => (
@@ -198,7 +190,6 @@ function SubscriptionPage({ onBack }) {
           ))}
         </div>
 
-        {/* Info */}
         <div className="mt-6 p-4 bg-tg-secondary-bg/50 rounded-xl border border-black/5 dark:border-white/5">
           <div className="text-xs text-tg-hint">
             <p className="mb-2">💡 <strong>How it works:</strong></p>
