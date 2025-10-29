@@ -14,15 +14,10 @@ http.interceptors.request.use(
     const tg = window.Telegram?.WebApp
     const initData = tg?.initData
     
-    console.log('Telegram WebApp available:', !!tg)
-    console.log('initData available:', !!initData)
-    
     if (initData) {
       config.headers['x-telegram-initdata'] = initData
-      console.log('Added initData to headers')
     } else {
       // Fallback for development/testing
-      console.log('No initData available, using fallback')
       config.headers['x-telegram-initdata'] = 'dev-fallback'
     }
     return config
@@ -54,7 +49,6 @@ export function get(url, config) {
 export function post(url, data, config) {
   // If data is FormData, ensure axios handles Content-Type automatically
   if (data instanceof FormData) {
-    console.log('📤 Sending FormData with', data.get('file')?.name || 'unknown file')
     // Don't merge headers if uploading file - let axios set Content-Type
     return http.post(url, data, config).then((r) => r.data)
   }

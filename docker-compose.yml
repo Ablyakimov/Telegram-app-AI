@@ -1,6 +1,21 @@
-version: '3.8'
-
 services:
+  postgres:
+    image: mirror.gcr.io/library/postgres:16-alpine
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-app}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-app}
+      - POSTGRES_DB=${POSTGRES_DB:-tg_ai_app}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   backend:
     build:
       context: ./backend
@@ -11,6 +26,7 @@ services:
     environment:
       - NODE_ENV=${NODE_ENV:-development}
       - PORT=3001
+      - DATABASE_URL=${DATABASE_URL:-postgres://app:app@postgres:5432/tg_ai_app}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-sk-test-your_openai_api_key_here}
       - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4}
       - OPENAI_TEMPERATURE=${OPENAI_TEMPERATURE:-0.7}
@@ -20,8 +36,9 @@ services:
       - CORS_ORIGIN=${CORS_ORIGIN:-https://24ablyakimov.ru}
     networks:
       - app-network
-    volumes:
-      - backend_data:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
     ports:
       - "3001:3001"
 
@@ -43,7 +60,7 @@ services:
 
   # Nginx proxy (только для production)
   nginx:
-    image: nginx:alpine
+    image: mirror.gcr.io/library/nginx:alpine
     ports:
       - "8080:80"
       - "8443:443"
@@ -58,7 +75,7 @@ services:
       - production
 
 volumes:
-  backend_data:
+  pg_data:
 
 networks:
   app-network:

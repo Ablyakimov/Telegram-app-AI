@@ -1,31 +1,44 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import MessageInput from '@features/send-message/ui/MessageInput'
 import { useMessagesStore } from '@entities/message/model/messagesStore'
 import Markdown from '@shared/ui/Markdown'
 
-function ChatWindow({ chat, user, onBack }) {
-  const { messagesByChatId, loadMessages, sendMessage, uploadFile, loadingByChatId, replyingByChatId } = useMessagesStore()
+function ChatWindow({ chat, _user, onBack }) {
+  const { t } = useTranslation()
+  const { messagesByChatId, loadMessages, sendMessage, uploadFile, replyingByChatId } = useMessagesStore()
   const [viewportHeight, setViewportHeight] = useState('100vh')
   const messages = useMemo(() => messagesByChatId[chat.id] || [], [messagesByChatId, chat.id])
+  const messagesEndRef = useRef(null)
+  
+  const formatTimestamp = (timestamp) => {
+    const date = timestamp ? new Date(timestamp) : new Date()
+    return date.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  }
 
   useEffect(() => {
     loadMessages(chat.id)
   }, [chat.id, loadMessages])
 
-  // Handle viewport height changes (mobile keyboard)
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [messages, chat.id])
+
   useEffect(() => {
     const updateViewportHeight = () => {
       setViewportHeight(`${window.innerHeight}px`)
     }
 
-    // Set initial height
     updateViewportHeight()
 
-    // Listen for viewport changes (keyboard open/close)
     window.addEventListener('resize', updateViewportHeight)
     window.addEventListener('orientationchange', updateViewportHeight)
 
-    // Also listen for visual viewport changes if available (better mobile support)
     if (window.visualViewport) {
       const handleVisualViewportChange = () => {
         if (window.visualViewport) {
@@ -50,14 +63,50 @@ function ChatWindow({ chat, user, onBack }) {
 
   const handleSendMessage = async (message) => {
     if (!message.trim()) return
-    await sendMessage(chat.id, message)
+    try {
+      await sendMessage(chat.id, message)
+    } catch (error) {
+      console.error('Failed to send message:', error)
+      
+      if (error.response?.data) {
+        const { message: errorMsg, reason } = error.response.data
+        const tg = window.Telegram?.WebApp
+        
+        if (reason === 'duplicate_message') {
+          if (tg?.showAlert) {
+            tg.showAlert(t('chat.duplicateMessage'))
+          } else {
+            alert(t('chat.duplicateMessage'))
+          }
+          return
+        }
+        
+        if (reason === 'model_not_allowed' || reason === 'monthly_limit_reached') {
+          if (tg?.showConfirm) {
+            tg.showConfirm(errorMsg + '\n\nOpen subscription page?', (confirmed) => {
+              if (confirmed) {
+                alert('Please navigate to subscription page from chat list.')
+              }
+            })
+          } else {
+            alert(errorMsg + '\n\nPlease upgrade your subscription from the chat list.')
+          }
+          return
+        }
+        if (errorMsg) {
+          if (tg?.showAlert) {
+            tg.showAlert(errorMsg)
+          } else {
+            alert(errorMsg)
+          }
+        }
+      }
+    }
   }
 
   const handleUploadFile = async (file) => {
-    console.log('📎 ChatWindow: uploading file', { name: file.name, type: file.type, size: file.size })
     try {
       await uploadFile(chat.id, file)
-      console.log('✅ ChatWindow: file uploaded successfully')
     } catch (error) {
       console.error('❌ ChatWindow: file upload error', error)
     }
@@ -114,10 +163,12 @@ function ChatWindow({ chat, user, onBack }) {
               <span className="w-2 h-2 rounded-full bg-tg-hint animate-bounce [animation-delay:0ms]"></span>
               <span className="w-2 h-2 rounded-full bg-tg-hint animate-bounce [animation-delay:200ms]"></span>
               <span className="w-2 h-2 rounded-full bg-tg-hint animate-bounce [animation-delay:400ms]"></span>
-              <span className="text-sm text-tg-hint ml-2">ИИ печатает…</span>
+              <span className="text-sm text-tg-hint ml-2">{t('chat.typing')}</span>
             </div>
           </div>
         )}
+        {/* Invisible element to scroll to */}
+        <div ref={messagesEndRef} />
       </div>
 
       <MessageInput onSend={handleSendMessage} onUpload={handleUploadFile} disabled={!!replyingByChatId[chat.id]} replying={!!replyingByChatId[chat.id]} />

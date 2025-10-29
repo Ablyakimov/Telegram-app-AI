@@ -1,4 +1,10 @@
-import { IsString, IsNumber, IsOptional, IsNumberString, Min, Max } from 'class-validator';
+import {
+  IsString,
+  IsNumber,
+  IsOptional,
+  Min,
+  Max,
+} from "class-validator";
 
 export class SendMessageDto {
   @IsNumber()
@@ -20,4 +26,3 @@ export class SendMessageDto {
   @Min(1)
   maxTokens?: number;
 }
-
