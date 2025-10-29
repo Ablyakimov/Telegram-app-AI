@@ -1,5 +1,5 @@
-import { IsEnum, IsNumber, IsOptional } from 'class-validator';
-import { PlanType } from '../entities/subscription.entity';
+import { IsEnum, IsNumber, IsOptional } from "class-validator";
+import { PlanType } from "../entities/subscription.entity";
 
 export class UpdateSubscriptionDto {
   @IsOptional()
@@ -26,4 +26,3 @@ export class UpgradePlanDto {
   @IsNumber()
   durationDays: number;
 }
-

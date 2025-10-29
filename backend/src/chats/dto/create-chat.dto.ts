@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsOptional, MaxLength } from 'class-validator';
+import { IsString, IsNumber, IsOptional, MaxLength } from "class-validator";
 
 export class CreateChatDto {
   @IsString()
@@ -18,4 +18,3 @@ export class CreateChatDto {
   @MaxLength(4000)
   systemPrompt?: string;
 }
-

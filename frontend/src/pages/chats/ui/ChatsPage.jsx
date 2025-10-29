@@ -15,7 +15,6 @@ function ChatsPage() {
   const [selectedChat, setSelectedChat] = useState(null)
   const [showNewChatModal, setShowNewChatModal] = useState(false)
   const [showSubscription, setShowSubscription] = useState(false)
-  const [theme, setTheme] = useState('light')
   
   useEffect(() => {
     const platformFromTg = window.Telegram?.WebApp?.platform
@@ -53,12 +52,10 @@ function ChatsPage() {
       }
 
       const colorScheme = tg.colorScheme || 'light'
-      setTheme(colorScheme)
       document.documentElement.setAttribute('data-theme', colorScheme)
 
       tg.onEvent('themeChanged', () => {
         const newColorScheme = tg.colorScheme
-        setTheme(newColorScheme)
         document.documentElement.setAttribute('data-theme', newColorScheme)
       })
     } else {
@@ -74,7 +71,7 @@ function ChatsPage() {
     if (storeUser) {
       fetchByUser(storeUser.id)
     }
-  }, [storeUser])
+  }, [storeUser, fetchByUser])
 
   useEffect(() => {
     const handleShowSubscription = () => {

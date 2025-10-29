@@ -32,8 +32,11 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
   }, [fetch, fetchSubscription])
 
   useEffect(() => {
-    setChatName(normalize(defaultName))
-  }, [defaultName])
+    const normalized = normalize(defaultName)
+    if (normalized !== chatName) {
+      setChatName(normalized)
+    }
+  }, [defaultName, chatName])
 
   const { availableModels, unavailableModels } = useMemo(() => {
     const allModels = models.length ? models : [
@@ -52,7 +55,6 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
     }
     
     const isFree = subscription.plan === 'free'
-    const isPro = subscription.plan === 'pro' && subscription.expiresAt && new Date(subscription.expiresAt) > new Date()
     
     const available = []
     const unavailable = []
@@ -73,7 +75,10 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
 
   useEffect(() => {
     if (availableModels.length > 0 && !availableModels.find(m => m.id === selectedModel)) {
-      setSelectedModel(availableModels[0].id)
+      const firstAvailable = availableModels[0].id
+      if (firstAvailable !== selectedModel) {
+        setSelectedModel(firstAvailable)
+      }
     }
   }, [availableModels, selectedModel])
 

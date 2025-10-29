@@ -1,12 +1,18 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from "typeorm";
 
 export enum PlanType {
-  FREE = 'free',
-  PRO = 'pro',
-  ENTERPRISE = 'enterprise',
+  FREE = "free",
+  PRO = "pro",
+  ENTERPRISE = "enterprise",
 }
 
-@Entity('subscriptions')
+@Entity("subscriptions")
 export class Subscription {
   @PrimaryGeneratedColumn()
   id: number;
@@ -15,22 +21,22 @@ export class Subscription {
   userId: number;
 
   @Column({
-    type: 'varchar',
+    type: "varchar",
     default: PlanType.FREE,
   })
   plan: PlanType;
 
-  @Column({ type: 'int', default: 0 })
+  @Column({ type: "int", default: 0 })
   credits: number;
 
   // Let TypeORM infer date column type for both SQLite and Postgres
   @Column({ nullable: true })
   expiresAt: Date;
 
-  @Column({ type: 'int', default: 0 })
+  @Column({ type: "int", default: 0 })
   monthlyMessagesUsed: number;
 
-  @Column({ type: 'int', default: 0 })
+  @Column({ type: "int", default: 0 })
   totalTokensUsed: number;
 
   @Column({ nullable: true })
@@ -42,4 +48,3 @@ export class Subscription {
   @UpdateDateColumn()
   updatedAt: Date;
 }
-

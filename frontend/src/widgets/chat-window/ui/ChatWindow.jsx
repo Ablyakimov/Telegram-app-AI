@@ -4,12 +4,20 @@ import MessageInput from '@features/send-message/ui/MessageInput'
 import { useMessagesStore } from '@entities/message/model/messagesStore'
 import Markdown from '@shared/ui/Markdown'
 
-function ChatWindow({ chat, user, onBack }) {
+function ChatWindow({ chat, _user, onBack }) {
   const { t } = useTranslation()
-  const { messagesByChatId, loadMessages, sendMessage, uploadFile, loadingByChatId, replyingByChatId } = useMessagesStore()
+  const { messagesByChatId, loadMessages, sendMessage, uploadFile, replyingByChatId } = useMessagesStore()
   const [viewportHeight, setViewportHeight] = useState('100vh')
   const messages = useMemo(() => messagesByChatId[chat.id] || [], [messagesByChatId, chat.id])
   const messagesEndRef = useRef(null)
+  
+  const formatTimestamp = (timestamp) => {
+    const date = timestamp ? new Date(timestamp) : new Date()
+    return date.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  }
 
   useEffect(() => {
     loadMessages(chat.id)

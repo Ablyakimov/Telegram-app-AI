@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, MaxLength } from 'class-validator';
+import { IsString, IsNotEmpty, MaxLength } from "class-validator";
 
 export class UpdateChatDto {
   @IsString()
@@ -6,4 +6,3 @@ export class UpdateChatDto {
   @MaxLength(100)
   name: string;
 }
-
