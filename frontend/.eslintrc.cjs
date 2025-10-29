@@ -31,7 +31,7 @@ module.exports = {
     'react-hooks/rules-of-hooks': 'error',
     'react-hooks/exhaustive-deps': 'warn',
     'react-hooks/set-state-in-effect': 'warn',
-    stability-no-unused-vars': ['warn', { 
+    'no-unused-vars': ['warn', { 
       argsIgnorePattern: '^_',
       varsIgnorePattern: '^_',
       ignoreRestSiblings: true 
