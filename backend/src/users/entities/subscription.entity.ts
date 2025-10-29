@@ -23,7 +23,7 @@ export class Subscription {
   @Column({ type: 'int', default: 0 })
   credits: number;
 
-  @Column({ type: 'datetime', nullable: true })
+  @Column({ type: process.env.DATABASE_URL ? 'timestamp' : 'datetime', nullable: true })
   expiresAt: Date;
 
   @Column({ type: 'int', default: 0 })
@@ -32,7 +32,7 @@ export class Subscription {
   @Column({ type: 'int', default: 0 })
   totalTokensUsed: number;
 
-  @Column({ type: 'datetime', nullable: true })
+  @Column({ type: process.env.DATABASE_URL ? 'timestamp' : 'datetime', nullable: true })
   lastResetAt: Date;
 
   @CreateDateColumn()

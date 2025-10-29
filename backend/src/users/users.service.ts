@@ -10,7 +10,7 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
-  async findOrCreate(userData: { id: number; username: string; firstName: string }): Promise<User> {
+  async findOrCreate(userData: { id: number; username: string | null; firstName: string }): Promise<User> {
     let user = await this.usersRepository.findOne({ where: { id: userData.id } });
     
     if (!user) {
