@@ -49,7 +49,6 @@ export class PaymentController {
 
   @Post('webhook')
   async handlePaymentWebhook(@Body() data: TelegramPaymentData) {
-    console.log('Payment webhook received:', JSON.stringify(data, null, 2));
 
     // Handle pre-checkout query
     if (data.pre_checkout_query) {
@@ -80,10 +79,8 @@ export class PaymentController {
             planConfig.days,
           );
 
-          console.log(`Subscription upgraded: User ${payload.userId} to ${planType} for ${planConfig.days} days`);
         } else if (payload.type === 'credits' && payload.credits) {
           await this.subscriptionService.addCredits(payload.userId, payload.credits);
-          console.log(`Credits added: User ${payload.userId} received ${payload.credits} credits`);
         }
 
         return { ok: true, message: 'Payment processed successfully' };
