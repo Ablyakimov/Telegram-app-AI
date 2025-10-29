@@ -28,18 +28,13 @@ export class ChatsController {
 
   @Post()
   async create(@Body() createChatDto: CreateChatDto, @Req() req: Request) {
-    // Get user from Telegram auth
     const telegramUser = req['telegramUser'];
-    
     if (telegramUser) {
-      // Ensure user exists in database (or reuse by username)
       const dbUser = await this.usersService.findOrCreate({
         id: telegramUser.id,
         username: telegramUser.username || null,
         firstName: telegramUser.first_name || '',
       });
-      
-      // Use actual DB user id to avoid FK violations
       createChatDto.userId = dbUser.id;
 
       // Check subscription and model access before creating chat using the same user id
@@ -180,7 +175,6 @@ export class ChatsController {
       return { message: 'No file uploaded' };
     }
 
-    // Decode filename properly (handle cyrillic and other encodings)
     const fileName = Buffer.from(file.originalname, 'latin1').toString('utf8');
     const ext = path.extname(fileName).toLowerCase();
     const mime = file.mimetype;
