@@ -85,14 +85,9 @@ export class ChatsController {
     const { chatId, message, systemPrompt, temperature, maxTokens } = sendMessageDto;
     const telegramUser = req['telegramUser'];
 
-    // Get chat to check model
     const chat = await this.chatsService.findOne(chatId);
-    
-    // Get subscription to check message length limits
     const subscription = await this.subscriptionService.getSubscription(telegramUser.id);
     const isPro = subscription.plan === 'pro' && subscription.expiresAt && new Date(subscription.expiresAt) > new Date();
-    
-    // Check message length limits
     const maxMessageLength = isPro ? 4000 : 500;
     if (message.length > maxMessageLength) {
       throw new BadRequestException({
