@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   postgres:
-    image: ghcr.io/docker/library/postgres:16-alpine
+    image: mirror.gcr.io/library/postgres:16-alpine
     environment:
       - POSTGRES_USER=${POSTGRES_USER:-app}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-app}
@@ -62,7 +62,7 @@ services:
 
   # Nginx proxy (только для production)
   nginx:
-    image: ghcr.io/docker/library/nginx:alpine
+    image: mirror.gcr.io/library/nginx:alpine
     ports:
       - "8080:80"
       - "8443:443"
