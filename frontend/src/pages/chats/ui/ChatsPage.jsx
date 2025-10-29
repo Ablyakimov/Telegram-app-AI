@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import ChatList from '@widgets/chat-list/ui/ChatList'
 import ChatWindow from '@widgets/chat-window/ui/ChatWindow'
+import SubscriptionPage from '@widgets/subscription/ui/SubscriptionPage'
 import NewChatModal from '@features/new-chat/ui/NewChatModal'
 import { useUserStore } from '@entities/user/model/userStore'
 import { useChatsStore } from '@entities/chat/model/chatsStore'
@@ -13,10 +14,9 @@ function ChatsPage() {
   const { chats, fetchByUser, createChat, updateChatName, deleteChat } = useChatsStore()
   const [selectedChat, setSelectedChat] = useState(null)
   const [showNewChatModal, setShowNewChatModal] = useState(false)
-  const [theme, setTheme] = useState('light')
+  const [showSubscription, setShowSubscription] = useState(false)
   
   useEffect(() => {
-    // Platform detection → apple | android | windows
     const platformFromTg = window.Telegram?.WebApp?.platform
     const ua = (navigator.userAgent || '').toLowerCase()
     let platform = 'windows'
@@ -52,12 +52,10 @@ function ChatsPage() {
       }
 
       const colorScheme = tg.colorScheme || 'light'
-      setTheme(colorScheme)
       document.documentElement.setAttribute('data-theme', colorScheme)
 
       tg.onEvent('themeChanged', () => {
         const newColorScheme = tg.colorScheme
-        setTheme(newColorScheme)
         document.documentElement.setAttribute('data-theme', newColorScheme)
       })
     } else {
@@ -73,7 +71,19 @@ function ChatsPage() {
     if (storeUser) {
       fetchByUser(storeUser.id)
     }
-  }, [storeUser])
+  }, [storeUser, fetchByUser])
+
+  useEffect(() => {
+    const handleShowSubscription = () => {
+      setShowSubscription(true)
+    }
+    
+    window.addEventListener('show-subscription', handleShowSubscription)
+    
+    return () => {
+      window.removeEventListener('show-subscription', handleShowSubscription)
+    }
+  }, [])
 
   const handleCreateChat = async ({ name, aiModel }) => {
     try {
@@ -82,6 +92,13 @@ function ChatsPage() {
       setShowNewChatModal(false)
     } catch (error) {
       console.error('Failed to create chat:', error)
+      const errorMessage = error.response?.data?.message || 'Failed to create chat. Please try again.'
+      
+      if (tg?.showAlert) {
+        tg.showAlert(errorMessage)
+      } else {
+        alert(errorMessage)
+      }
     }
   }
 
@@ -105,7 +122,6 @@ function ChatsPage() {
   const handleDeleteChat = async (chatId) => {
     try {
       await deleteChat(chatId)
-      // If current chat is deleted, go back to list
       if (selectedChat?.id === chatId) {
         setSelectedChat(null)
       }
@@ -117,13 +133,16 @@ function ChatsPage() {
 
   return (
     <div className="w-full h-screen flex flex-col bg-tg-bg text-tg-text">
-      {!selectedChat ? (
+      {showSubscription ? (
+        <SubscriptionPage onBack={() => setShowSubscription(false)} />
+      ) : !selectedChat ? (
         <ChatList
           chats={chats}
           onSelectChat={handleSelectChat}
           onNewChat={() => setShowNewChatModal(true)}
           onRenameChat={handleRenameChat}
           onDeleteChat={handleDeleteChat}
+          onShowSubscription={() => setShowSubscription(true)}
         />
       ) : (
         <ChatWindow

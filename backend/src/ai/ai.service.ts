@@ -1,6 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import OpenAI from 'openai';
+import { Injectable, Logger } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import OpenAI from "openai";
 
 @Injectable()
 export class AiService {
@@ -8,10 +8,12 @@ export class AiService {
   private openai: OpenAI;
 
   constructor(private configService: ConfigService) {
-    const apiKey = this.configService.get<string>('OPENAI_API_KEY');
-    
+    const apiKey = this.configService.get<string>("OPENAI_API_KEY");
+
     if (!apiKey) {
-      this.logger.warn('OpenAI API key not configured. AI features will not work.');
+      this.logger.warn(
+        "OpenAI API key not configured. AI features will not work.",
+      );
     } else {
       this.openai = new OpenAI({
         apiKey: apiKey,
@@ -20,16 +22,21 @@ export class AiService {
   }
 
   private sanitizeTemperature(temperature?: number): number {
-    const fallback = parseFloat(this.configService.get<string>('OPENAI_TEMPERATURE') || '0.7');
-    if (typeof temperature !== 'number' || isNaN(temperature)) return fallback;
+    const fallback = parseFloat(
+      this.configService.get<string>("OPENAI_TEMPERATURE") || "0.7",
+    );
+    if (typeof temperature !== "number" || isNaN(temperature)) return fallback;
     if (temperature < 0) return 0;
     if (temperature > 2) return 2;
     return temperature;
   }
 
   private sanitizeMaxTokens(maxTokens?: number): number {
-    const fallback = parseInt(this.configService.get<string>('OPENAI_MAX_TOKENS') || '1000', 10);
-    if (typeof maxTokens !== 'number' || isNaN(maxTokens)) return fallback;
+    const fallback = parseInt(
+      this.configService.get<string>("OPENAI_MAX_TOKENS") || "1000",
+      10,
+    );
+    if (typeof maxTokens !== "number" || isNaN(maxTokens)) return fallback;
     if (maxTokens < 1) return 1;
     if (maxTokens > 4000) return 4000; // guardrail
     return maxTokens;
@@ -45,7 +52,7 @@ export class AiService {
     const trimmed: Array<{ role: string; content: string }> = [];
     for (let i = contextMessages.length - 1; i >= 0; i--) {
       const msg = contextMessages[i];
-      const len = (msg.content || '').length;
+      const len = (msg.content || "").length;
       if (total + len > approxContextCharLimit && trimmed.length > 0) break;
       total += len;
       trimmed.push(msg);
@@ -54,24 +61,32 @@ export class AiService {
 
     const sys =
       systemPrompt ||
-      'You are a helpful AI assistant in a Telegram Mini App. Be concise and friendly.';
+      "You are a helpful AI assistant in a Telegram Mini App. Be concise and friendly.";
 
-    return [
-      { role: 'system', content: sys },
-      ...trimmed,
-    ] as Array<{ role: 'system' | 'user' | 'assistant'; content: string }>;
+    return [{ role: "system", content: sys }, ...trimmed] as Array<{
+      role: "system" | "user" | "assistant";
+      content: string;
+    }>;
   }
 
   async chat(
     messages: Array<{ role: string; content: string }>,
-    options?: { systemPrompt?: string; temperature?: number; maxTokens?: number; model?: string },
+    options?: {
+      systemPrompt?: string;
+      temperature?: number;
+      maxTokens?: number;
+      model?: string;
+    },
   ): Promise<string> {
     if (!this.openai) {
-      throw new Error('OpenAI is not configured. Please set OPENAI_API_KEY in environment variables.');
+      throw new Error(
+        "OpenAI is not configured. Please set OPENAI_API_KEY in environment variables.",
+      );
     }
 
     try {
-      const defaultModel = this.configService.get<string>('OPENAI_MODEL') || 'gpt-3.5-turbo';
+      const defaultModel =
+        this.configService.get<string>("OPENAI_MODEL") || "gpt-3.5-turbo";
       const model = options?.model || defaultModel;
       const temperature = this.sanitizeTemperature(options?.temperature);
       const max_tokens = this.sanitizeMaxTokens(options?.maxTokens);
@@ -87,7 +102,7 @@ export class AiService {
 
       return completion.choices[0].message.content;
     } catch (error) {
-      const message = (error as any)?.message || 'Unknown OpenAI error';
+      const message = (error as any)?.message || "Unknown OpenAI error";
       this.logger.error(`Error in AI chat: ${message}`);
       throw new Error(`AI chat error: ${message}`);
     }
@@ -100,22 +115,27 @@ export class AiService {
     modelOverride?: string,
   ): Promise<string> {
     if (!this.openai) {
-      throw new Error('OpenAI is not configured. Please set OPENAI_API_KEY in environment variables.');
+      throw new Error(
+        "OpenAI is not configured. Please set OPENAI_API_KEY in environment variables.",
+      );
     }
 
     try {
       // Use vision-capable model (gpt-4o or gpt-4-vision-preview)
-      const model = modelOverride && modelOverride.includes('4o') ? modelOverride : 'gpt-4o';
+      const model =
+        modelOverride && modelOverride.includes("4o")
+          ? modelOverride
+          : "gpt-4o";
       const temperature = this.sanitizeTemperature(0.7);
       const max_tokens = this.sanitizeMaxTokens(1000);
 
       // Build messages with image
       const visionMessages = [
         {
-          role: 'user',
+          role: "user",
           content: [
-            { type: 'text', text: prompt },
-            { type: 'image_url', image_url: { url: imageUrl } },
+            { type: "text", text: prompt },
+            { type: "image_url", image_url: { url: imageUrl } },
           ],
         },
       ];
@@ -129,10 +149,9 @@ export class AiService {
 
       return completion.choices[0].message.content;
     } catch (error) {
-      const message = (error as any)?.message || 'Unknown OpenAI error';
+      const message = (error as any)?.message || "Unknown OpenAI error";
       this.logger.error(`Error in AI vision: ${message}`);
       throw new Error(`AI vision error: ${message}`);
     }
   }
 }
-

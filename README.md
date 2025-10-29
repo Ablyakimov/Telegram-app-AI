@@ -1,5 +1,16 @@
 # Telegram AI Assistant Mini App
 
+## Database
+
+Default: SQLite (dev). Production uses PostgreSQL when `DATABASE_URL` is set.
+
+Environment variables:
+
+- `DATABASE_URL` (example: `postgres://app:app@postgres:5432/tg_ai_app`)
+- `DATABASE_SSL` (set to `true` if your Postgres requires SSL)
+
+Docker Compose includes a `postgres` service for local/production use.
+
 Telegram Mini App с AI ассистентом: React (Vite, Tailwind, FSD) + NestJS + OpenAI.
 
 ## Структура

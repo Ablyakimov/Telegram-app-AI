@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useModelsStore } from '@entities/model/modelsStore'
+import { useSubscriptionStore } from '@entities/subscription/model/subscriptionStore'
 
 function NewChatModal({ onClose, onCreate, defaultName }) {
   const { t } = useTranslation()
   const normalize = (s) => (s || '').replace(/№{2,}/g, '№').replace(/\s+/g, ' ').trim()
   const [chatName, setChatName] = useState(normalize(defaultName))
   const { models, fetch } = useModelsStore()
+  const { subscription, fetchSubscription } = useSubscriptionStore()
   const [selectedModel, setSelectedModel] = useState('gpt-3.5-turbo')
   const [prompt, setPrompt] = useState('')
   const [presetId, setPresetId] = useState('')
@@ -26,18 +28,79 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
 
   useEffect(() => {
     fetch()
-  }, [fetch])
+    fetchSubscription()
+  }, [fetch, fetchSubscription])
 
   useEffect(() => {
-    setChatName(normalize(defaultName))
-  }, [defaultName])
+    const normalized = normalize(defaultName)
+    if (normalized !== chatName) {
+      setChatName(normalized)
+    }
+  }, [defaultName, chatName])
+
+  const { availableModels, unavailableModels } = useMemo(() => {
+    const allModels = models.length ? models : [
+      { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo' },
+      { id: 'gpt-4o-mini', name: 'GPT-4o mini' },
+      { id: 'gpt-4o', name: 'GPT-4o' },
+      { id: 'gpt-4-turbo', name: 'GPT-4 Turbo' },
+    ]
+    
+    // If subscription is not loaded yet, default to free plan (only GPT-3.5)
+    if (!subscription) {
+      return { 
+        availableModels: allModels.filter(m => m.id === 'gpt-3.5-turbo'),
+        unavailableModels: allModels.filter(m => m.id !== 'gpt-3.5-turbo').map(m => ({ ...m, disabledReason: 'PRO required' }))
+      }
+    }
+    
+    const isFree = subscription.plan === 'free'
+    
+    const available = []
+    const unavailable = []
+    
+    allModels.forEach(m => {
+      // Free users can only use GPT-3.5
+      if (isFree && m.id !== 'gpt-3.5-turbo') {
+        unavailable.push({ ...m, disabledReason: 'PRO required' })
+      } else if (subscription.limits?.allowedModels && !subscription.limits.allowedModels.includes(m.id)) {
+        unavailable.push({ ...m, disabledReason: 'Not available' })
+      } else {
+        available.push(m)
+      }
+    })
+    
+    return { availableModels: available, unavailableModels: unavailable }
+  }, [subscription, models])
+
+  useEffect(() => {
+    if (availableModels.length > 0 && !availableModels.find(m => m.id === selectedModel)) {
+      const firstAvailable = availableModels[0].id
+      if (firstAvailable !== selectedModel) {
+        setSelectedModel(firstAvailable)
+      }
+    }
+  }, [availableModels, selectedModel])
+
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    if (chatName.trim()) {
-      onCreate({ name: chatName, aiModel: selectedModel, systemPrompt: prompt.trim() || undefined })
-      setChatName('')
+    if (!chatName.trim()) return
+    const isModelAvailable = availableModels.find(m => m.id === selectedModel)
+    if (!isModelAvailable) {
+      const tg = window.Telegram?.WebApp
+      const message = t('subscription.upgradeRequired')
+      
+      if (tg?.showAlert) {
+        tg.showAlert(message)
+      } else {
+        alert(message)
+      }
+      return
     }
+
+    onCreate({ name: chatName, aiModel: selectedModel, systemPrompt: prompt.trim() || undefined })
+    setChatName('')
   }
 
   return (
@@ -50,7 +113,21 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-5">
-          <h2 className="text-xl font-semibold">{t('chat.newChat')}</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-xl font-semibold">{t('chat.newChat')}</h2>
+            {subscription && (
+              <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                subscription.plan === 'pro' && subscription.expiresAt && new Date(subscription.expiresAt) > new Date()
+                  ? 'bg-blue-500/20 text-blue-500'
+                  : 'bg-gray-500/20 text-gray-500'
+              }`}>
+                {subscription.plan === 'pro' && subscription.expiresAt && new Date(subscription.expiresAt) > new Date()
+                  ? '⭐ PRO'
+                  : '🆓 FREE'
+                }
+              </span>
+            )}
+          </div>
           <button 
             className="w-8 h-8 border border-black/10 dark:border-white/10 rounded-full bg-transparent text-tg-hint text-[20px] flex items-center justify-center leading-none p-0 shadow-sm"
             onClick={onClose}
@@ -58,6 +135,7 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
             ×
           </button>
         </div>
+
         <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
           <input
             type="text"
@@ -85,15 +163,22 @@ function NewChatModal({ onClose, onCreate, defaultName }) {
                   onChange={(e) => setSelectedModel(e.target.value)}
                   className="w-full p-3 px-4 border border-black/5 dark:border-white/5 rounded-xl bg-tg-bg text-tg-text text-base outline-none"
                 >
-                  {(models.length ? models : [
-                    { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo' },
-                    { id: 'gpt-4o', name: 'GPT-4o' },
-                    { id: 'gpt-4o-mini', name: 'GPT-4o mini' },
-                    { id: 'gpt-4-turbo', name: 'GPT-4 Turbo' },
-                  ]).filter(m => m.enabled !== false).map((m) => (
-                    <option key={m.id} value={m.id}>{m.name}</option>
+                  {availableModels.filter(m => m.enabled !== false).map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name}
+                    </option>
                   ))}
                 </select>
+                {unavailableModels.length > 0 && subscription && subscription.plan === 'free' && (
+                  <div className="mt-2 p-3 bg-tg-secondary-bg/30 rounded-lg border border-black/5 dark:border-white/5">
+                    <p className="text-xs text-tg-hint mb-1.5">{t('subscription.lockedModels')}</p>
+                    <ul className="text-xs text-tg-hint space-y-0.5">
+                      {unavailableModels.map((m) => (
+                        <li key={m.id}>• {m.name}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
 
               <div>

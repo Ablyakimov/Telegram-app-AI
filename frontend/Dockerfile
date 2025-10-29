@@ -1,12 +1,13 @@
 # ---- Build stage ----
-FROM node:20-alpine AS builder
+FROM mirror.gcr.io/library/node:20-alpine AS builder
 WORKDIR /app
 
 # Copy package files (lockfile optional)
 COPY package*.json ./
 
-# Install dependencies
-RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
+# Install dependencies with memory limit
+RUN NODE_OPTIONS="--max-old-space-size=512" npm ci --prefer-offline --no-audit --progress=false || \
+    NODE_OPTIONS="--max-old-space-size=512" npm install --prefer-offline --no-audit --progress=false
 
 # Copy source code and config files
 COPY src ./src
@@ -15,11 +16,11 @@ COPY vite.config.js ./
 COPY tailwind.config.js ./
 COPY postcss.config.js ./
 
-# Build the application
-RUN npm run build
+# Build the application with memory limit
+RUN NODE_OPTIONS="--max-old-space-size=512" npm run build
 
 # ---- Development stage ----
-FROM node:20-alpine AS development
+FROM mirror.gcr.io/library/node:20-alpine AS development
 WORKDIR /app
 
 # Copy package files (lockfile optional)
@@ -42,7 +43,7 @@ EXPOSE 5173
 CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
 
 # ---- Production stage ----
-FROM nginx:alpine AS production
+FROM mirror.gcr.io/library/nginx:alpine AS production
 WORKDIR /usr/share/nginx/html
 
 # Copy built React app

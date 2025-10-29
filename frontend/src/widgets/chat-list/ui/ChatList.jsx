@@ -1,7 +1,7 @@
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-function ChatList({ chats, onSelectChat, onNewChat, onRenameChat, onDeleteChat }) {
+function ChatList({ chats, onSelectChat, onNewChat, onRenameChat, onDeleteChat, onShowSubscription }) {
   const { t } = useTranslation()
   const [openMenuChatId, setOpenMenuChatId] = useState(null)
   const [menuPosition, setMenuPosition] = useState({ top: 0, right: 0 })
@@ -38,11 +38,9 @@ function ChatList({ chats, onSelectChat, onNewChat, onRenameChat, onDeleteChat }
       setOpenMenuChatId(null)
       return
     }
-    
-    // Calculate menu position based on button position
     const rect = e.currentTarget.getBoundingClientRect()
     const position = {
-      top: rect.bottom + 4, // 4px below the button
+      top: rect.bottom + 4,
       right: window.innerWidth - rect.right
     }
     setMenuPosition(position)
@@ -54,15 +52,24 @@ function ChatList({ chats, onSelectChat, onNewChat, onRenameChat, onDeleteChat }
       <div className="px-4 pt-4 anim-fade-up">
         <div className="flex items-center justify-between bg-tg-secondary-bg/60 backdrop-blur rounded-2xl px-4 py-3 border border-black/5 dark:border-white/5 shadow-sm">
           <h1 className="text-lg font-semibold tracking-tight">Telegram Mini App</h1>
-          <button 
-            className="w-9 h-9 rounded-full bg-tg-button text-tg-button-text flex items-center justify-center active:opacity-80 transition border border-black/10 dark:border-white/10 shadow-md shadow-black/10"
-            onClick={onNewChat}
-            aria-label="Create chat"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-            </svg>
-          </button>
+          <div className="flex items-center gap-2">
+            <button 
+              className="w-9 h-9 rounded-full bg-tg-secondary-bg text-tg-text flex items-center justify-center active:opacity-80 transition border border-black/10 dark:border-white/10 shadow-sm"
+              onClick={onShowSubscription}
+              aria-label="Subscription"
+            >
+              ⭐
+            </button>
+            <button 
+              className="w-9 h-9 rounded-full bg-tg-button text-tg-button-text flex items-center justify-center active:opacity-80 transition border border-black/10 dark:border-white/10 shadow-md shadow-black/10"
+              onClick={onNewChat}
+              aria-label="Create chat"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -92,17 +99,15 @@ function ChatList({ chats, onSelectChat, onNewChat, onRenameChat, onDeleteChat }
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                     <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-[15px] font-medium leading-tight">{chat.name}</div>
-                  <div className="text-xs text-tg-hint overflow-hidden text-ellipsis whitespace-nowrap mt-0.5">
-                    {modelName(chat.aiModel)}
-                  </div>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-[15px] font-medium leading-tight">{chat.name}</div>
+                <div className="text-xs text-tg-hint overflow-hidden text-ellipsis whitespace-nowrap mt-0.5">
+                  {modelName(chat.aiModel)}
                 </div>
               </div>
-              
-              {/* Three dots menu button */}
-              <button
+            </div>
+            <button
                 className="w-10 h-10 flex items-center justify-center text-tg-hint hover:bg-tg-secondary-bg rounded-full transition-colors ml-2 flex-shrink-0"
                 onClick={(e) => toggleMenu(e, chat.id)}
               >
@@ -118,16 +123,12 @@ function ChatList({ chats, onSelectChat, onNewChat, onRenameChat, onDeleteChat }
         )}
       </div>
 
-      {/* Dropdown menu - rendered outside scroll container with fixed positioning */}
       {openMenuChatId !== null && (
         <>
-          {/* Backdrop to close menu */}
           <div 
             className="fixed inset-0 z-[100]"
             onClick={() => setOpenMenuChatId(null)}
           />
-          
-          {/* Menu popup */}
           <div 
             className="fixed z-[110] bg-tg-bg border border-black/5 dark:border-white/5 rounded-xl shadow-lg overflow-hidden min-w-[180px] anim-dropdown"
             style={{ 
