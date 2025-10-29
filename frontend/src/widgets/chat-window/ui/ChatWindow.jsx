@@ -15,27 +15,22 @@ function ChatWindow({ chat, user, onBack }) {
     loadMessages(chat.id)
   }, [chat.id, loadMessages])
 
-  // Scroll to bottom when messages change or when entering chat
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
     }
   }, [messages, chat.id])
 
-  // Handle viewport height changes (mobile keyboard)
   useEffect(() => {
     const updateViewportHeight = () => {
       setViewportHeight(`${window.innerHeight}px`)
     }
 
-    // Set initial height
     updateViewportHeight()
 
-    // Listen for viewport changes (keyboard open/close)
     window.addEventListener('resize', updateViewportHeight)
     window.addEventListener('orientationchange', updateViewportHeight)
 
-    // Also listen for visual viewport changes if available (better mobile support)
     if (window.visualViewport) {
       const handleVisualViewportChange = () => {
         if (window.visualViewport) {
@@ -110,10 +105,8 @@ function ChatWindow({ chat, user, onBack }) {
   }
 
   const handleUploadFile = async (file) => {
-    console.log('📎 ChatWindow: uploading file', { name: file.name, type: file.type, size: file.size })
     try {
       await uploadFile(chat.id, file)
-      console.log('✅ ChatWindow: file uploaded successfully')
     } catch (error) {
       console.error('❌ ChatWindow: file upload error', error)
     }
