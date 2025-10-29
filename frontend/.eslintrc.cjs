@@ -30,7 +30,12 @@ module.exports = {
     'react/react-in-jsx-scope': 'off',
     'react-hooks/rules-of-hooks': 'error',
     'react-hooks/exhaustive-deps': 'warn',
-    'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+    'react-hooks/set-state-in-effect': 'warn',
+    stability-no-unused-vars': ['warn', { 
+      argsIgnorePattern: '^_',
+      varsIgnorePattern: '^_',
+      ignoreRestSiblings: true 
+    }],
     'no-console': ['warn', { allow: ['warn', 'error'] }],
   },
 };
