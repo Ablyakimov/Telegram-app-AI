@@ -186,20 +186,20 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
     }
   }
 
-    return (
+  return (
     <form className="p-3 px-4 pb-safe-offset-4 bg-tg-bg anim-fade-in" onSubmit={handleSubmit}>
       <div className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={handleAttachClick}
+      <button
+        type="button"
+        onClick={handleAttachClick}
           className="w-10 h-10 rounded-full bg-tg-secondary-bg text-tg-text/70 hover:text-tg-text flex items-center justify-center flex-shrink-0 active:scale-95 transition-all shadow-sm"
-          disabled={disabled}
-          aria-label="Attach file"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 12V7a5 5 0 0 0-10 0v9a3 3 0 1 0 6 0V8"/>
-          </svg>
-        </button>
+        disabled={disabled}
+        aria-label="Attach file"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M21 12V7a5 5 0 0 0-10 0v9a3 3 0 1 0 6 0V8"/>
+        </svg>
+      </button>
         <div className="flex items-center gap-3 bg-tg-secondary-bg rounded-full px-4 py-2 border border-black/10 dark:border-white/10 shadow-lg anim-scale-in flex-1">
           <input
             ref={fileInputRef}
@@ -208,17 +208,17 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
             onChange={handleFileChange}
           />
 
-          <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col">
             <TextareaAutosize
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
               onKeyDown={handleKeyPress}
               placeholder={t('chat.placeholder')}
-              disabled={disabled}
+          disabled={disabled}
               minRows={1}
               maxRows={4}
               className="w-full bg-transparent text-tg-text text-[15px] resize-none outline-none placeholder:text-tg-hint leading-5"
-            />
+        />
             {message.length > 0 && (() => {
               const isPro = subscription?.plan === 'pro' && subscription?.expiresAt && new Date(subscription.expiresAt) > new Date()
               const maxLength = isPro ? 4000 : 500
@@ -235,8 +235,8 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
                 </div>
               )
             })()}
-          </div>
-          <div className="relative w-10 h-10 flex items-center justify-center">
+      </div>
+      <div className="relative w-10 h-10 flex items-center justify-center">
         <button
           type="button"
           onClick={startRecognition}
@@ -281,7 +281,7 @@ function MessageInput({ onSend, onUpload, disabled, replying }) {
           </svg>
         </button>
           </div>
-        </div>
+      </div>
       </div>
     </form>
   )

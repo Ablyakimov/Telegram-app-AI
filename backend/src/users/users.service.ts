@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { User } from "./entities/user.entity";
+import { User, UserRole } from "./entities/user.entity";
 
 @Injectable()
 export class UsersService {
@@ -52,6 +52,7 @@ export class UsersService {
         id: userData.id,
         username: userData.username ?? null,
         firstName: userData.firstName || "",
+        role: UserRole.USER,
       });
       await this.usersRepository.save(user);
     }
@@ -61,5 +62,14 @@ export class UsersService {
 
   async findOne(id: number): Promise<User> {
     return this.usersRepository.findOne({ where: { id } });
+  }
+
+  async setRole(userId: number, role: string): Promise<User> {
+    const user = await this.findOne(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+    user.role = role as any;
+    return this.usersRepository.save(user);
   }
 }

@@ -7,10 +7,10 @@ import NewChatModal from '@features/new-chat/ui/NewChatModal'
 import { useUserStore } from '@entities/user/model/userStore'
 import { useChatsStore } from '@entities/chat/model/chatsStore'
 
-function ChatsPage() {
+function ChatsPage({ onNavigateToAdmin }) {
   const { t } = useTranslation()
   const [tg] = useState(() => window.Telegram?.WebApp)
-  const { user: storeUser, setUser } = useUserStore()
+  const { user: storeUser, setUser, fetchUser } = useUserStore()
   const { chats, fetchByUser, createChat, updateChatName, deleteChat } = useChatsStore()
   const [selectedChat, setSelectedChat] = useState(null)
   const [showNewChatModal, setShowNewChatModal] = useState(false)
@@ -66,6 +66,10 @@ function ChatsPage() {
       })
     }
   }, [tg, setUser])
+
+  useEffect(() => {
+    fetchUser()
+  }, [fetchUser])
 
   useEffect(() => {
     if (storeUser) {
@@ -143,6 +147,7 @@ function ChatsPage() {
           onRenameChat={handleRenameChat}
           onDeleteChat={handleDeleteChat}
           onShowSubscription={() => setShowSubscription(true)}
+          onNavigateToAdmin={onNavigateToAdmin}
         />
       ) : (
         <ChatWindow
