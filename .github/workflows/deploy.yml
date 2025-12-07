@@ -62,6 +62,7 @@ jobs:
             docker compose pull || true && \
             docker builder prune -f && \
             DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker compose build && \
-            docker compose up -d && \
-            docker compose --profile production up nginx -d \
+            docker compose up -d --remove-orphans && \
+            docker compose --profile production up nginx -d && \
+            echo 'Database volume preserved: ' && docker volume ls | grep pg_data || echo 'WARNING: pg_data volume not found!' \
           "
