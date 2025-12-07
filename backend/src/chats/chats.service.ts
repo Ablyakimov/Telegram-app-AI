@@ -1,8 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Chat } from './entities/chat.entity';
-import { CreateChatDto } from './dto/create-chat.dto';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { Chat } from "./entities/chat.entity";
+import { CreateChatDto } from "./dto/create-chat.dto";
 
 @Injectable()
 export class ChatsService {
@@ -16,7 +16,7 @@ export class ChatsService {
       name: createChatDto.name,
       userId: createChatDto.userId,
       messages: [],
-      aiModel: createChatDto.aiModel || 'gpt-3.5-turbo',
+      aiModel: createChatDto.aiModel || "gpt-3.5-turbo",
     });
     return this.chatsRepository.save(chat);
   }
@@ -24,7 +24,7 @@ export class ChatsService {
   async findByUserId(userId: number): Promise<Chat[]> {
     return this.chatsRepository.find({
       where: { userId },
-      order: { createdAt: 'DESC' },
+      order: { createdAt: "DESC" },
     });
   }
 
@@ -36,7 +36,11 @@ export class ChatsService {
     return chat;
   }
 
-  async addMessage(chatId: number, role: string, content: string): Promise<Chat> {
+  async addMessage(
+    chatId: number,
+    role: string,
+    content: string,
+  ): Promise<Chat> {
     const chat = await this.findOne(chatId);
     const message = {
       role,
@@ -52,27 +56,28 @@ export class ChatsService {
     return chat.messages;
   }
 
-  async updateName(chatId: number, newName: string, userId: number): Promise<Chat> {
+  async updateName(
+    chatId: number,
+    newName: string,
+    userId: number,
+  ): Promise<Chat> {
     const chat = await this.findOne(chatId);
-    
+
     // Verify ownership
     if (chat.userId !== userId) {
-      throw new NotFoundException('Chat not found or access denied');
+      throw new NotFoundException("Chat not found or access denied");
     }
-    
+
     chat.name = newName;
     return this.chatsRepository.save(chat);
   }
 
   async remove(chatId: number, userId: number): Promise<void> {
     const chat = await this.findOne(chatId);
-    
-    // Verify ownership
     if (chat.userId !== userId) {
-      throw new NotFoundException('Chat not found or access denied');
+      throw new NotFoundException("Chat not found or access denied");
     }
-    
+
     await this.chatsRepository.remove(chat);
   }
 }
-

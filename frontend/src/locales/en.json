@@ -24,7 +24,10 @@
     "chats": "AI Assistant",
     "chatTitle": "Chat title",
     "chatNumber": "Chat №",
-    "rename": "Rename"
+    "rename": "Rename",
+    "messageTooLong": "Message too long. Maximum {{maxLength}} characters allowed.",
+    "messageLimit": "{{current}}/{{max}} characters",
+    "duplicateMessage": "Duplicate message detected. Please wait a moment before sending the same message again."
   },
   "models": {
     "selectModel": "AI Model",
@@ -67,6 +70,36 @@
     "editorPrompt": "You are a professional editor and proofreader. Check the provided text: grammar, punctuation, style. Suggest improvements to clarity and structure, point out repetitions and weak arguments. Be specific and polite.",
     "wellness": "Wellness Consultant (info)",
     "wellnessPrompt": "Important: you are not a doctor and do not make diagnoses. You give general information about fitness, nutrition and mental health based on evidence-based data. For medical questions - see a doctor."
+  },
+  "subscription": {
+    "title": "Subscription",
+    "currentPlan": "Current Plan",
+    "plan": "Plan",
+    "plan_free": "Free",
+    "plan_pro": "PRO",
+    "expires": "Expires",
+    "freeMessagesLeft": "Free messages left",
+    "credits": "Credits",
+    "upgradePro": "Upgrade to PRO",
+    "proBenefits": "Unlimited messages, access to GPT-4 and other advanced models",
+    "buyPro": "Buy PRO for {{price}}/month",
+    "buyCredits": "Buy Credits",
+    "creditsInfo": "Use credits for additional messages when free limit is reached",
+    "buyCreditsAmount": "{{amount}} credits for {{price}}",
+    "creditsUnit": "credits",
+    "modelCosts": "Model Costs (per message)",
+    "loadError": "Failed to load subscription",
+    "proUpgradePrompt": "Upgrading to PRO plan...",
+    "proUpgradeSuccess": "Successfully upgraded to PRO!",
+    "proUpgradeError": "Failed to upgrade to PRO",
+    "creditsBuyPrompt": "Buying {{amount}} credits...",
+    "creditsBuySuccess": "Successfully bought {{amount}} credits!",
+    "creditsBuyError": "Failed to buy credits",
+    "upgradeRequired": "This model requires PRO subscription. Please upgrade or select GPT-3.5.",
+    "limitReached": "Monthly message limit reached. Please upgrade to PRO or buy credits.",
+    "upgradePrompt": "Open subscription page to upgrade?",
+    "freeModelHint": "⭐ Upgrade to PRO to unlock GPT-4 and other advanced models",
+    "lockedModels": "🔒 Locked models (upgrade to access):"
   }
 }
 
