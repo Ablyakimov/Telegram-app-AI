@@ -39,7 +39,7 @@ jobs:
             cd ${{ secrets.SSH_PROJECT_PATH }} && \
             git fetch origin $BRANCH && \
             (git rev-parse --verify $BRANCH && git checkout $BRANCH || git checkout -b $BRANCH) && \
-            git pull origin $BRANCH \
+            git reset --hard origin/$BRANCH \
           "
 
       - name: Build and restart containers
@@ -48,7 +48,7 @@ jobs:
             cd ${{ secrets.SSH_PROJECT_PATH }} && \
             git fetch origin $BRANCH && \
             (git rev-parse --verify $BRANCH && git checkout $BRANCH || git checkout -b $BRANCH) && \
-            git pull origin $BRANCH && \
+            git reset --hard origin/$BRANCH && \
             echo 'NODE_ENV=production' > .env && \
             echo 'DATABASE_URL=${{ secrets.DATABASE_URL }}' >> .env && \
             echo 'DATABASE_SSL=${{ secrets.DATABASE_SSL }}' >> .env && \
