@@ -66,9 +66,9 @@ services:
       - "8443:443"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - /etc/nginx/conf.d:/etc/nginx/conf.d:ro
-    command: >
-      sh -c "rm -f /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
+    entrypoint: >
+      sh -c "rm -f /etc/nginx/conf.d/default.conf && 
+             exec /docker-entrypoint.sh nginx -g 'daemon off;'"
     depends_on:
       - frontend
       - backend
