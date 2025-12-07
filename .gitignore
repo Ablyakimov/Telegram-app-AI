@@ -28,3 +28,8 @@ yarn-error.log*
 
 # Cache
 .npm-cache/
+
+# Database exports (sensitive data)
+database_dump.sql
+database_export.txt
+BROADCAST.md
